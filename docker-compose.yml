@@ -1,0 +1,13 @@
+version: "3.7"
+
+services:
+  api_backend_feminicidio:
+    container_name: api_backend_feminicidio
+    image: api_feminicidio
+    build:
+      dockerfile: ./Dockerfile
+      context: ./
+    restart: unless-stopped
+    ports:
+      - ${PORT_BACKEND}:${PORT_BACKEND}
+    env_file: .env
