@@ -1,3 +1,4 @@
+from urllib.parse import urlparse
 from fastapi import HTTPException
 import requests
 from fastapi.encoders import jsonable_encoder
@@ -133,7 +134,7 @@ async def find_sites_with_keywords():
 
     tags = await list_tags()
 
-    if (len(tags) == 0):
+    if len(tags) == 0:
         raise HTTPException(status_code=404, detail="Nenhuma tag cadastrada")
 
     all_tags = [tag.nome for tag in tags]
@@ -157,13 +158,16 @@ async def find_sites_with_keywords():
             href = result.get('href')
             if href and href.startswith('/url?q='):
                 url = href.split('/url?q=')[1].split('&sa=')[0]
-                if url not in found_sites:
-                    found_sites.append(url)
+                parsed_url = urlparse(url)
+                site_name = parsed_url.netloc.replace("www.", "").split(".")[0]
 
-    for site_found in found_sites:
+                if url not in found_sites:
+                    found_sites.append({'url': url, 'name': site_name})
+
+    for site_info in found_sites:
         await create_site(Site(
-            nome="teste",
-            link=site_found
+            nome=site_info['name'],
+            link=site_info['url']
         ))
 
     return found_sites

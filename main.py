@@ -16,7 +16,6 @@ app.include_router(bot_controllers, prefix="/api")
 app.include_router(tags_controller, prefix="/api")
 
 PORT = int(os.getenv("PORT_BACKEND", 8000))
-
 if __name__ == "__main__":
     uvicorn.run(
         "main:app",
