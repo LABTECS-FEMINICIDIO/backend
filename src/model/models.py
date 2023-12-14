@@ -22,3 +22,11 @@ class TagsModels(Base):
     id = Column(UUID(as_uuid=True), default=uuid.uuid4,
                 primary_key=True, index=True)
     nome = Column(String, unique=True)
+
+
+class VitimasModels(Base):
+    __tablename__ = "vitimas"
+
+    id = Column(UUID(as_uuid=True), default=uuid.uuid4,
+                primary_key=True, index=True)
+    nome = Column(String, unique=True)

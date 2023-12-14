@@ -126,8 +126,6 @@ def link_exists(link: str) -> bool:
 
     return existing_site is not None
 
-# TODO:
-
 
 async def find_sites_with_keywords():
     found_sites = []

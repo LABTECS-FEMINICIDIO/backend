@@ -2,6 +2,10 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import List, Optional
 from src.views.sites_view import create_site, list_sites, list_one_site, update_site, delete_site, find_sites_with_keywords
+import schedule
+import time
+import threading
+from datetime import datetime
 
 router = APIRouter()
 
@@ -44,3 +48,25 @@ async def update_site_controller(site_url: str, item: Site):
 @router.delete("/item/{site_url}", response_model=Site)
 async def delete_site_controller(site_url: str):
     return await delete_site(site_url)
+
+
+def job():
+    print(f"Executando a tarefa em: {datetime.now()}")
+
+
+def loop():
+    schedule.every(1).minutes.do(job)
+
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
+
+@router.post("/teste")
+async def teste():
+    schedule.clear()
+
+    loop_thread = threading.Thread(target=loop)
+    loop_thread.start()
+
+    return "oi"
