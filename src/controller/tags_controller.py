@@ -10,6 +10,11 @@ class Tag(BaseModel):
     nome: str
 
 
+@router.get("/ping/")
+async def ping():
+    return "pong"
+
+
 @router.post("/tag/", response_model=Tag)
 async def create_tag_controller(tag: Tag):
     return await create_tag(tag)
