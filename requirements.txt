@@ -23,3 +23,6 @@ starlette==0.27.0
 typing-extensions==4.8.0
 urllib3==2.1.0
 uvicorn==0.24.0.post1
+asyncio==3.4.3
+bcrypt==4.1.2
+python-jose==3.3.0

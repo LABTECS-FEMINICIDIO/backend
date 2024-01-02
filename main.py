@@ -3,6 +3,9 @@ import uvicorn
 from src.database.database import Base, engine
 from src.controller.bot_controller import router as bot_controllers
 from src.controller.tags_controller import router as tags_controller
+from src.controller.search_schedule_controller import router as search_schedule_controller
+from src.controller.usuarios_controller import router as usuarios_controller
+from src.controller.login_controller import router as login_router
 from dotenv import load_dotenv
 import os
 from fastapi.middleware.cors import CORSMiddleware
@@ -23,6 +26,9 @@ app.add_middleware(
 
 app.include_router(bot_controllers, prefix="/api")
 app.include_router(tags_controller, prefix="/api")
+app.include_router(search_schedule_controller, prefix="/api")
+app.include_router(usuarios_controller, prefix="/api")
+app.include_router(login_router, prefix="/api")
 
 PORT = int(os.getenv("PORT_BACKEND", 8000))
 if __name__ == "__main__":

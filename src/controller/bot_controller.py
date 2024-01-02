@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, BackgroundTasks
 from pydantic import BaseModel
 from typing import List, Optional
 from src.views.sites_view import create_site, list_sites, list_one_site, update_site, delete_site, find_sites_with_keywords
@@ -6,6 +6,9 @@ import schedule
 import time
 import threading
 from datetime import datetime
+from src.views.search_schedule_views import list_agendamento_pesquisas
+import asyncio
+import json
 
 router = APIRouter()
 
@@ -20,9 +23,62 @@ class Site(BaseModel):
 # TODO:
 
 
+def job():
+    print("entrei no job")
+    find_sites_with_keywords()
+    # current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # log_message = f"Executando a tarefa em: {current_time}"
+    # with open("log.txt", "a") as log_file:
+    #     log_file.write(log_message + "\n")
+
+
+async def loop():
+    tempo = await list_agendamento_pesquisas()
+
+    if tempo:
+        tempo_agendado = tempo[0].dias
+    else:
+        tempo_agendado = 1
+
+    # schedule.every(tempo_agendado).seconds.do(job)
+
+    while True:
+        # schedule.run_pending()
+        await find_sites_with_keywords()
+        time.sleep(tempo_agendado * 60)
+
+is_loop_running = False
+loop_task = None
+
+
+async def background_task():
+    global is_loop_running
+    while is_loop_running:
+        tempo = await list_agendamento_pesquisas()
+
+        if tempo:
+            tempo_agendado = tempo[0].dias
+        else:
+            tempo_agendado = 1
+
+        await find_sites_with_keywords()
+        await asyncio.sleep(tempo_agendado * 60)
+
+
 @router.get("/findSites/")
-async def find_sites():
-    return await find_sites_with_keywords()
+async def find_sites(background_tasks: BackgroundTasks):
+    global is_loop_running, loop_task
+
+    # Verifica se o loop está em execução e o interrompe
+    if is_loop_running:
+        is_loop_running = False
+        loop_task.cancel()
+
+    # Inicia um novo loop
+    is_loop_running = True
+    loop_task = asyncio.create_task(background_task())
+
+    return {"message": "Busca de sites agendada com sucesso!"}
 
 
 @router.post("/site/", response_model=Site)
@@ -50,23 +106,30 @@ async def delete_site_controller(site_url: str):
     return await delete_site(site_url)
 
 
-def job():
-    print(f"Executando a tarefa em: {datetime.now()}")
+# def job():
+#     print("oi papai")
 
 
-def loop():
-    schedule.every(1).minutes.do(job)
+# async def loop():
+#     tempo = await list_agendamento_pesquisas()
 
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
+#     if tempo:
+#         tempo_agendado = tempo[0].dias
+#     else:
+#         tempo_agendado = 1
+
+#     schedule.every(tempo_agendado).minutes.do(job)
+
+#     while True:
+#         schedule.run_pending()
+#         time.sleep(5)
 
 
-@router.post("/teste")
-async def teste():
-    schedule.clear()
+# @router.post("/teste")
+# async def teste():
+#     schedule.clear()
 
-    loop_thread = threading.Thread(target=loop)
-    loop_thread.start()
+#     loop_thread = threading.Thread(target=lambda: asyncio.run(loop()))
+#     loop_thread.start()
 
-    return "oi"
+#     return "oi"

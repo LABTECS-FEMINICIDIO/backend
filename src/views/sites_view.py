@@ -126,8 +126,11 @@ def link_exists(link: str) -> bool:
 
     return existing_site is not None
 
+# TODO: Criar CRUD para cadastrar periodo de busca, aqio eu vou listar o periodo de busca e procurar pelo periodo cadastrado
+
 
 async def find_sites_with_keywords():
+    print("entrei no find sites")
     found_sites = []
 
     tags = await list_tags()
@@ -142,7 +145,7 @@ async def find_sites_with_keywords():
     search_url = f'https://www.google.com/search?q={keywords}'
 
     response = requests.get(search_url)
-
+    print("google respondeu")
     if response.status_code == 200:
         soup = BeautifulSoup(response.text, 'html.parser')
 
