@@ -10,6 +10,8 @@ from src.database.database import engine
 from src.model.models import SitesModels
 from bs4 import BeautifulSoup
 from src.views.tags_view import list_tags
+from datetime import datetime
+import random
 
 
 class Site(BaseModel):
@@ -126,12 +128,21 @@ def link_exists(link: str) -> bool:
 
     return existing_site is not None
 
-# TODO: Criar CRUD para cadastrar periodo de busca, aqio eu vou listar o periodo de busca e procurar pelo periodo cadastrado
 
-
-async def find_sites_with_keywords():
+async def find_sites_with_keywords(tempo_agendado):
     print("entrei no find sites")
     found_sites = []
+
+    data = (str(datetime.now()).split(" ")[0].split("-"))
+
+    int(data[2]) - 2
+
+    data[2] = int(data[2]) - tempo_agendado
+
+    if data[2] < 10:
+        data[2] = "0"+str(data[2])
+    else:
+        data[2] = str(data[2])
 
     tags = await list_tags()
 
@@ -140,10 +151,15 @@ async def find_sites_with_keywords():
 
     all_tags = [tag.nome for tag in tags]
 
+    # acc = 0
+    # TODO: aparentemente embaralhar as tags não adianta muita coisa
+    # while acc < 4:
+    # print("tags novas", all_tags)
+    # print("data", data)
     keywords = "+".join(all_tags)
 
-    search_url = f'https://www.google.com/search?q={keywords}'
-
+    search_url = f'https://www.google.com/search?q={keywords}+after%3A{data[0]}%2F{data[1]}%2F{data[2]}'
+    print("url", search_url)
     response = requests.get(search_url)
     print("google respondeu")
     if response.status_code == 200:
@@ -160,7 +176,8 @@ async def find_sites_with_keywords():
             if href and href.startswith('/url?q='):
                 url = href.split('/url?q=')[1].split('&sa=')[0]
                 parsed_url = urlparse(url)
-                site_name = parsed_url.netloc.replace("www.", "").split(".")[0]
+                site_name = parsed_url.netloc.replace(
+                    "www.", "").split(".")[0]
 
                 if url not in found_sites:
                     found_sites.append({'url': url, 'name': site_name})
@@ -170,5 +187,9 @@ async def find_sites_with_keywords():
             nome=site_info['name'],
             link=site_info['url']
         ))
+
+    # random.shuffle(all_tags)
+    # print("embaralhando", all_tags)
+    # acc += 1
 
     return found_sites

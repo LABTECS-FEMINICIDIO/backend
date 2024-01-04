@@ -61,7 +61,7 @@ async def background_task():
         else:
             tempo_agendado = 1
 
-        await find_sites_with_keywords()
+        await find_sites_with_keywords(tempo_agendado=tempo_agendado)
         await asyncio.sleep(tempo_agendado * 60)
 
 
