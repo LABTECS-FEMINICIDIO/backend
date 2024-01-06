@@ -9,16 +9,32 @@ from datetime import datetime
 from src.views.search_schedule_views import list_agendamento_pesquisas
 import asyncio
 import json
+from uuid import UUID
+from src.model.models import VitimasModels
 
 router = APIRouter()
 
 
+class Vitima(BaseModel):
+    id: UUID
+    nome: str
+    idade: int
+    rua: str
+    armaUsada: str
+    site_id: UUID
+
+
 class Site(BaseModel):
+    id: UUID
     nome: str
     link: str
     conteudo: Optional[str] = None
     feminicidio: Optional[bool] = None
     lido: Optional[bool] = None
+    vitimas: List[Vitima]
+
+    class Config:
+        arbitrary_types_allowed = True
 
 # TODO:
 

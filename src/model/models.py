@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from src.database.database import Base
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 
 
 class SitesModels(Base):
@@ -15,6 +16,22 @@ class SitesModels(Base):
     feminicidio = Column(Boolean, nullable=True)
     lido = Column(Boolean, nullable=True, default=False)
 
+    vitimas = relationship('VitimasModels', back_populates='site')
+
+
+class VitimasModels(Base):
+    __tablename__ = "vitimas"
+
+    id = Column(UUID(as_uuid=True), default=uuid.uuid4,
+                primary_key=True, index=True)
+    nome = Column(String)
+    idade = Column(Integer)
+    rua = Column(String)
+    armaUsada = Column(String)
+
+    site_id = Column(UUID(as_uuid=True), ForeignKey('sites.id'))
+    site = relationship('SitesModels', back_populates='vitimas')
+
 
 class TagsModels(Base):
     __tablename__ = "tags"
@@ -24,24 +41,12 @@ class TagsModels(Base):
     nome = Column(String, unique=True)
 
 
-class VitimasModels(Base):
-    __tablename__ = "vitimas"
-
-    id = Column(UUID(as_uuid=True), default=uuid.uuid4,
-                primary_key=True, index=True)
-    nome = Column(String, unique=True)
-
-# Fazer a pesquisa de 2 em 2 dias por exemplo, aqui devo salvar o tempo em irei fazer as buscas
-
-
 class AgendamentoPesquisaModels(Base):
     __tablename__ = "agendamentoPesquisa"
 
     id = Column(UUID(as_uuid=True), default=uuid.uuid4,
                 primary_key=True, index=True)
     dias = Column(Integer, unique=True)
-
-# Aqui irei colocar o tempo em que olharei para "atras" na pesquisa, por exemplo, quero ver até notícias de 2 dias atrás
 
 
 class PeriodoPesquisaModels(Base):

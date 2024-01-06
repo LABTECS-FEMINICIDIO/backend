@@ -4,14 +4,15 @@ import requests
 from fastapi.encoders import jsonable_encoder
 from psycopg2 import IntegrityError
 from pydantic import BaseModel
-from sqlalchemy.orm import sessionmaker
-from typing import List, Optional
+from sqlalchemy.orm import sessionmaker, joinedload
+from typing import List, Optional, Union
 from src.database.database import engine
 from src.model.models import SitesModels
 from bs4 import BeautifulSoup
 from src.views.tags_view import list_tags
 from datetime import datetime
 import random
+import json
 
 
 class Site(BaseModel):
@@ -57,7 +58,9 @@ async def create_site(site: Site):
 async def list_sites():
     db = sessionmaker(bind=engine)
     db_session = db()
-    sites = db_session.query(SitesModels).all()
+
+    sites = db_session.query(SitesModels).options(
+        joinedload(SitesModels.vitimas)).all()
     db_session.close()
     return sites
 
