@@ -86,11 +86,11 @@ async def update_tag(nome_tag: str, tag: Tag):
     return updated_tag
 
 
-async def delete_tag(url_tag: str):
+async def delete_tag(tag: str):
     db = sessionmaker(bind=engine)
     db_session = db()
     db_tag = db_session.query(TagsModels).filter(
-        TagsModels.link == url_tag).first()
+        TagsModels.nome == tag).first()
     if db_tag is None:
         db_session.close()
         raise HTTPException(status_code=404, detail="Tag not found")
