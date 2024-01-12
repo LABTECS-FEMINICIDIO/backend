@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException
-from typing import List
+from typing import List, Optional
 from uuid import UUID
+
+from pydantic import BaseModel
 from src.views.usuarios_views import (
     create_user,
     list_users,
@@ -14,6 +16,15 @@ from src.views.usuarios_views import Usuario
 router = APIRouter()
 
 
+class ListUsuario(BaseModel):
+    id: Optional[UUID]
+    nome: str
+    email: str
+    telefone: str
+    senha: Optional[str] = None
+    acesso: Optional[bool] = None
+
+
 @router.post("/usuarios/", response_model=Usuario)
 async def create_user_controller(user: Usuario):
     try:
@@ -22,7 +33,7 @@ async def create_user_controller(user: Usuario):
         return e
 
 
-@router.get("/usuarios/", response_model=List[Usuario])
+@router.get("/usuarios/", response_model=List[ListUsuario])
 async def list_users_controller():
     return await list_users()
 

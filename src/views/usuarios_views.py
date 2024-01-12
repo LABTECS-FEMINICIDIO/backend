@@ -12,6 +12,14 @@ from uuid import UUID
 
 
 class Usuario(BaseModel):
+    nome: str
+    email: str
+    telefone: str
+    senha: Optional[str] = None
+    acesso: Optional[bool] = None
+
+
+class ListUsuario(BaseModel):
     id: Optional[UUID]
     nome: str
     email: str
