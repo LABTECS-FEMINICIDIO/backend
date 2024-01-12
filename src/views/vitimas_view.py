@@ -27,11 +27,13 @@ async def create_vitima(vitima: Vitima):
 
 
 async def list_vitimas():
+    db = sessionmaker(bind=engine)
     vitimas = db.query(VitimasModels).all()
     return jsonable_encoder(vitimas)
 
 
 async def list_one_vitima(vitima_id: UUID):
+    db = sessionmaker(bind=engine)
     vitima = db.query(VitimasModels).filter(
         VitimasModels.id == vitima_id).first()
     if vitima is None:
@@ -40,6 +42,7 @@ async def list_one_vitima(vitima_id: UUID):
 
 
 async def update_vitima(vitima_id: UUID, vitima: Vitima):
+    db = sessionmaker(bind=engine)
     db_vitima = db.query(VitimasModels).filter(
         VitimasModels.id == vitima_id).first()
     if db_vitima is None:
@@ -55,6 +58,7 @@ async def update_vitima(vitima_id: UUID, vitima: Vitima):
 
 
 async def delete_vitima(vitima_id: UUID, ):
+    db = sessionmaker(bind=engine)
     db_vitima = db.query(VitimasModels).filter(
         VitimasModels.id == vitima_id).first()
     if db_vitima is None:
