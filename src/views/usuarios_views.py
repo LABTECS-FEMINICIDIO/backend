@@ -8,9 +8,11 @@ from typing import List, Optional
 import uuid
 from pydantic import BaseModel
 import bcrypt
+from uuid import UUID
 
 
 class Usuario(BaseModel):
+    id: Optional[UUID]
     nome: str
     email: str
     telefone: str
@@ -93,7 +95,13 @@ async def update_user(user_id: uuid.UUID, user: Usuario):
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
 
     for key, value in user.model_dump().items():
-        setattr(db_user, key, value)
+        if key == "senha":
+            salt = bcrypt.gensalt()
+            hashed_password = bcrypt.hashpw(value.encode('utf-8'), salt)
+            decoded_password = hashed_password.decode('utf-8')
+            setattr(db_user, key, decoded_password)
+        else:
+            setattr(db_user, key, value)
 
     db_session.commit()
 
@@ -104,6 +112,33 @@ async def update_user(user_id: uuid.UUID, user: Usuario):
     updated_user = jsonable_encoder(db_user)
 
     return updated_user
+
+
+async def reset_user_password(user_id: uuid.UUID):
+    db = sessionmaker(bind=engine)
+    db_session = db()
+
+    try:
+        db_user = db_session.query(UsuariosModels).filter(
+            UsuariosModels.id == user_id).first()
+
+        if db_user is None:
+            raise HTTPException(
+                status_code=404, detail="Usuário não encontrado")
+
+        default_password = f"{db_user.nome[:3]}{db_user.telefone[:3]}"
+        db_user.password = default_password
+
+        db_session.commit()
+        db_session.refresh(db_user)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db_session.close()
+
+    return {
+        "message": "Senha resetada com sucesso!"
+    }
 
 
 async def delete_user(user_id: uuid.UUID):

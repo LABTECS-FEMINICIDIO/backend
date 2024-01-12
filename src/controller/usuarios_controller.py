@@ -5,6 +5,7 @@ from src.views.usuarios_views import (
     create_user,
     list_users,
     list_one_user,
+    reset_user_password,
     update_user,
     delete_user
 )
@@ -46,5 +47,13 @@ async def update_user_controller(user_id: UUID, user: Usuario):
 async def delete_user_controller(user_id: UUID):
     try:
         return await delete_user(user_id)
+    except HTTPException as e:
+        return e
+
+
+@router.post("/usuarios/reset/{user_id}")
+async def reset_use_password_controller(user_id: UUID):
+    try:
+        return await reset_user_password(user_id)
     except HTTPException as e:
         return e
