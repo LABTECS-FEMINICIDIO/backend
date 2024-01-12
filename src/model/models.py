@@ -67,3 +67,4 @@ class UsuariosModels(Base):
     telefone = Column(String)
     senha = Column(String)
     acesso = Column(Boolean)
+    perfil = Column(String)

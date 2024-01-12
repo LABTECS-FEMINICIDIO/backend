@@ -67,10 +67,14 @@ async def login_for_access_token(login_data: LoginRequest):
     db_session.close()
 
     if user_db is None or not bcrypt.checkpw(login_data.senha.encode('utf-8'), user_db.senha.encode('utf-8')):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise HTTPException(status_code=401, detail="Credenciais inválidas.")
+
+    if user_db.acesso == False:
+        raise HTTPException(
+            status_code=401, detail="Você está sem permissão de acesso ao sistema.")
 
     # If the user exists and the password is correct, create a token
-    token_data = {"sub": login_data.email}
+    token_data = {"sub": {"email": login_data.email, "perfil": user_db.perfil}}
     token = create_jwt_token(token_data)
 
     return {"access_token": token, "token_type": "bearer"}
