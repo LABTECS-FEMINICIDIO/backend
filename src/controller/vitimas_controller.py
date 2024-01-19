@@ -2,7 +2,7 @@ from uuid import UUID
 from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import List, Optional
-from src.views.vitimas_view import create_vitima
+from src.views.vitimas_view import create_vitima, list_vitimas
 router = APIRouter()
 
 
@@ -11,7 +11,7 @@ class Vitima(BaseModel):
     idade: int
     rua: str
     armaUsada: str
-    site_id: UUID
+    sites: Optional[List[UUID]] = []
 
 
 @router.post("/vitimas/", response_model=Vitima)
@@ -19,9 +19,9 @@ async def create_vitimas_controller(vitima: Vitima):
     return await create_vitima(vitima)
 
 
-# @router.get("/tag/", response_model=List[Tag])
-# async def list_tags_controller():
-#     return await list_tags()
+@router.get("/vitimas/")
+async def list_tags_controller():
+    return await list_vitimas()
 
 
 # @router.get("/tag/{tag_name}", response_model=Tag)

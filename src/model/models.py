@@ -15,8 +15,11 @@ class SitesModels(Base):
     conteudo = Column(String, nullable=True)
     feminicidio = Column(Boolean, nullable=True)
     lido = Column(Boolean, nullable=True, default=False)
+    classificacao = Column(Integer, nullable=True)
 
-    vitimas = relationship('VitimasModels', back_populates='site')
+    vitima_id = Column(UUID(as_uuid=True), ForeignKey(
+        'vitimas.id'), nullable=True)
+    vitima = relationship('VitimasModels', back_populates='sites')
 
 
 class VitimasModels(Base):
@@ -29,8 +32,7 @@ class VitimasModels(Base):
     rua = Column(String)
     armaUsada = Column(String)
 
-    site_id = Column(UUID(as_uuid=True), ForeignKey('sites.id'))
-    site = relationship('SitesModels', back_populates='vitimas')
+    sites = relationship('SitesModels', back_populates='vitima')
 
 
 class TagsModels(Base):
@@ -68,3 +70,15 @@ class UsuariosModels(Base):
     senha = Column(String)
     acesso = Column(Boolean)
     perfil = Column(String)
+
+
+class ImlModels(Base):
+    __tablename__ = "iml"
+    id = Column(UUID(as_uuid=True), default=uuid.uuid4,
+                primary_key=True, index=True)
+    dataEntrada = Column(String, nullable=True)
+    horaEntrada = Column(String, nullable=True)
+    sexo = Column(String, nullable=True)
+    idade = Column(String, nullable=True)
+    bairroDaRemocao = Column(String, nullable=True)
+    causaMorte = Column(String, nullable=True)

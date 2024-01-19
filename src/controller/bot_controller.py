@@ -1,7 +1,7 @@
 from fastapi import APIRouter, BackgroundTasks
 from pydantic import BaseModel
 from typing import List, Optional
-from src.views.sites_view import create_site, list_sites, list_one_site, update_site, delete_site, find_sites_with_keywords
+from src.views.sites_view import create_site, iml_screapper, list_iml, list_sites, list_one_site, update_site, delete_site, find_sites_with_keywords
 import schedule
 import time
 import threading
@@ -11,7 +11,7 @@ import asyncio
 import json
 from uuid import UUID
 from src.model.models import VitimasModels
-
+from typing import Dict
 router = APIRouter()
 
 
@@ -21,7 +21,7 @@ class Vitima(BaseModel):
     idade: int
     rua: str
     armaUsada: str
-    site_id: UUID
+    # site_id: UUID
 
 
 class Site(BaseModel):
@@ -31,21 +31,27 @@ class Site(BaseModel):
     conteudo: Optional[str] = None
     feminicidio: Optional[bool] = None
     lido: Optional[bool] = None
-    vitimas: List[Vitima]
+    vitima: Optional[Vitima] = None
 
     class Config:
         arbitrary_types_allowed = True
 
-# TODO:
+
+class UpdateSite(BaseModel):
+    nome: Optional[str]
+    link: Optional[str]
+    conteudo: Optional[str]
+    feminicidio: Optional[bool]
+    lido: Optional[bool]
+    vitimas: Optional[Vitima]
 
 
 def job():
-    print("entrei no job")
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log_message = f"Executando a tarefa em: {current_time}"
+    with open("log.txt", "a") as log_file:
+        log_file.write(log_message + "\n")
     find_sites_with_keywords()
-    # current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    # log_message = f"Executando a tarefa em: {current_time}"
-    # with open("log.txt", "a") as log_file:
-    #     log_file.write(log_message + "\n")
 
 
 async def loop():
@@ -82,7 +88,7 @@ async def background_task():
 
 
 @router.get("/findSites/")
-async def find_sites(background_tasks: BackgroundTasks):
+async def find_sites():
     global is_loop_running, loop_task
 
     # Verifica se o loop está em execução e o interrompe
@@ -112,40 +118,50 @@ async def list_one_site_controller(site_url: str):
     return await list_one_site(site_url)
 
 
-@router.patch("/site/{site_url}", response_model=Site)
-async def update_site_controller(site_url: str, item: Site):
-    return await update_site(site_url, item)
+@router.patch("/site/{siteId}")
+async def update_site_controller(siteId: str, item: Dict):
+    return await update_site(siteId, item)
 
 
-@router.delete("/item/{site_url}", response_model=Site)
-async def delete_site_controller(site_url: str):
-    return await delete_site(site_url)
+@router.delete("/item/{siteId}", response_model=Site)
+async def delete_site_controller(siteId: str):
+    return await delete_site(siteId)
 
 
-# def job():
-#     print("oi papai")
+is_loop_running_iml = False
+loop_task_iml = None
 
 
-# async def loop():
-#     tempo = await list_agendamento_pesquisas()
+async def background_task_iml():
+    global is_loop_running_iml
+    while is_loop_running_iml:
+        tempo = await list_agendamento_pesquisas()
 
-#     if tempo:
-#         tempo_agendado = tempo[0].dias
-#     else:
-#         tempo_agendado = 1
+        if tempo:
+            tempo_agendado = tempo[0].dias
+        else:
+            tempo_agendado = 1
 
-#     schedule.every(tempo_agendado).minutes.do(job)
-
-#     while True:
-#         schedule.run_pending()
-#         time.sleep(5)
+        await iml_screapper()
+        await asyncio.sleep(tempo_agendado * 60)
 
 
-# @router.post("/teste")
-# async def teste():
-#     schedule.clear()
+@router.get("/iml/")
+async def find_iml():
+    global is_loop_running_iml, loop_task_iml
 
-#     loop_thread = threading.Thread(target=lambda: asyncio.run(loop()))
-#     loop_thread.start()
+    # Verifica se o loop está em execução e o interrompe
+    if is_loop_running_iml:
+        is_loop_running_iml = False
+        loop_task_iml.cancel()
 
-#     return "oi"
+    # Inicia um novo loop
+    is_loop_running_iml = True
+    loop_task_iml = asyncio.create_task(background_task_iml())
+
+    return {"message": "Busca de dados no iml agendada com sucesso!"}
+
+
+@router.get("/imlData/")
+async def find_iml_data():
+    return list_iml()

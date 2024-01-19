@@ -1,11 +1,12 @@
 from fastapi import HTTPException, Depends
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from src.database.database import engine
 from src.model.models import VitimasModels
 from pydantic import BaseModel
 from sqlalchemy.orm import sessionmaker
 from uuid import UUID
+from typing import List, Optional
 
 
 class Vitima(BaseModel):
@@ -13,7 +14,6 @@ class Vitima(BaseModel):
     idade: int
     rua: str
     armaUsada: str
-    site_id: UUID
 
 
 async def create_vitima(vitima: Vitima):
@@ -28,7 +28,10 @@ async def create_vitima(vitima: Vitima):
 
 async def list_vitimas():
     db = sessionmaker(bind=engine)
-    vitimas = db.query(VitimasModels).all()
+    db_session = db()
+    vitimas = db_session.query(VitimasModels).options(
+        joinedload(VitimasModels.sites)).all()
+
     return jsonable_encoder(vitimas)
 
 

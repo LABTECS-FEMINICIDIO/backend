@@ -1,3 +1,4 @@
+from typing import Dict
 from urllib.parse import urlparse
 from fastapi import HTTPException
 import requests
@@ -7,7 +8,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import sessionmaker, joinedload
 from typing import List, Optional, Union
 from src.database.database import engine
-from src.model.models import SitesModels
+from src.model.models import SitesModels, ImlModels
 from bs4 import BeautifulSoup
 from src.views.tags_view import list_tags
 from datetime import datetime
@@ -21,6 +22,7 @@ class Site(BaseModel):
     conteudo: Optional[str] = None
     feminicidio: Optional[bool] = None
     lido: Optional[bool] = False
+    vitima: Optional[Dict] = None
 
 
 class SiteUpdate(BaseModel):
@@ -29,6 +31,15 @@ class SiteUpdate(BaseModel):
     conteudo: Optional[str] = None
     feminicidio: Optional[bool] = None
     lido: Optional[bool] = None
+
+
+class Iml(BaseModel):
+    dataEntrada: Optional[str] = None
+    horaEntrada: Optional[str] = None
+    sexo: Optional[str] = None
+    idade: Optional[str] = None
+    bairroDaRemocao: Optional[str] = None
+    causaMorte: Optional[str] = None
 
 
 async def create_site(site: Site):
@@ -60,7 +71,7 @@ async def list_sites():
     db_session = db()
 
     sites = db_session.query(SitesModels).options(
-        joinedload(SitesModels.vitimas)).all()
+        joinedload(SitesModels.vitima)).all()
     db_session.close()
     return sites
 
@@ -82,24 +93,23 @@ async def list_one_site(url_site: str):
     return site
 
 
-async def update_site(url_site: str, site: SiteUpdate):
+async def update_site(siteId: str, site_data: Dict):
     db = sessionmaker(bind=engine)
     db_session = db()
 
     db_site = db_session.query(SitesModels).filter(
-        SitesModels.nome == url_site).first()
+        SitesModels.id == siteId).first()
 
     if db_site is None:
         db_session.close()
         raise HTTPException(status_code=404, detail="Site not found")
 
-    for key, value in site.model_dump().items():
-        setattr(db_site, key, value)
+    for key, value in site_data.items():
+        if hasattr(db_site, key):
+            setattr(db_site, key, value)
 
     db_session.commit()
-
     db_session.refresh(db_site)
-
     db_session.close()
 
     updated_site = jsonable_encoder(db_site)
@@ -107,11 +117,11 @@ async def update_site(url_site: str, site: SiteUpdate):
     return updated_site
 
 
-async def delete_site(url_site: str):
+async def delete_site(siteId: str):
     db = sessionmaker(bind=engine)
     db_session = db()
     db_site = db_session.query(SitesModels).filter(
-        SitesModels.link == url_site).first()
+        SitesModels.id == siteId).first()
     if db_site is None:
         db_session.close()
         raise HTTPException(status_code=404, detail="Site not found")
@@ -130,6 +140,19 @@ def link_exists(link: str) -> bool:
     db_session.close()
 
     return existing_site is not None
+
+
+async def fetch_content(url):
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            return BeautifulSoup(response.text, 'html.parser').prettify()
+        else:
+            print(f"Failed to fetch content from '{url}'")
+            return None
+    except Exception as e:
+        print(f"Error fetching content from '{url}': {str(e)}")
+        return None
 
 
 async def find_sites_with_keywords(tempo_agendado):
@@ -154,11 +177,6 @@ async def find_sites_with_keywords(tempo_agendado):
 
     all_tags = [tag.nome for tag in tags]
 
-    # acc = 0
-    # TODO: aparentemente embaralhar as tags não adianta muita coisa
-    # while acc < 4:
-    # print("tags novas", all_tags)
-    # print("data", data)
     keywords = "+".join(all_tags)
 
     search_url = f'https://www.google.com/search?q={keywords}+after%3A{data[0]}%2F{data[1]}%2F{data[2]}'
@@ -186,13 +204,109 @@ async def find_sites_with_keywords(tempo_agendado):
                     found_sites.append({'url': url, 'name': site_name})
 
     for site_info in found_sites:
+        content = await fetch_content(site_info['url'])
+
         await create_site(Site(
             nome=site_info['name'],
-            link=site_info['url']
+            link=site_info['url'],
+            conteudo=content
         ))
-
-    # random.shuffle(all_tags)
-    # print("embaralhando", all_tags)
-    # acc += 1
+        print('criei o site')
 
     return found_sites
+
+
+async def iml_screapper():
+
+    search_url = f'https://docs.google.com/spreadsheets/d/1y_KpXEZSOsIu8LHfie5-Uon3VkG_PBew5hm_C63EDUQ/edit#gid=0'
+
+    response = requests.get(search_url)
+    print('iml respondeu', response.status_code)
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        # for script in soup(['script']):
+        #    script.extract()
+
+        table = soup.find('table')
+
+        if table:
+            for row in table.find_all('tr'):
+
+                cells = row.find_all('td')
+                content = []
+                if cells:
+                    for cell in cells:
+                        content.append(cell.text)
+
+                    print(content)
+                    if content[0] != "DATA DE ENTRADA":
+
+                        if not check_if_all_array_items_is_blank(content):
+                            print(1)
+                            if not is_duplicate_record(content):
+                                await create_iml(Iml(
+                                    dataEntrada=content[0],
+                                    horaEntrada=content[1],
+                                    sexo=content[2],
+                                    idade=content[3],
+                                    bairroDaRemocao=content[4],
+                                    causaMorte=content[5]
+                                ))
+
+    else:
+        print(response)
+
+
+async def create_iml(iml: Iml):
+    db_iml = ImlModels(**iml.model_dump())
+
+    db = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    db_session = db()
+
+    try:
+        db_session.add(db_iml)
+        db_session.commit()
+        db_session.refresh(db_iml)
+    except IntegrityError:
+        db_session.rollback()
+        raise HTTPException(
+            status_code=409, detail={"message": "O registro já existe."}
+        )
+    finally:
+        db_session.close()
+
+    return iml
+
+
+def check_if_all_array_items_is_blank(arr):
+    if isinstance(arr, list):
+        is_all_blank = all(element == "" for element in arr)
+        return is_all_blank
+
+
+def list_iml():
+    db = sessionmaker(bind=engine)
+    db_session = db()
+
+    iml_data = db_session.query(ImlModels).all()
+    db_session.close()
+    return iml_data
+
+
+def is_duplicate_record(content):
+    db = sessionmaker(bind=engine)
+    db_session = db()
+
+    existing_record = db_session.query(Iml).filter_by(
+        dataEntrada=content[0],
+        horaEntrada=content[1],
+        sexo=content[2],
+        idade=content[3],
+        bairroDaRemocao=content[4],
+        causaMorte=content[5]
+    ).first()
+
+    db_session.close()
+
+    return existing_record is not None
