@@ -46,63 +46,6 @@ class UpdateSite(BaseModel):
     vitimas: Optional[Vitima]
 
 
-def job():
-    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    log_message = f"Executando a tarefa em: {current_time}"
-    with open("log.txt", "a") as log_file:
-        log_file.write(log_message + "\n")
-    find_sites_with_keywords()
-
-
-async def loop():
-    tempo = await list_agendamento_pesquisas()
-
-    if tempo:
-        tempo_agendado = tempo[0].dias
-    else:
-        tempo_agendado = 1
-
-    # schedule.every(tempo_agendado).seconds.do(job)
-
-    while True:
-        # schedule.run_pending()
-        await find_sites_with_keywords()
-        time.sleep(tempo_agendado * 60)
-
-is_loop_running = False
-loop_task = None
-
-
-async def background_task():
-    global is_loop_running
-    while is_loop_running:
-        tempo = await list_agendamento_pesquisas()
-
-        if tempo:
-            tempo_agendado = tempo[0].dias
-        else:
-            tempo_agendado = 1
-
-        await find_sites_with_keywords(tempo_agendado=tempo_agendado)
-        await asyncio.sleep(tempo_agendado * 60)
-
-
-@router.get("/findSites/")
-async def find_sites():
-    global is_loop_running, loop_task
-
-    # Verifica se o loop está em execução e o interrompe
-    if is_loop_running:
-        is_loop_running = False
-        loop_task.cancel()
-
-    # Inicia um novo loop
-    is_loop_running = True
-    loop_task = asyncio.create_task(background_task())
-
-    return {"message": "Busca de sites agendada com sucesso!"}
-
-
 @router.post("/site/", response_model=Site)
 async def create_site_controller(site: Site):
     return await create_site(site)
@@ -127,9 +70,11 @@ async def update_site_controller(siteId: str, item: Dict):
 async def delete_site_controller(siteId: str):
     return await delete_site(siteId)
 
-
 is_loop_running_iml = False
 loop_task_iml = None
+
+is_loop_running = False
+loop_task = None
 
 
 async def background_task_iml():
@@ -146,20 +91,42 @@ async def background_task_iml():
         await asyncio.sleep(tempo_agendado * 60)
 
 
+async def background_task():
+    global is_loop_running
+    while is_loop_running:
+        tempo = await list_agendamento_pesquisas()
+
+        if tempo:
+            tempo_agendado = tempo[0].dias
+        else:
+            tempo_agendado = 1
+
+        await find_sites_with_keywords(tempo_agendado=tempo_agendado)
+        await asyncio.sleep(tempo_agendado * 60)
+
+
 @router.get("/iml/")
 async def find_iml():
     global is_loop_running_iml, loop_task_iml
 
-    # Verifica se o loop está em execução e o interrompe
-    if is_loop_running_iml:
-        is_loop_running_iml = False
-        loop_task_iml.cancel()
+    # Inicia ou reinicia o loop de IML
+    if not is_loop_running_iml:
+        is_loop_running_iml = True
+        loop_task_iml = asyncio.create_task(background_task_iml())
 
-    # Inicia um novo loop
-    is_loop_running_iml = True
-    loop_task_iml = asyncio.create_task(background_task_iml())
+    return {"message": "Busca de dados no IML agendada com sucesso!"}
 
-    return {"message": "Busca de dados no iml agendada com sucesso!"}
+
+@router.get("/findSites/")
+async def find_sites():
+    global is_loop_running, loop_task
+
+    # Inicia ou reinicia o loop de sites
+    if not is_loop_running:
+        is_loop_running = True
+        loop_task = asyncio.create_task(background_task())
+
+    return {"message": "Busca de sites agendada com sucesso!"}
 
 
 @router.get("/imlData/")

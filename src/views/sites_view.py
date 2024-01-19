@@ -239,11 +239,9 @@ async def iml_screapper():
                     for cell in cells:
                         content.append(cell.text)
 
-                    print(content)
                     if content[0] != "DATA DE ENTRADA":
 
                         if not check_if_all_array_items_is_blank(content):
-                            print(1)
                             if not is_duplicate_record(content):
                                 await create_iml(Iml(
                                     dataEntrada=content[0],
@@ -297,8 +295,8 @@ def list_iml():
 def is_duplicate_record(content):
     db = sessionmaker(bind=engine)
     db_session = db()
-
-    existing_record = db_session.query(Iml).filter_by(
+    print(content)
+    existing_record = db_session.query(ImlModels).filter_by(
         dataEntrada=content[0],
         horaEntrada=content[1],
         sexo=content[2],
