@@ -16,7 +16,16 @@ class Usuario(BaseModel):
     email: str
     telefone: str
     senha: Optional[str] = None
-    acesso: Optional[bool] = None
+    perfil: Optional[str] = "pesquisador"
+
+
+class UsuarioViewr(BaseModel):
+    nome: str
+    email: str
+    telefone: str
+    senha: Optional[str] = None
+    acesso: Optional[bool] = True
+    perfil: str
 
 
 class ListUsuario(BaseModel):
@@ -26,6 +35,45 @@ class ListUsuario(BaseModel):
     telefone: str
     senha: Optional[str] = None
     acesso: Optional[bool] = None
+
+
+async def create_user_viewr(user: UsuarioViewr):
+    if user_exists(user.email):
+        raise HTTPException(
+            status_code=409, detail=f"O usuário {user.email} já está cadastrado."
+        )
+
+    default_password = f"{user.nome[:3]}{user.telefone[:3]}"
+
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(default_password.encode('utf-8'), salt)
+    decoded_password = hashed_password.decode('utf-8')
+
+    db_user = UsuariosModels(
+        nome=user.nome,
+        email=user.email,
+        telefone=user.telefone,
+        senha=decoded_password,
+        acesso=True,
+        perfil="visualizador"
+    )
+
+    db = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    db_session = db()
+
+    try:
+        db_session.add(db_user)
+        db_session.commit()
+        db_session.refresh(db_user)
+    except IntegrityError:
+        db_session.rollback()
+        raise HTTPException(
+            status_code=409, detail=f"O usuário {user.email} já está cadastrado."
+        )
+    finally:
+        db_session.close()
+
+    return user
 
 
 async def create_user(user: Usuario):
@@ -45,7 +93,8 @@ async def create_user(user: Usuario):
         email=user.email,
         telefone=user.telefone,
         senha=decoded_password,
-        acesso=True
+        acesso=False,
+        perfil=user.perfil
     )
 
     db = sessionmaker(autocommit=False, autoflush=False, bind=engine)

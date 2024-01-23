@@ -51,7 +51,7 @@ async def create_site_controller(site: Site):
     return await create_site(site)
 
 
-@router.get("/site/", response_model=List[Site])
+@router.get("/site/")
 async def list_sites_controller():
     return await list_sites()
 

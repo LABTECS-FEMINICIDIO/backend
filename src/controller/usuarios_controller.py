@@ -4,14 +4,16 @@ from uuid import UUID
 
 from pydantic import BaseModel
 from src.views.usuarios_views import (
+    UsuarioViewr,
+    Usuario,
     create_user,
+    create_user_viewr,
     list_users,
     list_one_user,
     reset_user_password,
     update_user,
     delete_user
 )
-from src.views.usuarios_views import Usuario
 
 router = APIRouter()
 
@@ -22,10 +24,11 @@ class ListUsuario(BaseModel):
     email: str
     telefone: str
     senha: Optional[str] = None
-    acesso: Optional[bool] = None
+    acesso: Optional[bool]
+    perfil: Optional[str]
 
 
-@router.post("/usuarios/", response_model=Usuario)
+@router.post("/usuarios/")
 async def create_user_controller(user: Usuario):
     try:
         return await create_user(user)
@@ -33,12 +36,20 @@ async def create_user_controller(user: Usuario):
         return e
 
 
-@router.get("/usuarios/", response_model=List[ListUsuario])
+@router.post("/usuarios/visualizador/")
+async def create_user_controller(user: UsuarioViewr):
+    try:
+        return await create_user_viewr(user)
+    except HTTPException as e:
+        return e
+
+
+@router.get("/usuarios/")
 async def list_users_controller():
     return await list_users()
 
 
-@router.get("/usuarios/{user_id}", response_model=Usuario)
+@router.get("/usuarios/{user_id}")
 async def get_user_controller(user_id: UUID):
     try:
         return await list_one_user(user_id)
@@ -46,7 +57,7 @@ async def get_user_controller(user_id: UUID):
         return e
 
 
-@router.put("/usuarios/{user_id}", response_model=Usuario)
+@router.put("/usuarios/{user_id}")
 async def update_user_controller(user_id: UUID, user: Usuario):
     try:
         return await update_user(user_id, user)
@@ -54,7 +65,7 @@ async def update_user_controller(user_id: UUID, user: Usuario):
         return e
 
 
-@router.delete("/usuarios/{user_id}", response_model=Usuario)
+@router.delete("/usuarios/{user_id}")
 async def delete_user_controller(user_id: UUID):
     try:
         return await delete_user(user_id)

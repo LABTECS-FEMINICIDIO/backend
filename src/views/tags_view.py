@@ -109,9 +109,3 @@ def tags_exists(nome: str) -> bool:
     db_session.close()
 
     return existing_site is not None
-
-# TODO:
-
-
-def bot_find_sites():
-    return None

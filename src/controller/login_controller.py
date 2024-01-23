@@ -77,4 +77,4 @@ async def login_for_access_token(login_data: LoginRequest):
     token_data = {"sub": {"email": login_data.email, "perfil": user_db.perfil}}
     token = create_jwt_token(token_data)
 
-    return {"access_token": token, "token_type": "bearer"}
+    return {"access_token": token, "permission": user_db.perfil}

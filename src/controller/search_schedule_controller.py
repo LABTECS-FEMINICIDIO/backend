@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List
 from src.views.search_schedule_views import create_or_update_agendamento_pesquisa, list_agendamento_pesquisas, get_agendamento_pesquisa, update_agendamento_pesquisa, delete_agendamento_pesquisa
 from uuid import UUID
 

@@ -7,6 +7,7 @@ from src.controller.search_schedule_controller import router as search_schedule_
 from src.controller.usuarios_controller import router as usuarios_controller
 from src.controller.login_controller import router as login_router
 from src.controller.vitimas_controller import router as vitimas_router
+from src.controller.reference_sites_controller import router as reference_site_router
 from dotenv import load_dotenv
 import os
 from fastapi.middleware.cors import CORSMiddleware
@@ -31,6 +32,7 @@ app.include_router(search_schedule_controller, prefix="/api")
 app.include_router(usuarios_controller, prefix="/api")
 app.include_router(login_router, prefix="/api")
 app.include_router(vitimas_router, prefix="/api")
+app.include_router(reference_site_router, prefix="/api")
 
 PORT = int(os.getenv("PORT_BACKEND", 8000))
 if __name__ == "__main__":

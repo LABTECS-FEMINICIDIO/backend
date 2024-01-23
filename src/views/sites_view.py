@@ -8,12 +8,14 @@ from pydantic import BaseModel
 from sqlalchemy.orm import sessionmaker, joinedload
 from typing import List, Optional, Union
 from src.database.database import engine
-from src.model.models import SitesModels, ImlModels
+from src.model.models import ReferenceSitesModels, SitesModels, ImlModels
 from bs4 import BeautifulSoup
 from src.views.tags_view import list_tags
 from datetime import datetime
 import random
 import json
+
+from src.views.reference_sites_views import createReferenceSiteForParse
 
 
 class Site(BaseModel):
@@ -29,6 +31,7 @@ class SiteUpdate(BaseModel):
     nome: Optional[str] = None
     link: Optional[str] = None
     conteudo: Optional[str] = None
+    classificacao: Optional[int] = None,
     feminicidio: Optional[bool] = None
     lido: Optional[bool] = None
 
@@ -42,11 +45,17 @@ class Iml(BaseModel):
     causaMorte: Optional[str] = None
 
 
-async def create_site(site: Site):
+async def create_site(site: Site, reference_site_link: str):
     if not link_exists(site.link):
         # raise HTTPException(
         #     status_code=409, detail="O link do site já está cadastrado."
         # )
+
+        await createReferenceSiteForParse({
+            "nome": site.nome,
+            "link": reference_site_link,
+            "linksEncontrados": 1
+        })
 
         db_site = SitesModels(**site.model_dump())
         db = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -100,9 +109,28 @@ async def update_site(siteId: str, site_data: Dict):
     db_site = db_session.query(SitesModels).filter(
         SitesModels.id == siteId).first()
 
+    all_same_sites = db_session.query(SitesModels).filter(
+        SitesModels.nome == db_site.nome)
+
     if db_site is None:
         db_session.close()
         raise HTTPException(status_code=404, detail="Site not found")
+
+    if site_data["classificacao"]:
+        total_classificacao = 0
+        total_sites = 0
+
+        for site in all_same_sites:
+            if site.classificacao > 0:
+                total_sites += 1
+                total_classificacao += int(site.classificacao)
+
+        site_referencia = db_session.query(ReferenceSitesModels).filter(
+            ReferenceSitesModels.nome == db_site.nome
+        ).first()
+
+        site_referencia.classificacao = int(
+            site_data["classificacao"]) + total_classificacao / (total_sites + 1)
 
     for key, value in site_data.items():
         if hasattr(db_site, key):
@@ -200,9 +228,16 @@ async def find_sites_with_keywords(tempo_agendado):
                 site_name = parsed_url.netloc.replace(
                     "www.", "").split(".")[0]
 
-                if url not in found_sites:
-                    found_sites.append({'url': url, 'name': site_name})
+                # await createReferenceSiteForParse({
+                #     "nome": site_name,
+                #     "link": parsed_url.netloc,
+                #     "linksEncontrados": 1
+                # })
 
+                if url not in found_sites:
+                    found_sites.append(
+                        {'url': url, 'name': site_name, "reference_site_link": parsed_url.netloc})
+    print("total encontrado", len(found_sites))
     for site_info in found_sites:
         content = await fetch_content(site_info['url'])
 
@@ -210,7 +245,8 @@ async def find_sites_with_keywords(tempo_agendado):
             nome=site_info['name'],
             link=site_info['url'],
             conteudo=content
-        ))
+        ), site_info['reference_site_link'])
+
         print('criei o site')
 
     return found_sites
