@@ -1,3 +1,4 @@
+import os
 from fastapi import APIRouter, FastAPI, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
@@ -29,10 +30,13 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 def create_jwt_token(data: dict):
     to_encode = data.copy()
+    to_encode["sub"] = str(to_encode.get("sub", ""))
     # Set expiration time for the token (e.g., 30 minutes)
     expire = datetime.utcnow() + timedelta(minutes=30)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+    encoded_jwt = jwt.encode(to_encode, os.getenv(
+        "SECRET_KEY"), algorithm=os.getenv("ALGORITHM"))
     return encoded_jwt
 
 # Function to get current user based on the token
@@ -45,7 +49,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, os.getenv("SECRET_KEY"),
+                             algorithm=os.getenv("ALGORITHM"))
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception
@@ -61,7 +66,6 @@ async def login_for_access_token(login_data: LoginRequest):
     db = sessionmaker(bind=engine)
     db_session = db()
 
-    # Check if the user exists
     user_db = db_session.query(UsuariosModels).filter_by(
         email=login_data.email).first()
     db_session.close()
@@ -73,8 +77,7 @@ async def login_for_access_token(login_data: LoginRequest):
         raise HTTPException(
             status_code=401, detail="Você está sem permissão de acesso ao sistema.")
 
-    # If the user exists and the password is correct, create a token
     token_data = {"sub": {"email": login_data.email, "perfil": user_db.perfil}}
     token = create_jwt_token(token_data)
 
-    return {"access_token": token, "permission": user_db.perfil}
+    return {"access_token": token, "permission": user_db.perfil, "nome": user_db.nome}

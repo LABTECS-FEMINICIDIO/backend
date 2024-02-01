@@ -2,15 +2,35 @@ from uuid import UUID
 from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import List, Optional
-from src.views.vitimas_view import create_vitima, list_vitimas
+from src.views.vitimas_view import VitimaEdit, create_vitima, delete_vitima, list_vitimas, update_vitima
 router = APIRouter()
 
 
 class Vitima(BaseModel):
+    datadofato: str
+    diah: str
+    horario: str
+    turno: str
     nome: str
     idade: int
-    rua: str
-    armaUsada: str
+    racacor1: str
+    estciv2: str
+    bairro: str
+    rua_beco_travessa_estrada_ramal: str
+    endcomplemento: str
+    tipoarma1: str
+    tipoarma2: str
+    loclesao1: str
+    loclesao2: str
+    loclesao3: str
+    hospitalizacao: str
+    violsexual: str
+    latrocinio: str
+    zona: str
+    localdeocorrencia: str
+    presencafilhofamiliar: str
+    gestacao: str
+    filhosdescrever: int
     sites: Optional[List[UUID]] = []
 
 
@@ -29,11 +49,11 @@ async def list_tags_controller():
 #     return await list_one_tag(tag_name)
 
 
-# @router.patch("/tag/{tag_name}", response_model=Tag)
-# async def update_tag_controller(tag_name: str, item: Tag):
-#     return await update_tag(tag_name, item)
+@router.patch("/vitimas/{vitima_id}")
+async def update_vitima_controller(vitima_id, item: dict):
+    return await update_vitima(vitima_id, item)
 
 
-# @router.delete("/tag/{tag_name}", response_model=Tag)
-# async def delete_tag_controller(tag_name: str):
-#     return await delete_tag(tag_name)
+@router.delete("/vitimas/{vitima_id}")
+async def delete_vitimas_controller(vitima_id: str):
+    return await delete_vitima(vitima_id)

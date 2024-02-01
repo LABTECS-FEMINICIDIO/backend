@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from typing import List, Optional
 from src.views.tags_view import create_tag, list_tags, list_one_tag, update_tag, delete_tag

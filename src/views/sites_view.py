@@ -5,10 +5,11 @@ import requests
 from fastapi.encoders import jsonable_encoder
 from psycopg2 import IntegrityError
 from pydantic import BaseModel
+from sqlalchemy import desc
 from sqlalchemy.orm import sessionmaker, joinedload
 from typing import List, Optional, Union
 from src.database.database import engine
-from src.model.models import ReferenceSitesModels, SitesModels, ImlModels
+from src.model.models import FeriadosModels, ReferenceSitesModels, SitesModels, ImlModels
 from bs4 import BeautifulSoup
 from src.views.tags_view import list_tags
 from datetime import datetime
@@ -80,7 +81,7 @@ async def list_sites():
     db_session = db()
 
     sites = db_session.query(SitesModels).options(
-        joinedload(SitesModels.vitima)).all()
+        joinedload(SitesModels.vitima)).order_by(desc(SitesModels.createdAt)).all()
     db_session.close()
     return sites
 
@@ -116,7 +117,7 @@ async def update_site(siteId: str, site_data: Dict):
         db_session.close()
         raise HTTPException(status_code=404, detail="Site not found")
 
-    if site_data["classificacao"]:
+    if "classificacao" in site_data and site_data["classificacao"]:
         total_classificacao = 0
         total_sites = 0
 
@@ -200,8 +201,8 @@ async def find_sites_with_keywords(tempo_agendado):
 
     tags = await list_tags()
 
-    if len(tags) == 0:
-        raise HTTPException(status_code=404, detail="Nenhuma tag cadastrada")
+    # if len(tags) == 0:
+    # raise HTTPException(status_code=404, detail="Nenhuma tag cadastrada")
 
     all_tags = [tag.nome for tag in tags]
 
@@ -239,15 +240,17 @@ async def find_sites_with_keywords(tempo_agendado):
                         {'url': url, 'name': site_name, "reference_site_link": parsed_url.netloc})
     print("total encontrado", len(found_sites))
     for site_info in found_sites:
+        site_blocked = site_is_blocked(site_name=site_info["name"])
+
         content = await fetch_content(site_info['url'])
+        if site_blocked == True:
+            await create_site(Site(
+                nome=site_info['name'],
+                link=site_info['url'],
+                conteudo=content
+            ), site_info['reference_site_link'])
 
-        await create_site(Site(
-            nome=site_info['name'],
-            link=site_info['url'],
-            conteudo=content
-        ), site_info['reference_site_link'])
-
-        print('criei o site')
+            print('criei o site')
 
     return found_sites
 
@@ -331,7 +334,7 @@ def list_iml():
 def is_duplicate_record(content):
     db = sessionmaker(bind=engine)
     db_session = db()
-    print(content)
+
     existing_record = db_session.query(ImlModels).filter_by(
         dataEntrada=content[0],
         horaEntrada=content[1],
@@ -344,3 +347,51 @@ def is_duplicate_record(content):
     db_session.close()
 
     return existing_record is not None
+
+
+def site_is_blocked(site_name):
+    db = sessionmaker(bind=engine)
+    db_session = db()
+
+    site = db_session.query(ReferenceSitesModels).filter(
+        ReferenceSitesModels.nome == site_name).first()
+
+    if site:
+        return site.pesquisar
+    else:
+        return True
+
+
+async def change_site_lido(site_id):
+    db = sessionmaker(bind=engine)
+    db_session = db()
+
+    site = db_session.query(SitesModels).filter(
+        SitesModels.id == site_id).first()
+
+    site.lido = not site.lido
+
+    db_session.commit()
+    db_session.close()
+
+    return site
+
+
+# TODO:
+
+
+def is_holiday(date):
+    year_data = int(str(date).split(" ")[0].split("-")[0])
+    month_data = int(str(date).split(" ")[0].split("-")[1])
+    day_data = int(str(date).split(" ")[0].split("-")[2])
+
+    db = sessionmaker(bind=engine)
+    db_session = db()
+
+    holiday = db_session.query(FeriadosModels).filter_by(
+        FeriadosModels.year == year_data,
+        FeriadosModels.month == month_data,
+        FeriadosModels.day == day_data
+    )
+
+    return holiday is not None

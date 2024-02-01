@@ -57,6 +57,8 @@ async def updatePesquisarField(site_id):
         site.pesquisar = not site.pesquisar
         db_session.commit()
 
+    print(site.pesquisar)
+
     db_session.close()
     return {
         "message": "Site atualizado com sucesso."

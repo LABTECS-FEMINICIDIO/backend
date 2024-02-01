@@ -1,7 +1,7 @@
 from fastapi import APIRouter, BackgroundTasks
 from pydantic import BaseModel
 from typing import List, Optional
-from src.views.sites_view import create_site, iml_screapper, list_iml, list_sites, list_one_site, update_site, delete_site, find_sites_with_keywords
+from src.views.sites_view import change_site_lido, create_site, iml_screapper, list_iml, list_sites, list_one_site, update_site, delete_site, find_sites_with_keywords
 import schedule
 import time
 import threading
@@ -132,3 +132,8 @@ async def find_sites():
 @router.get("/imlData/")
 async def find_iml_data():
     return list_iml()
+
+
+@router.patch("/updateLido/{siteId}")
+async def update_lido(siteId: str):
+    return await change_site_lido(siteId)

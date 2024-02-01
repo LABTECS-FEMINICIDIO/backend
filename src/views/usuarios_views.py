@@ -184,7 +184,12 @@ async def reset_user_password(user_id: uuid.UUID):
                 status_code=404, detail="Usuário não encontrado")
 
         default_password = f"{db_user.nome[:3]}{db_user.telefone[:3]}"
-        db_user.password = default_password
+
+        salt = bcrypt.gensalt()
+        hashed_password = bcrypt.hashpw(default_password.encode('utf-8'), salt)
+        decoded_password = hashed_password.decode('utf-8')
+
+        db_user.password = decoded_password
 
         db_session.commit()
         db_session.refresh(db_user)

@@ -18,6 +18,9 @@ class SitesModels(Base):
     lido = Column(Boolean, nullable=True, default=False)
     classificacao = Column(Integer, default=0)
     valido = Column(Boolean, nullable=True)
+    inHoliday = Column(Boolean, default=False)
+    inWeekend = Column(Boolean, default=False)
+
     createdAt = Column(String, default=func.now())
 
     vitima_id = Column(UUID(as_uuid=True), ForeignKey(
@@ -34,6 +37,7 @@ class ReferenceSitesModels(Base):
     link = Column(String)
     pesquisar = Column(Boolean, default=True)
     linksEncontrados = Column(Integer, default=0)
+    blocked = Column(Boolean, default=False)
     classificacao = Column(Integer, default=0)
 
 
@@ -42,12 +46,35 @@ class VitimasModels(Base):
 
     id = Column(UUID(as_uuid=True), default=uuid.uuid4,
                 primary_key=True, index=True)
+    datadofato = Column(String)
+    diah = Column(String)
+    horario = Column(String)
+    turno = Column(String)
     nome = Column(String)
     idade = Column(Integer)
-    rua = Column(String)
-    armaUsada = Column(String)
-
+    racacor1 = Column(String)
+    estciv2 = Column(String)
+    bairro = Column(String)
+    rua_beco_travessa_estrada_ramal = Column(String)
+    endcomplemento = Column(String)
+    tipoarma1 = Column(String)
+    tipoarma2 = Column(String)
+    loclesao1 = Column(String)
+    loclesao2 = Column(String)
+    loclesao3 = Column(String)
+    hospitalizacao = Column(String)
+    violsexual = Column(String)
+    latrocinio = Column(String)
+    localdeocorrencia = Column(String)
+    presencafilhofamiliar = Column(String)
+    compexcomp = Column(String)
+    zona = Column(String)
+    gestacao = Column(String)
+    filhosdescrever = Column(String)
+    lat = Column(String)
+    lng = Column(String)
     sites = relationship('SitesModels', back_populates='vitima')
+    createdAt = Column(String, default=func.now())
 
 
 class TagsModels(Base):
@@ -106,3 +133,4 @@ class FeriadosModels(Base):
     ano = Column(Integer)
     mes = Column(Integer)
     dia = Column(Integer)
+    tipo = Column(String)

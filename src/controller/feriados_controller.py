@@ -1,6 +1,4 @@
 from fastapi import APIRouter
-from pydantic import BaseModel
-from typing import List, Optional
 
 from views.feriados_views import Feriado, create_feriado, delete_feriado, list_feriados, update_feriado
 
