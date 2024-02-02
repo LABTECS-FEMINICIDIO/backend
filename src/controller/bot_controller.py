@@ -88,7 +88,7 @@ async def background_task_iml():
             tempo_agendado = 1
 
         await iml_screapper()
-        await asyncio.sleep(tempo_agendado * 60)
+        await asyncio.sleep(tempo_agendado * 86400)
 
 
 async def background_task():
@@ -102,7 +102,7 @@ async def background_task():
             tempo_agendado = 1
 
         await find_sites_with_keywords(tempo_agendado=tempo_agendado)
-        await asyncio.sleep(tempo_agendado * 60)
+        await asyncio.sleep(tempo_agendado * 86400)
 
 
 @router.get("/iml/")
