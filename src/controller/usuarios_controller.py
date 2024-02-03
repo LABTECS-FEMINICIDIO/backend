@@ -57,8 +57,8 @@ async def get_user_controller(user_id: UUID):
         return e
 
 
-@router.put("/usuarios/{user_id}")
-async def update_user_controller(user_id: UUID, user: Usuario):
+@router.patch("/usuarios/{user_id}")
+async def update_user_controller(user_id: UUID, user: dict):
     try:
         return await update_user(user_id, user)
     except HTTPException as e:

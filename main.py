@@ -1,6 +1,5 @@
-import json
-import time
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from src.model.models import UsuariosModels
 from src.database.database import Base, engine
@@ -13,11 +12,8 @@ from src.controller.vitimas_controller import router as vitimas_router
 from src.controller.reference_sites_controller import router as reference_site_router
 from dotenv import load_dotenv
 import os
-from fastapi.middleware.cors import CORSMiddleware
-import bcrypt
 from sqlalchemy.orm import sessionmaker
-from fastapi.responses import JSONResponse
-from jose import JWTError, jwt
+import bcrypt
 
 load_dotenv()
 
@@ -25,9 +21,25 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+""" origins = [
+    "http://localhost",
+    "http://localhost:3000",
+    "http://172.16.17.254:3000",
+    "http://172.16.17.254",
+    "http://172.16.17.254:3000/",
+] """
+
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+    "http://192.168.1.109:3000",
+    "http://192.168.1.109",
+    "http://192.168.1.109:3000/",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -123,7 +135,7 @@ app.include_router(vitimas_router, prefix="/api")
 app.include_router(reference_site_router, prefix="/api")
 app.include_router(login_router, prefix="/api")
 
-PORT = int(os.getenv("PORT_BACKEND", 8000))
+PORT = int(os.getenv("PORT_BACKEND", 8001))
 if __name__ == "__main__":
     uvicorn.run(
         "main:app",

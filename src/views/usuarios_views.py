@@ -25,7 +25,7 @@ class UsuarioViewr(BaseModel):
     telefone: str
     senha: Optional[str] = None
     acesso: Optional[bool] = True
-    perfil: str
+    perfil: str = "visualizador"
 
 
 class ListUsuario(BaseModel):
@@ -140,7 +140,7 @@ async def list_one_user(user_id: uuid.UUID):
     return user
 
 
-async def update_user(user_id: uuid.UUID, user: Usuario):
+async def update_user(user_id: uuid.UUID, user: dict):
     db = sessionmaker(bind=engine)
     db_session = db()
 
@@ -151,7 +151,7 @@ async def update_user(user_id: uuid.UUID, user: Usuario):
         db_session.close()
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
 
-    for key, value in user.model_dump().items():
+    for key, value in user.items():
         if key == "senha":
             salt = bcrypt.gensalt()
             hashed_password = bcrypt.hashpw(value.encode('utf-8'), salt)
