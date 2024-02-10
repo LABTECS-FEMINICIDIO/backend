@@ -1,9 +1,12 @@
 from uuid import UUID
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
 from src.views.vitimas_view import VitimaEdit, create_vitima, delete_vitima, list_vitimas, update_vitima
 router = APIRouter()
+from openpyxl import Workbook
+from io import BytesIO
+from fastapi.responses import FileResponse
 
 
 class Vitima(BaseModel):
@@ -57,3 +60,48 @@ async def update_vitima_controller(vitima_id, item: dict):
 @router.delete("/vitimas/{vitima_id}")
 async def delete_vitimas_controller(vitima_id: str):
     return await delete_vitima(vitima_id)
+
+headers = ["numero1", "registro_fvs_do", "naocapturado", "homicidio", "numerodo", "datadofato",
+           "diah", "diasemh", "mesh", "anoh", "horario", "turno", "nome", "idade", "racacor1", "estciv2",
+           "esc2", "bairro", "zona", "rua/beco/travessa/estrada/ramal", "endcomplemento",
+           "local_desova_corpo", "X_Lati", "Y_Long", "precisao_local_classificacao", "coordenadas_derivam",
+           "cid10cod4final", "cid10cod4finaltexto", "tipoarma1", "tipoarma2", "loclesao1", "loclesao2",
+           "loclesao3", "localdaslesoes", "numerodelesoes", "possivelfemin", "hospitalizacao",
+           "vitusudrogilicita", "relacaotraf", "crimepassion", "violsexual", "usodealcool", "latrocinio",
+           "tipoviol", "localdeocorrencia", "presencafilhofamiliar", "situacaorua", "nivsupcomouincomp",
+           "represalia trafico", "sexoagressor", "compexcomp", "outrofamconhefam", "compexfam", "excompan",
+           "conhecido", "circunsmorte", "gestacao", "puerperio", "filhosdescrever", "menor14anos",
+           "maior60anos", "vulnerabil_fisica_mental", "presenca_ascend_descendente",
+           "presenca_medida_protet_urgen", "tipo_intimo_naointimo", "inf_bol_ocorrencia_iml_bol",
+           "inf_bol_ocorrencia_revisao", "consulta_saj_bol1", "consulta_saj_bol2", "consulta_saj_revisao1",
+           "consulta_saj_revisao2", "observacoes", "SITE1", "SITE2", "SITE3", "SITEGEO1", "SITEGEO2",
+           "SITEGEO3", "check_30dias"]
+
+def export_to_xlsx(data):
+    wb = Workbook()
+    ws = wb.active
+
+    ws.append(headers)
+
+    for row in data:
+        row_dict = dict(row)
+        row_data = [row_dict.get(header, "") for header in headers]
+        ws.append(row_data)
+
+    output = BytesIO()
+    wb.save(output)
+    output.seek(0)
+
+    return output
+
+@router.get("/export-xlsx")
+async def export_xlsx():
+    try:
+        vitimas_data = list_vitimas()
+
+        output = export_to_xlsx(vitimas_data)
+
+        return FileResponse(output, filename="export.xlsx", media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

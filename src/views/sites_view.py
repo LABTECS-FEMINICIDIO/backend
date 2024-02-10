@@ -283,12 +283,12 @@ async def iml_screapper():
                         if not check_if_all_array_items_is_blank(content):
                             if not is_duplicate_record(content):
                                 await create_iml(Iml(
-                                    dataEntrada=content[0],
-                                    horaEntrada=content[1],
-                                    sexo=content[2],
-                                    idade=content[3],
-                                    bairroDaRemocao=content[4],
-                                    causaMorte=content[5]
+                                    dataEntrada= "NA" if content[0].strip() == "" else content[0] ,
+                                    horaEntrada="NA" if content[1].strip() == "" else content[1] ,
+                                    sexo="NA" if content[2].strip() == "" else content[2] ,
+                                    idade="NA" if content[3].strip() == "" else content[3] ,
+                                    bairroDaRemocao="NA" if content[4].strip() == "" else content[4] ,
+                                    causaMorte="NA" if content[5].strip() == "" else content[5] 
                                 ))
 
     else:
