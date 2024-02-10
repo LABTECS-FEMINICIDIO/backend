@@ -94,14 +94,17 @@ def export_to_xlsx(data):
 
     return output
 
+from fastapi.responses import StreamingResponse
+
+
 @router.get("/export-xlsx")
 async def export_xlsx():
     try:
-        vitimas_data = list_vitimas()
+        vitimas_data = await list_vitimas()
 
         output = export_to_xlsx(vitimas_data)
 
-        return FileResponse(output, filename="export.xlsx", media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        return StreamingResponse(content=output, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-Disposition": "attachment; filename=export.xlsx"})
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
