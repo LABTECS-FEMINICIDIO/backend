@@ -15,6 +15,7 @@ from src.views.tags_view import list_tags
 from datetime import datetime
 import random
 import json
+import itertools
 
 from src.views.reference_sites_views import createReferenceSiteForParse
 
@@ -204,53 +205,57 @@ async def find_sites_with_keywords(tempo_agendado):
     # if len(tags) == 0:
     # raise HTTPException(status_code=404, detail="Nenhuma tag cadastrada")
 
-    all_tags = [tag.nome for tag in tags]
+    all_tags = [tag.nome.lower() for tag in tags]
 
-    keywords = "+".join(all_tags)
+    tag_combinations = itertools.combinations(all_tags, 3)
 
-    search_url = f'https://www.google.com/search?q={keywords}+after%3A{data[0]}%2F{data[1]}%2F{data[2]}'
-    print("url", search_url)
-    response = requests.get(search_url)
-    print("google respondeu")
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.text, 'html.parser')
+    for combination in tag_combinations:
+        if "mulher" in combination and "manaus" in combination and combination[0] == "mulher":
+            keywords = "+".join(combination)
 
-        search_results = soup.find_all('a')
-    else:
-        print(response)
-        print(f"Failed to fetch search results for '{keywords}'")
+            search_url = f'https://www.google.com/search?q={keywords}+after%3A{data[0]}%2F{data[1]}%2F{data[2]}'
+            print("url", search_url)
+            response = requests.get(search_url)
+            print("google respondeu")
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, 'html.parser')
 
-    for result in search_results:
-        if result and result.get('data-ved', ''):
-            href = result.get('href')
-            if href and href.startswith('/url?q='):
-                url = href.split('/url?q=')[1].split('&sa=')[0]
-                parsed_url = urlparse(url)
-                site_name = parsed_url.netloc.replace(
-                    "www.", "").split(".")[0]
+                search_results = soup.find_all('a')
+            else:
+                print(response)
+                print(f"Failed to fetch search results for '{keywords}'")
 
-                # await createReferenceSiteForParse({
-                #     "nome": site_name,
-                #     "link": parsed_url.netloc,
-                #     "linksEncontrados": 1
-                # })
+            for result in search_results:
+                if result and result.get('data-ved', ''):
+                    href = result.get('href')
+                    if href and href.startswith('/url?q='):
+                        url = href.split('/url?q=')[1].split('&sa=')[0]
+                        parsed_url = urlparse(url)
+                        site_name = parsed_url.netloc.replace(
+                            "www.", "").split(".")[0]
 
-                if url not in found_sites:
-                    found_sites.append(
-                        {'url': url, 'name': site_name, "reference_site_link": parsed_url.netloc})
-    print("total encontrado", len(found_sites))
-    for site_info in found_sites:
-        site_blocked = site_is_blocked(site_name=site_info["name"])
+                        # await createReferenceSiteForParse({
+                        #     "nome": site_name,
+                        #     "link": parsed_url.netloc,
+                        #     "linksEncontrados": 1
+                        # })
 
-        content = await fetch_content(site_info['url'])
-        if site_blocked == True:
-            await create_site(Site(
-                nome=site_info['name'],
-                link=site_info['url'],
-                conteudo=content
-            ), site_info['reference_site_link'])
+                        if url not in found_sites:
+                            found_sites.append(
+                                {'url': url, 'name': site_name, "reference_site_link": parsed_url.netloc})
+            print("total encontrado", len(found_sites))
+            for site_info in found_sites:
+                site_blocked = site_is_blocked(site_name=site_info["name"])
 
-            print('criei o site')
+                content = await fetch_content(site_info['url'])
+                if site_blocked == True:
+                    await create_site(Site(
+                        nome=site_info['name'],
+                        link=site_info['url'],
+                        conteudo=content
+                    ), site_info['reference_site_link'])
+
+                    print('criei o site')
 
     return found_sites
 
