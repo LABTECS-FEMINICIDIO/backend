@@ -210,6 +210,7 @@ async def find_sites_with_keywords(tempo_agendado):
     tag_combinations = itertools.combinations(all_tags, 3)
 
     for combination in tag_combinations:
+        print(combination)
         if "mulher" in combination and "manaus" in combination and combination[0] == "mulher":
             keywords = "+".join(combination)
 
