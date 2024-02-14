@@ -206,10 +206,11 @@ async def find_sites_with_keywords(tempo_agendado):
     # raise HTTPException(status_code=404, detail="Nenhuma tag cadastrada")
 
     all_tags = [tag.nome.lower() for tag in tags]
-
+    print(all_tags)
     tag_combinations = itertools.combinations(all_tags, 3)
-
+    print(tag_combinations)
     for combination in tag_combinations:
+        print("entrei no for")
         if "mulher" in combination and "manaus" in combination and combination[0] == "mulher":
             print(combination)
             keywords = "+".join(combination)
