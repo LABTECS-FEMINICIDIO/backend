@@ -189,7 +189,7 @@ async def reset_user_password(user_id: uuid.UUID):
         hashed_password = bcrypt.hashpw(default_password.encode('utf-8'), salt)
         decoded_password = hashed_password.decode('utf-8')
 
-        db_user.password = decoded_password
+        db_user.senha = decoded_password
 
         db_session.commit()
         db_session.refresh(db_user)
