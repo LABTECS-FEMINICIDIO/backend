@@ -1,7 +1,7 @@
-from fastapi import APIRouter, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, UploadFile, File, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
-from src.views.sites_view import change_site_lido, create_site, iml_screapper, list_iml, list_sites, list_one_site, update_site, delete_site, find_sites_with_keywords
+from src.views.sites_view import change_site_lido, create_site, iml_screapper, list_iml, list_sites, list_one_site, update_site, delete_site, find_sites_with_keywords, parse_excel
 import schedule
 import time
 import threading
@@ -13,7 +13,7 @@ from uuid import UUID
 from src.model.models import VitimasModels
 from typing import Dict
 router = APIRouter()
-
+from openpyxl import load_workbook
 
 class Vitima(BaseModel):
     id: UUID
@@ -50,6 +50,13 @@ class UpdateSite(BaseModel):
 async def create_site_controller(site: Site):
     return await create_site(site)
 
+@router.post("/uploadIml")
+async def analyze_excel(file: UploadFile = File(...)):
+    try:
+        response_data = await parse_excel(file=file)
+        return response_data
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Erro ao processar o arquivo: {str(e)}")
 
 @router.get("/site/")
 async def list_sites_controller():
@@ -88,7 +95,7 @@ async def background_task_iml():
             tempo_agendado = 1
 
         await iml_screapper()
-        await asyncio.sleep(tempo_agendado * 86400)
+        await asyncio.sleep(1 * 86400)
 
 
 async def background_task():

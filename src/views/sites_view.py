@@ -1,6 +1,7 @@
 from typing import Dict
 from urllib.parse import urlparse
-from fastapi import HTTPException
+from fastapi import UploadFile, File, HTTPException
+from openpyxl import load_workbook
 import requests
 from fastapi.encoders import jsonable_encoder
 from psycopg2 import IntegrityError
@@ -300,6 +301,42 @@ async def iml_screapper():
     else:
         print(response)
 
+def parse_xlsx_file(file_path):
+    wb = load_workbook(filename=file_path, data_only=True)
+    sheet = wb.active
+    data = []
+    for row in sheet.iter_rows(values_only=True):
+        data.append(row)
+    return data
+
+async def parse_excel(file: UploadFile = File(...)):
+    try:
+        contents = await file.read()
+        with open("temp.xlsx", "wb") as temp_file:
+            temp_file.write(contents)
+        data = parse_xlsx_file("temp.xlsx")
+        acc = 0
+        for row in data:
+            if has_value(row):
+                if not check_if_all_array_items_is_blank(row):
+                    if not is_duplicate_record(row):
+                        await create_iml(Iml(
+                            dataEntrada= "NA" if row[0].strip() == "" else row[0] ,
+                            horaEntrada="NA" if row[1].strip() == "" else row[1] ,
+                            sexo="NA" if row[2].strip() == "" else row[2] ,
+                            idade="NA" if row[3].strip() == "" else row[3] ,
+                            bairroDaRemocao="NA" if row[4].strip() == "" else row[4] ,
+                            causaMorte="NA" if row[5].strip() == "" else row[5] 
+                        ))
+
+        return {
+            "message": "Upload concluido com sucesso!"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Erro ao processar o arquivo: {str(e)}")
+    
+def has_value(row):
+    return any(cell is not None for cell in row[:6])
 
 async def create_iml(iml: Iml):
     db_iml = ImlModels(**iml.model_dump())
