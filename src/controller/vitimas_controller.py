@@ -37,7 +37,7 @@ class Vitima(BaseModel):
     sites: Optional[List[UUID]] = []
 
 
-@router.post("/vitimas/", response_model=Vitima)
+@router.post("/vitimas/")
 async def create_vitimas_controller(vitima: Vitima):
     return await create_vitima(vitima)
 
