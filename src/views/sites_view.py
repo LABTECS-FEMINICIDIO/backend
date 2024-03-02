@@ -185,6 +185,26 @@ async def fetch_content(url):
         print(f"Error fetching content from '{url}': {str(e)}")
         return None
 
+async def find_tags_on_site(url: str, tags: List[str]) -> List[str]:
+    """
+    Função para encontrar as tags desejadas em uma página da web.
+    Retorna uma lista de tags encontradas.
+    """
+    found_tags = []
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, 'html.parser')
+            # Aqui você precisa implementar a lógica para encontrar as tags desejadas
+            # Vou fornecer um exemplo simples, mas você precisa adaptar isso às suas necessidades
+            for tag in tags:
+                print("procurando por tag dentro do site")
+                if soup.find(tag):
+                    found_tags.append(tag)
+    except Exception as e:
+        print(f"Erro ao buscar tags no site {url}: {e}")
+    return found_tags
+
 
 async def find_sites_with_keywords(tempo_agendado):
     print("entrei no find sites")
@@ -235,6 +255,7 @@ async def find_sites_with_keywords(tempo_agendado):
                     if href and href.startswith('/url?q='):
                         url = href.split('/url?q=')[1].split('&sa=')[0]
                         parsed_url = urlparse(url)
+                        find_tags_on_site(parsed_url, all_tags)
                         site_name = parsed_url.netloc.replace(
                             "www.", "").split(".")[0]
 
