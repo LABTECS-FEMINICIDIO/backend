@@ -236,16 +236,12 @@ async def find_sites_with_keywords(tempo_agendado):
                         site_name = parsed_url.netloc.replace(
                             "www.", "").split(".")[0]
 
-                        # await createReferenceSiteForParse({
-                        #     "nome": site_name,
-                        #     "link": parsed_url.netloc,
-                        #     "linksEncontrados": 1
-                        # })
-
-                        if url not in found_sites:
-                            found_sites.append(
-                                {'url': url, 'name': site_name, "reference_site_link": parsed_url.netloc})
+            if "tiktok" not in site_name and "twitter" not in site_name and "youtube" not in site_name and "instagram" not in site_name:
+                if url not in found_sites:
+                    found_sites.append({'url': url, 'name': site_name, "reference_site_link": parsed_url.netloc})
+                            
             print("total encontrado", len(found_sites))
+
             for site_info in found_sites:
                 site_blocked = site_is_blocked(site_name=site_info["name"])
 

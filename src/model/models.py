@@ -26,6 +26,7 @@ class SitesModels(Base):
     vitima_id = Column(UUID(as_uuid=True), ForeignKey(
         'vitimas.id'), nullable=True)
     vitima = relationship('VitimasModels', back_populates='sites')
+    createdAt = Column(String, default=func.now())
 
 
 class ReferenceSitesModels(Base):

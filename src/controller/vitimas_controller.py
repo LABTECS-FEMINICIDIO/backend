@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
 from src.views.vitimas_view import VitimaEdit, create_vitima, delete_vitima, list_vitimas, update_vitima
+from src.views.sites_view import list_iml
 router = APIRouter()
 from openpyxl import Workbook
 from io import BytesIO
@@ -103,6 +104,18 @@ async def export_xlsx():
         vitimas_data = await list_vitimas()
 
         output = export_to_xlsx(vitimas_data)
+
+        return StreamingResponse(content=output, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-Disposition": "attachment; filename=export.xlsx"})
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/iml/export-xlsx")
+async def export_iml_xlsx():
+    try:
+        iml_data = await   list_iml()
+
+        output = export_to_xlsx(iml_data)
 
         return StreamingResponse(content=output, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-Disposition": "attachment; filename=export.xlsx"})
 
