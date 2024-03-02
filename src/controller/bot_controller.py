@@ -14,6 +14,7 @@ from src.model.models import VitimasModels
 from typing import Dict
 router = APIRouter()
 from openpyxl import load_workbook
+from src.views.historySearch_views import get_latest_history_search, createHistorySearch
 
 class Vitima(BaseModel):
     id: UUID
@@ -109,6 +110,7 @@ async def background_task():
             tempo_agendado = 1
 
         await find_sites_with_keywords(tempo_agendado=tempo_agendado)
+        await createHistorySearch()
         await asyncio.sleep(tempo_agendado * 86400)
 
 
@@ -132,7 +134,7 @@ async def find_sites():
     if not is_loop_running:
         is_loop_running = True
         loop_task = asyncio.create_task(background_task())
-
+    await createHistorySearch()
     return {"message": "Busca de sites agendada com sucesso!"}
 
 
@@ -144,3 +146,7 @@ async def find_iml_data():
 @router.patch("/updateLido/{siteId}")
 async def update_lido(siteId: str):
     return await change_site_lido(siteId)
+
+@router.get("/history/lastSearch")
+async def last_search():
+    return await get_latest_history_search()

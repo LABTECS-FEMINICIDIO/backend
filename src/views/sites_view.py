@@ -207,12 +207,14 @@ async def find_sites_with_keywords(tempo_agendado):
     # raise HTTPException(status_code=404, detail="Nenhuma tag cadastrada")
 
     all_tags = [tag.nome.lower() for tag in tags]
-    print(all_tags)
+
     tag_combinations = itertools.combinations(all_tags, 3)
 
     for combination in tag_combinations:
 
-        if "mulher" in combination and "manaus" in combination:
+        if all_tags[0] in combination and all_tags[1] in combination:
+
+            print("tags mandantes",all_tags[0], all_tags[1])
             keywords = "+".join(combination)
 
             search_url = f'https://www.google.com/search?q={keywords}+after%3A{data[0]}%2F{data[1]}%2F{data[2]}'
@@ -368,7 +370,6 @@ def list_iml():
     iml_data = db_session.query(ImlModels).all()
     db_session.close()
     return iml_data
-
 
 def is_duplicate_record(content):
     db = sessionmaker(bind=engine)

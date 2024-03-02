@@ -20,6 +20,7 @@ class SitesModels(Base):
     valido = Column(Boolean, nullable=True)
     inHoliday = Column(Boolean, default=False)
     inWeekend = Column(Boolean, default=False)
+    tagsEncontradas = Column(String, nullable=True)
 
     createdAt = Column(String, default=func.now())
 
@@ -101,6 +102,11 @@ class PeriodoPesquisaModels(Base):
                 primary_key=True, index=True)
     dias = Column(Integer, unique=True)
 
+class HistorySearchModels(Base):
+    __tablename__ = "historicoPesquisa"
+
+    id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True, index=True)
+    createdAt = Column(String, default=func.now())
 
 class UsuariosModels(Base):
     __tablename__ = "usuarios"
