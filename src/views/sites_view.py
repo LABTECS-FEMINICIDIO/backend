@@ -255,7 +255,7 @@ async def find_sites_with_keywords(tempo_agendado):
                     if href and href.startswith('/url?q='):
                         url = href.split('/url?q=')[1].split('&sa=')[0]
                         parsed_url = urlparse(url)
-                        find_tags_on_site(parsed_url, all_tags)
+                        await find_tags_on_site(parsed_url, all_tags)
                         site_name = parsed_url.netloc.replace(
                             "www.", "").split(".")[0]
 
@@ -436,9 +436,6 @@ async def change_site_lido(site_id):
     db_session.close()
 
     return site
-
-
-# TODO:
 
 
 def is_holiday(date):
