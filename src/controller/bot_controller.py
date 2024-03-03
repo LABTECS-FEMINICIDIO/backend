@@ -122,6 +122,7 @@ async def background_task():
         print("ENTREI NA BACGROUND TASK")
         await find_sites_with_keywords(tempo_agendado=tempo_agendado)
         await createHistorySearch()
+        
         await asyncio.sleep(tempo_agendado * 86400)
 
 
