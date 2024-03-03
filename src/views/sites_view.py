@@ -53,12 +53,14 @@ async def create_site(site: Site, reference_site_link: str):
         # raise HTTPException(
         #     status_code=409, detail="O link do site já está cadastrado."
         # )
+        print("to criando 1")
 
         await createReferenceSiteForParse({
             "nome": site.nome,
             "link": reference_site_link,
             "linksEncontrados": 1
         })
+        print("to criando 2")
 
         db_site = SitesModels(**site.model_dump())
         db = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -70,8 +72,8 @@ async def create_site(site: Site, reference_site_link: str):
             db_session.refresh(db_site)
         except IntegrityError:
             db_session.rollback()
-            raise HTTPException(
-                status_code=409, detail={"message": "O link do site já está cadastrado."})
+            # raise HTTPException(
+            #     status_code=409, detail={"message": "O link do site já está cadastrado."})
         finally:
             db_session.close()
 
