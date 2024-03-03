@@ -21,7 +21,8 @@ async def createHistorySearch():
     return historySearch
 
 async def get_latest_history_search():
-    db_session = sessionmaker(bind=engine)
+    db = sessionmaker(bind=engine)
+    db_session = db()
     latest_search = db_session.query(HistorySearchModels).order_by(desc(HistorySearchModels.createdAt)).first()
     db_session.close() 
     return latest_search
