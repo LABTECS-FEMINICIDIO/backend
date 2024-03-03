@@ -255,13 +255,13 @@ async def find_sites_with_keywords(tempo_agendado):
                     if href and href.startswith('/url?q='):
                         url = href.split('/url?q=')[1].split('&sa=')[0]
                         parsed_url = urlparse(url)
-                        await find_tags_on_site(parsed_url, all_tags)
+                        await find_tags_on_site(url, all_tags)
                         site_name = parsed_url.netloc.replace(
                             "www.", "").split(".")[0]
-
-            if "tiktok" not in site_name and "twitter" not in site_name and "youtube" not in site_name and "instagram" not in site_name:
-                if url not in found_sites:
-                    found_sites.append({'url': url, 'name': site_name, "reference_site_link": parsed_url.netloc})
+                        
+                        if "tiktok" not in site_name and "twitter" not in site_name and "youtube" not in site_name and "instagram" not in site_name:
+                            if url not in found_sites:
+                                found_sites.append({'url': url, 'name': site_name, "reference_site_link": parsed_url.netloc})
                             
             print("total encontrado", len(found_sites))
 
