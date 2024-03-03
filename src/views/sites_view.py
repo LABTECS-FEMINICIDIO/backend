@@ -267,17 +267,16 @@ async def find_sites_with_keywords(tempo_agendado):
                             
             print("total encontrado", len(found_sites))
 
-            for site_info in found_sites:
-                print(site_info)
-                # site_blocked = await site_is_blocked(site_name=site_info["name"])
-                print("oi")
-                # print(site_blocked)
-                # content = await fetch_content(site_info['url'])
-                # if site_blocked == True:
+        for site_info in found_sites:
+            print(site_info)
+            site_blocked = await site_is_blocked(site_name=site_info["name"])
+            print("oi")
+            content = await fetch_content(site_info['url'])
+            if site_blocked == True:
                 await create_site(Site(
                     nome=site_info['name'],
                     link=site_info['url'],
-                    conteudo=None
+                    conteudo=content
                 ), site_info['reference_site_link'])
 
                 print('criei o site')
