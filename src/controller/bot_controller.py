@@ -119,7 +119,7 @@ async def background_task():
             tempo_agendado = tempo[0].dias
         else:
             tempo_agendado = 5
-
+        print("ENTREI NA BACGROUND TASK")
         await find_sites_with_keywords(tempo_agendado=tempo_agendado)
         await createHistorySearch()
         await asyncio.sleep(tempo_agendado * 86400)
@@ -145,7 +145,7 @@ async def find_sites():
     if not is_loop_running:
         is_loop_running = True
         loop_task = asyncio.create_task(background_task())
-    await createHistorySearch()
+    # await createHistorySearch()
     return {"message": "Busca de sites agendada com sucesso!"}
 
 
