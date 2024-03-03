@@ -107,7 +107,7 @@ async def background_task():
         if tempo:
             tempo_agendado = tempo[0].dias
         else:
-            tempo_agendado = 1
+            tempo_agendado = 5
 
         await find_sites_with_keywords(tempo_agendado=tempo_agendado)
         await createHistorySearch()

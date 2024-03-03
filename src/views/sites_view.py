@@ -53,14 +53,12 @@ async def create_site(site: Site, reference_site_link: str):
         # raise HTTPException(
         #     status_code=409, detail="O link do site já está cadastrado."
         # )
-        print("to criando 1")
 
         await createReferenceSiteForParse({
             "nome": site.nome,
             "link": reference_site_link,
             "linksEncontrados": 1
         })
-        print("to criando 2")
 
         db_site = SitesModels(**site.model_dump())
         db = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -197,10 +195,8 @@ async def find_tags_on_site(url: str, tags: List[str]) -> List[str]:
         response = requests.get(url)
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
-            # Aqui você precisa implementar a lógica para encontrar as tags desejadas
-            # Vou fornecer um exemplo simples, mas você precisa adaptar isso às suas necessidades
             for tag in tags:
-                print("procurando por tag dentro do site")
+                print("procurando por tag dentro do site", soup.find(tag))
                 if soup.find(tag):
                     found_tags.append(tag)
     except Exception as e:
@@ -260,12 +256,12 @@ async def find_sites_with_keywords(tempo_agendado):
                         await find_tags_on_site(url, all_tags)
                         site_name = parsed_url.netloc.replace(
                             "www.", "").split(".")[0]
-                        
+                        print("parsedURL",parsed_url)
                         if "tiktok" not in site_name and "twitter" not in site_name and "youtube" not in site_name and "instagram" not in site_name and "tag" not in parsed_url:
                             if url not in found_sites:
                                 found_sites.append({'url': url, 'name': site_name, "reference_site_link": parsed_url.netloc})
                             
-            print("total encontrado", len(found_sites))
+        print("total encontrado", len(found_sites))
 
         for site_info in found_sites:
             print(site_info)
