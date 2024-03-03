@@ -260,7 +260,7 @@ async def find_sites_with_keywords(tempo_agendado):
                         parsed_url = urlparse(url)
                         site_name = parsed_url.netloc.replace(
                             "www.", "").split(".")[0]
-                        print("parsedURL",parsed_url)
+
                         if "tiktok" not in site_name and "twitter" not in site_name and "youtube" not in site_name and "instagram" not in site_name and "tag" not in url:
                             if url not in found_sites:
                                 found_sites.append({'url': url, 'name': site_name, "reference_site_link": parsed_url.netloc})
