@@ -15,8 +15,9 @@ async def listAllHistorySearch():
 async def createHistorySearch():
     historySearch = HistorySearchModels()
     db = sessionmaker(bind=engine)
-    db_session.add(historySearch)
     db_session = db()
+    db_session.add(historySearch)
+
     return historySearch
 
 async def get_latest_history_search():
