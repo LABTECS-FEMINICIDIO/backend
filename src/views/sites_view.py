@@ -185,22 +185,18 @@ async def fetch_content(url):
         print(f"Error fetching content from '{url}': {str(e)}")
         return None
 
-async def find_tags_on_site(url: str, tags: List[str]) -> List[str]:
+async def find_tags_on_site(content: str, tags: List[str]) -> List[str]:
     """
     Função para encontrar as tags desejadas em uma página da web.
     Retorna uma lista de tags encontradas.
     """
     found_tags = []
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.text, 'html.parser')
-            for tag in tags:
-                print("procurando por tag dentro do site", soup.find(tag))
-                if soup.find(tag):
-                    found_tags.append(tag)
-    except Exception as e:
-        print(f"Erro ao buscar tags no site {url}: {e}")
+
+    for tag in tags:
+        print("procurando por tag dentro do site", content.find(tag))
+        if content.find(tag):
+            found_tags.append(tag)
+
     return found_tags
 
 
@@ -253,11 +249,10 @@ async def find_sites_with_keywords(tempo_agendado):
                     if href and href.startswith('/url?q='):
                         url = href.split('/url?q=')[1].split('&sa=')[0]
                         parsed_url = urlparse(url)
-                        await find_tags_on_site(url, all_tags)
                         site_name = parsed_url.netloc.replace(
                             "www.", "").split(".")[0]
                         print("parsedURL",parsed_url)
-                        if "tiktok" not in site_name and "twitter" not in site_name and "youtube" not in site_name and "instagram" not in site_name and "tag" not in parsed_url:
+                        if "tiktok" not in site_name and "twitter" not in site_name and "youtube" not in site_name and "instagram" not in site_name and "tag" not in url:
                             if url not in found_sites:
                                 found_sites.append({'url': url, 'name': site_name, "reference_site_link": parsed_url.netloc})
                             
@@ -268,6 +263,7 @@ async def find_sites_with_keywords(tempo_agendado):
             site_blocked = await site_is_blocked(site_name=site_info["name"])
             print("oi")
             content = await fetch_content(site_info['url'])
+            await find_tags_on_site(content, all_tags)
             if site_blocked == True:
                 await create_site(Site(
                     nome=site_info['name'],
