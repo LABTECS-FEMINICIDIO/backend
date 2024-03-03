@@ -17,7 +17,7 @@ async def createHistorySearch():
     db = sessionmaker(bind=engine)
     db_session = db()
     db_session.add(historySearch)
-
+    print(historySearch)
     return historySearch
 
 async def get_latest_history_search():
