@@ -29,7 +29,7 @@ class Site(BaseModel):
     id: UUID
     nome: str
     link: str
-    conteudo: Optional[str] = None
+    # conteudo: Optional[str] = None
     feminicidio: Optional[bool] = None
     lido: Optional[bool] = None
     vitima: Optional[Vitima] = None
@@ -37,6 +37,17 @@ class Site(BaseModel):
     class Config:
         arbitrary_types_allowed = True
 
+class SiteComplet(BaseModel):
+    id: UUID
+    nome: str
+    link: str
+    conteudo: Optional[str] = None
+    feminicidio: Optional[bool] = None
+    lido: Optional[bool] = None
+    vitima: Optional[Vitima] = None
+
+    class Config:
+        arbitrary_types_allowed = True
 
 class UpdateSite(BaseModel):
     nome: Optional[str]
@@ -64,7 +75,7 @@ async def list_sites_controller():
     return await list_sites()
 
 
-@router.get("/site/{site_url}", response_model=Site)
+@router.get("/site/{site_url}", response_model=SiteComplet)
 async def list_one_site_controller(site_url: str):
     return await list_one_site(site_url)
 
