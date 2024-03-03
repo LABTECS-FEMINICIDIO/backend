@@ -203,7 +203,7 @@ async def find_tags_on_site(content: str, tags: List[str]) -> List[str]:
 
     for tag in tags:
         if content:
-            print("procurando por tag dentro do site", content.find(tag))
+            print("procurando por tag dentro do site", tag, content.find(tag))
             if content.find(tag):
                 found_tags.append(tag)
 
