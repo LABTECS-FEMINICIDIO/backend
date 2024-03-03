@@ -141,7 +141,7 @@ async def find_iml():
 @router.get("/findSites/")
 async def find_sites():
     global is_loop_running, loop_task
-
+    await background_task()
     # Inicia ou reinicia o loop de sites
     if not is_loop_running:
         is_loop_running = True
