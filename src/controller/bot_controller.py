@@ -99,12 +99,12 @@ loop_task = None
 async def background_task_iml():
     global is_loop_running_iml
     while is_loop_running_iml:
-        tempo = await list_agendamento_pesquisas()
+        # tempo = await list_agendamento_pesquisas()
 
-        if tempo:
-            tempo_agendado = tempo[0].dias
-        else:
-            tempo_agendado = 1
+        # if tempo:
+        #     tempo_agendado = tempo[0].dias
+        # else:
+        #     tempo_agendado = 1
 
         await iml_screapper()
         await asyncio.sleep(1 * 86400)

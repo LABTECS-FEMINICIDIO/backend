@@ -7,7 +7,7 @@ from fastapi.encoders import jsonable_encoder
 from psycopg2 import IntegrityError
 from pydantic import BaseModel
 from sqlalchemy import desc
-from sqlalchemy.orm import sessionmaker, joinedload
+from sqlalchemy.orm import sessionmaker, joinedload, selectinload
 from typing import List, Optional, Union
 from src.database.database import engine
 from src.model.models import FeriadosModels, ReferenceSitesModels, SitesModels, ImlModels
@@ -83,7 +83,16 @@ async def list_sites():
     db_session = db()
 
     sites = db_session.query(SitesModels).options(
-        joinedload(SitesModels.vitima)).order_by(desc(SitesModels.createdAt)).all()
+        joinedload(SitesModels.vitima)
+    ).order_by(desc(SitesModels.createdAt)).with_entities(
+        SitesModels.id, SitesModels.nome, SitesModels.link,
+        SitesModels.feminicidio, SitesModels.lido,
+        SitesModels.classificacao, SitesModels.valido,
+        SitesModels.inHoliday, SitesModels.inWeekend,
+        SitesModels.tagsEncontradas, SitesModels.createdAt,
+        SitesModels.vitima_id
+    ).all()
+    
     db_session.close()
     return sites
 
