@@ -266,7 +266,7 @@ async def find_sites_with_keywords(tempo_agendado):
             print("total encontrado", len(found_sites))
 
             for site_info in found_sites:
-                site_blocked = site_is_blocked(site_name=site_info["name"])
+                site_blocked = await site_is_blocked(site_name=site_info["name"])
 
                 content = await fetch_content(site_info['url'])
                 if site_blocked == True:
@@ -410,7 +410,7 @@ def is_duplicate_record(content):
     return existing_record is not None
 
 
-def site_is_blocked(site_name):
+async def site_is_blocked(site_name):
     db = sessionmaker(bind=engine)
     db_session = db()
 
