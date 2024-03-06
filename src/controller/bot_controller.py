@@ -75,9 +75,9 @@ async def list_sites_controller():
     return await list_sites()
 
 
-@router.get("/site/{site_url}", response_model=SiteComplet)
-async def list_one_site_controller(site_url: str):
-    return await list_one_site(site_url)
+@router.get("/site/{id}", response_model=SiteComplet)
+async def list_one_site_controller(id: str):
+    return await list_one_site(id)
 
 
 @router.patch("/site/{siteId}")
