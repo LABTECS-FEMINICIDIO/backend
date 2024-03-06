@@ -113,7 +113,7 @@ async def export_xlsx():
 @router.get("/iml/export-xlsx")
 async def export_iml_xlsx():
     try:
-        iml_data = await   list_iml()
+        iml_data = list_iml()
 
         output = export_to_xlsx(iml_data)
 
