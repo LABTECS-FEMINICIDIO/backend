@@ -102,7 +102,7 @@ async def list_one_site(url_site: str):
     db_session = db()
 
     site_db = db_session.query(SitesModels).filter(
-        SitesModels.link == url_site).first()
+        SitesModels.id == url_site).first()
 
     db_session.close()
 
