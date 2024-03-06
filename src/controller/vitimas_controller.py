@@ -105,7 +105,7 @@ async def export_xlsx():
 
         output = export_to_xlsx(vitimas_data)
 
-        return StreamingResponse(content=output, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-Disposition": "attachment; filename=export.xlsx"})
+        return StreamingResponse(content=output, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-Disposition": "attachment; filename=vitimas.xlsx"})
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
