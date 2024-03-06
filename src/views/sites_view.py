@@ -389,13 +389,14 @@ def check_if_all_array_items_is_blank(arr):
         return is_all_blank
 
 
-def list_iml():
+async def list_iml():
     db = sessionmaker(bind=engine)
     db_session = db()
 
     iml_data = db_session.query(ImlModels).all()
     db_session.close()
-    return iml_data
+    return jsonable_encoder(iml_data)
+
 
 def is_duplicate_record(content):
     db = sessionmaker(bind=engine)
