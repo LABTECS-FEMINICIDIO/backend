@@ -395,8 +395,15 @@ async def list_iml():
 
     iml_data = db_session.query(ImlModels).all()
     db_session.close()
-    return jsonable_encoder(iml_data)
+    return iml_data
 
+async def list_iml_for_export():
+    db = sessionmaker(bind=engine)
+    db_session = db()
+
+    iml_data = db_session.query(ImlModels).all()
+    db_session.close()
+    return jsonable_encoder(iml_data)
 
 def is_duplicate_record(content):
     db = sessionmaker(bind=engine)
