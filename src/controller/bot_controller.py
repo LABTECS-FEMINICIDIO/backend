@@ -158,7 +158,7 @@ async def find_sites():
 
 @router.get("/imlData/")
 async def find_iml_data():
-    return list_iml()
+    return await list_iml()
 
 
 @router.patch("/updateLido/{siteId}")
