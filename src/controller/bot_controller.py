@@ -114,19 +114,19 @@ async def background_task():
     global is_loop_running
 
     while True:
-        tempo = await list_agendamento_pesquisas()
+        # tempo = await list_agendamento_pesquisas()
 
-        if tempo:
-            tempo_agendado = tempo[0].dias
-        else:
-            tempo_agendado = 5
+        # if tempo:
+        #     tempo_agendado = tempo[0].dias
+        # else:
+        #     tempo_agendado = 5
             
         print("ENTREI NA BACGROUND TASK")
 
         # await find_sites_with_keywords(tempo_agendado=tempo_agendado)
         # await createHistorySearch()
         #TODO: DEIXAR PARA UM DIA
-        await asyncio.sleep(tempo_agendado * 1)
+        await asyncio.sleep( 1)
 
 
 @router.get("/iml/")
