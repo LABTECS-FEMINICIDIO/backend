@@ -4,6 +4,8 @@ from uuid import UUID
 import smtplib
 from email.mime.text import MIMEText
 import random
+from dotenv import load_dotenv
+import os
 import string
 from pydantic import BaseModel
 from src.views.usuarios_views import (
@@ -86,11 +88,14 @@ async def reset_use_password_controller(user_id: UUID):
     except HTTPException as e:
         return e
     
+load_dotenv()
+
 def send_email(email_to: str, subject: str, body: str):
     EMAIL_HOST = 'smtp.office365.com'
     EMAIL_PORT = 587 
-    EMAIL_USER = 'monitorafeminicidio@outlook.com'
-    EMAIL_PASSWORD = 'senhafeminicidio092'
+
+    EMAIL_USER =  os.getenv("EMAIL_RECOVERY")
+    EMAIL_PASSWORD =  os.getenv("PASS_RECOVERY")
 
     msg = MIMEText(body)
     msg['Subject'] = subject
