@@ -87,10 +87,10 @@ async def reset_use_password_controller(user_id: UUID):
         return e
     
 def send_email(email_to: str, subject: str, body: str):
-    EMAIL_HOST = 'smtp.gmail.com'
+    EMAIL_HOST = 'smtp.office365.com'
     EMAIL_PORT = 587 
-    EMAIL_USER = ''
-    EMAIL_PASSWORD = ''
+    EMAIL_USER = 'monitorafeminicidio@outlook.com'
+    EMAIL_PASSWORD = 'senhafeminicidio092'
 
     msg = MIMEText(body)
     msg['Subject'] = subject
