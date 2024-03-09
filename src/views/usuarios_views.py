@@ -256,11 +256,11 @@ def is_recovery_code_valid(user):
         return datetime.utcnow() - user.recovery_code_created_at < timedelta(minutes=30)
     return False
 
-def change_password_with_recovery_code(user_id: str, recovery_code: str, new_password: str):
+def change_password_with_recovery_code(email: str, recovery_code: str, new_password: str):
     db = sessionmaker(bind=engine)
     db_session = db()
 
-    user = db_session.query(UsuariosModels).filter(UsuariosModels.id == user_id).first()
+    user = db_session.query(UsuariosModels).filter(UsuariosModels.email == email).first()
     if user:
 
         if is_recovery_code_valid(user) or user.recovery_code != recovery_code:
@@ -273,9 +273,9 @@ def change_password_with_recovery_code(user_id: str, recovery_code: str, new_pas
 
             user.senha = decoded_password
 
-            clear_recovery_code(db_session, user_id)
+            clear_recovery_code(db_session, email)
             db_session.commit()
-            
+
             return {"message": "Senha alterada com sucesso."}
     else:
         raise HTTPException(status_code=404, detail="E-mail não encontrado")
