@@ -395,7 +395,7 @@ async def list_iml():
     db = sessionmaker(bind=engine)
     db_session = db()
 
-    iml_data = db_session.query(ImlModels).all()
+    iml_data = db_session.query(ImlModels).order_by(desc(ImlModels.createdAt)).all()
     db_session.close()
     return iml_data
 

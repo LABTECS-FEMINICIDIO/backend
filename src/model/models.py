@@ -133,6 +133,7 @@ class ImlModels(Base):
     idade = Column(String, nullable=True)
     bairroDaRemocao = Column(String, nullable=True)
     causaMorte = Column(String, nullable=True)
+    createdAt = Column(String, default=func.now())
 
 
 class FeriadosModels(Base):
