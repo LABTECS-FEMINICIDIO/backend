@@ -126,7 +126,7 @@ async def background_task():
         await find_sites_with_keywords(tempo_agendado=tempo_agendado)
         await createHistorySearch()
         #TODO: DEIXAR PARA UM DIA
-        await asyncio.sleep(tempo_agendado * 10)
+        await asyncio.sleep(tempo_agendado * 86400)
 
 
 @router.get("/iml/")
