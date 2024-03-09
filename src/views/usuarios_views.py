@@ -276,7 +276,7 @@ def change_password_with_recovery_code(email: str, recovery_code: str, new_passw
 
             user.senha = decoded_password
 
-            clear_recovery_code(db_session, email)
+            clear_recovery_code(email)
             db_session.commit()
 
             return {"message": "Senha alterada com sucesso."}
