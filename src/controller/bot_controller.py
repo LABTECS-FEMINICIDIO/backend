@@ -160,7 +160,7 @@ async def find_sites():
     if not is_loop_running:
         is_loop_running = True
         print("entrei no if")
-        loop_task = asyncio.create_task(background_task)
+        loop_task = asyncio.create_task(await background_task())
     # await createHistorySearch()
     return {"message": "Busca de sites agendada com sucesso!"}
 
