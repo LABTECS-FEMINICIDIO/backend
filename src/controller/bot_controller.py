@@ -122,8 +122,8 @@ async def background_task():
             
         print("ENTREI NA BACGROUND TASK")
 
-        await find_sites_with_keywords(tempo_agendado=tempo_agendado)
-        await createHistorySearch()
+        # await find_sites_with_keywords(tempo_agendado=tempo_agendado)
+        # await createHistorySearch()
         
         await asyncio.sleep(tempo_agendado * 10)
 
@@ -154,6 +154,7 @@ async def find_sites():
     # Inicia ou reinicia o loop de sites
         print("AAAAAAAAAA", is_loop_running)
         print(not is_loop_running)
+        
     if not is_loop_running:
         is_loop_running = True
         loop_task = asyncio.create_task(background_task())
