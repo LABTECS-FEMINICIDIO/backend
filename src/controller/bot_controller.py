@@ -112,7 +112,7 @@ async def background_task_iml():
 
 async def background_task():
     global is_loop_running
-
+    print("oi papai")
     while True:
         # tempo = await list_agendamento_pesquisas()
 
@@ -153,11 +153,11 @@ async def find_sites():
 
     # await find_sites_with_keywords(tempo_agendado=tempo_agendado)
     # Inicia ou reinicia o loop de sites
-
-    if not is_loop_running:
-        is_loop_running = True
-        print("entrei no if")
-        loop_task = asyncio.create_task(background_task())
+    asyncio.create_task(background_task())
+    # if not is_loop_running:
+    #     is_loop_running = True
+    #     print("entrei no if")
+    #     loop_task = asyncio.create_task(background_task())
     # await createHistorySearch()
     return {"message": "Busca de sites agendada com sucesso!"}
 
