@@ -119,11 +119,13 @@ async def background_task():
             tempo_agendado = tempo[0].dias
         else:
             tempo_agendado = 5
+            
         print("ENTREI NA BACGROUND TASK")
+
         await find_sites_with_keywords(tempo_agendado=tempo_agendado)
         await createHistorySearch()
         
-        await asyncio.sleep(tempo_agendado * 86400)
+        await asyncio.sleep(tempo_agendado * 10)
 
 
 @router.get("/iml/")
@@ -147,6 +149,7 @@ async def find_sites():
         tempo_agendado = tempo[0].dias
     else:
         tempo_agendado = 5
+
     await find_sites_with_keywords(tempo_agendado=tempo_agendado)
     # Inicia ou reinicia o loop de sites
     if not is_loop_running:
