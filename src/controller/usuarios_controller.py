@@ -93,7 +93,7 @@ load_dotenv()
 def send_email(email_to: str, subject: str, body: str):
     EMAIL_HOST = 'smtp.office365.com'
     EMAIL_PORT = 587 
-    
+
     EMAIL_USER =  os.getenv("EMAIL_RECOVERY")
     EMAIL_PASSWORD =  os.getenv("PASS_RECOVERY")
 
