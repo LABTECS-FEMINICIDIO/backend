@@ -109,12 +109,12 @@ class RecoveryRequest(BaseModel):
     email: str
 
 @router.post("/recuperarSenha/")
-async def recovery_password(email: RecoveryRequest):
+async def recovery_password(data: RecoveryRequest):
         recovery_code = generate_recovery_code()
-        update_recovery_code(email, recovery_code)
+        update_recovery_code(data.email, recovery_code)
         subject = "Recuperação de senha"
         body = f"Seu código de recuperação é: {recovery_code}"
-        send_email(email, subject, body)
+        send_email(data.email, subject, body)
         return {"message": "Um e-mail foi enviado com o código de recuperação."}
 
 class ChangePasswordRequest(BaseModel):
