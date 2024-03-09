@@ -262,7 +262,9 @@ def change_password_with_recovery_code(email: str, recovery_code: str, new_passw
 
     user = db_session.query(UsuariosModels).filter(UsuariosModels.email == email).first()
     if user:
-
+        print("ta valendo???", is_recovery_code_valid(user))
+        print("codigo do user", user.recovery_code)
+        print("codigo enviado", recovery_code)
         if is_recovery_code_valid(user) or user.recovery_code != recovery_code:
             raise HTTPException(status_code=400, detail="Código de recuperação inválido ou expirado.")
         
