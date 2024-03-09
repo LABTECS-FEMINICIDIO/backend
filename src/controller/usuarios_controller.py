@@ -1,7 +1,10 @@
 from fastapi import APIRouter, HTTPException
 from typing import List, Optional
 from uuid import UUID
-
+import smtplib
+from email.mime.text import MIMEText
+import random
+import string
 from pydantic import BaseModel
 from src.views.usuarios_views import (
     UsuarioViewr,
@@ -12,7 +15,10 @@ from src.views.usuarios_views import (
     list_one_user,
     reset_user_password,
     update_user,
-    delete_user
+    delete_user,
+    change_password_with_recovery_code,
+    clear_recovery_code,
+    update_recovery_code,
 )
 
 router = APIRouter()
@@ -79,3 +85,43 @@ async def reset_use_password_controller(user_id: UUID):
         return await reset_user_password(user_id)
     except HTTPException as e:
         return e
+    
+def send_email(email_to: str, subject: str, body: str):
+    EMAIL_HOST = 'smtp.gmail.com'
+    EMAIL_PORT = 587 
+    EMAIL_USER = 'monitorafeminicidio@gmail.com'
+    EMAIL_PASSWORD = 'Projetof@2224'
+
+    msg = MIMEText(body)
+    msg['Subject'] = subject
+    msg['From'] = EMAIL_USER
+    msg['To'] = email_to
+
+    with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
+        server.starttls()
+        server.login(EMAIL_USER, EMAIL_PASSWORD)
+        server.sendmail(EMAIL_USER, [email_to], msg.as_string())
+
+def generate_recovery_code(length=6):
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+
+class RecoveryRequest(BaseModel):
+    email: str
+
+@router.post("/recuperarSenha/")
+async def recovery_password(email: RecoveryRequest):
+        recovery_code = generate_recovery_code()
+        update_recovery_code(email, recovery_code)
+        subject = "Recuperação de senha"
+        body = f"Seu código de recuperação é: {recovery_code}"
+        send_email(email, subject, body)
+        return {"message": "Um e-mail foi enviado com o código de recuperação."}
+
+class ChangePasswordRequest(BaseModel):
+    email: str
+    recovery_code: str
+    new_password: str
+
+@router.post("/mudarSenha/")
+def change_pass(request: ChangePasswordRequest):
+        return change_password_with_recovery_code(request.email, request.recovery_code, request.new_password)

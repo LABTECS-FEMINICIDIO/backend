@@ -4,6 +4,7 @@ import uuid
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+from datetime import datetime, timedelta
 
 
 class SitesModels(Base):
@@ -22,7 +23,6 @@ class SitesModels(Base):
     inWeekend = Column(Boolean, default=False)
     tagsEncontradas = Column(String, nullable=True)
 
-    createdAt = Column(String, default=func.now())
 
     vitima_id = Column(UUID(as_uuid=True), ForeignKey(
         'vitimas.id'), nullable=True)
@@ -119,6 +119,9 @@ class UsuariosModels(Base):
     senha = Column(String)
     acesso = Column(Boolean)
     perfil = Column(String)
+    recovery_code = Column(String, nullable=True)
+    createdAt = Column(String, default=func.now())
+    recovery_code_created_at = Column(DateTime, nullable=True)
 
 
 class ImlModels(Base):

@@ -9,6 +9,7 @@ import uuid
 from pydantic import BaseModel
 import bcrypt
 from uuid import UUID
+from datetime import datetime, timedelta
 
 
 class Usuario(BaseModel):
@@ -122,7 +123,6 @@ async def list_users():
     db_session.close()
     return users
 
-
 async def list_one_user(user_id: uuid.UUID):
     db = sessionmaker(bind=engine)
     db_session = db()
@@ -227,3 +227,55 @@ def user_exists(email: str) -> bool:
     db_session.close()
 
     return existing_user is not None
+
+
+def update_recovery_code(email, recovery_code):
+    db = sessionmaker(bind=engine)
+    db_session = db()
+    user = db_session.query(UsuariosModels).filter(UsuariosModels.email == email).first()
+    
+    if user is None:
+        db_session.close()
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    
+    user.recovery_code = recovery_code
+    user.recovery_code_created_at = datetime.utcnow()
+    db_session.commit()
+
+def clear_recovery_code(email):
+    db = sessionmaker(bind=engine)
+    db_session = db()
+    user = db_session.query(UsuariosModels).filter(UsuariosModels.email == email).first()
+    if user:
+        user.recovery_code = None
+        user.recovery_code_created_at = None
+        db_session.commit()
+
+def is_recovery_code_valid(user):
+    if user.recovery_code_created_at:
+        return datetime.utcnow() - user.recovery_code_created_at < timedelta(minutes=30)
+    return False
+
+def change_password_with_recovery_code(user_id: str, recovery_code: str, new_password: str):
+    db = sessionmaker(bind=engine)
+    db_session = db()
+
+    user = db_session.query(UsuariosModels).filter(UsuariosModels.id == user_id).first()
+    if user:
+
+        if is_recovery_code_valid(user) or user.recovery_code != recovery_code:
+            raise HTTPException(status_code=400, detail="Código de recuperação inválido ou expirado.")
+        
+        if user.recovery_code == recovery_code and is_recovery_code_valid(user):
+            salt = bcrypt.gensalt()
+            hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), salt)
+            decoded_password = hashed_password.decode('utf-8')
+
+            user.senha = decoded_password
+
+            clear_recovery_code(db_session, user_id)
+            db_session.commit()
+            
+            return {"message": "Senha alterada com sucesso."}
+    else:
+        raise HTTPException(status_code=404, detail="E-mail não encontrado")
