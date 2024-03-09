@@ -112,9 +112,8 @@ async def background_task_iml():
 
 async def background_task():
     global is_loop_running
-    print("to no começo do backfround task")
-    print(is_loop_running)
-    while is_loop_running:
+
+    while True:
         tempo = await list_agendamento_pesquisas()
 
         if tempo:
@@ -126,8 +125,8 @@ async def background_task():
 
         # await find_sites_with_keywords(tempo_agendado=tempo_agendado)
         # await createHistorySearch()
-        
-        await asyncio.sleep(tempo_agendado * 10)
+        #TODO: DEIXAR PARA UM DIA
+        await asyncio.sleep(tempo_agendado * 1)
 
 
 @router.get("/iml/")
@@ -154,8 +153,6 @@ async def find_sites():
 
     # await find_sites_with_keywords(tempo_agendado=tempo_agendado)
     # Inicia ou reinicia o loop de sites
-        print("AAAAAAAAAA", is_loop_running)
-        print(not is_loop_running)
 
     if not is_loop_running:
         is_loop_running = True
