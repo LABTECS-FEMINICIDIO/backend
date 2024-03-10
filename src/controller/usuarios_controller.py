@@ -124,9 +124,10 @@ async def recovery_password(data: RecoveryRequest):
     <div style="display: flex; width: 100%; justify-content: center;">
         <div style='text-align: center; background-color: rgba(161, 8, 161, 0.212); border-radius: 5px; width: 70%;'>
             <br>
-            <h1>Seu código de recuperação é: {recovery_code}</h1>
+            <h1  style='margin: 0;'>Seu código de recuperação é: {recovery_code}</h1>
             <br>
             <strong>Atenção, este código de recuperação irá expirar em 30 minutos.</strong>
+            <br>
             <br>
             <div style='text-align: center;'><a href='https://www.monitorafeminicidio.com/recoveryPass' style='background-color: purple; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Ir para o site</a></div>
             <br>
