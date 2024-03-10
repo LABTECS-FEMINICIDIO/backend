@@ -128,6 +128,8 @@ async def recovery_password(data: RecoveryRequest):
             <br>
             <strong>Atenção, este código de recuperação irá expirar em 30 minutos.</strong>
             <br>
+            <br>
+            <br>
             <div style='text-align: center;'><a href='https://www.monitorafeminicidio.com/recoveryPass' style='background-color: purple; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Ir para o site</a></div>
             <br>
             <br>
