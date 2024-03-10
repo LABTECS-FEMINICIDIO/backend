@@ -117,13 +117,24 @@ class RecoveryRequest(BaseModel):
 
 @router.post("/recuperarSenha/")
 async def recovery_password(data: RecoveryRequest):
-        recovery_code = generate_recovery_code()
-        update_recovery_code(data.email, recovery_code)
-        subject = "Recuperação de senha"
-        body = f"Seu código de recuperação é: {recovery_code}. <br><br>" \
-           f"<div style='text-align: center;'><a href='https://www.monitorafeminicidio.com/recoveryPass' style='background-color: purple; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Ir para o site</a></div>"
-        send_email(data.email, subject, body)
-        return {"message": "Um e-mail foi enviado com o código de recuperação."}
+    recovery_code = generate_recovery_code()
+    update_recovery_code(data.email, recovery_code)
+    subject = "Recuperação de senha"
+    body = f"""
+    <div style="display: flex; width: 100%; justify-content: center;">
+        <div style='text-align: center; background-color: rgba(161, 8, 161, 0.212); border-radius: 5px; width: 70%;'>
+            <br>
+            <h1>Seu código de recuperação é: {recovery_code}.</h1>
+            <br>
+            <div style='text-align: center;'><a href='https://www.monitorafeminicidio.com/recoveryPass' style='background-color: purple; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Ir para o site</a></div>
+            <br>
+            <br>
+            <br>
+        </div>
+    </div>
+    """
+    send_email(data.email, subject, body)
+    return {"message": "Um e-mail foi enviado com o código de recuperação."}
 
 class ChangePasswordRequest(BaseModel):
     email: str
