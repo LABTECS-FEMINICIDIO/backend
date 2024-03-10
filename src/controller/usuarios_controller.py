@@ -1,3 +1,4 @@
+from email.mime.multipart import MIMEMultipart
 from fastapi import APIRouter, HTTPException
 from typing import List, Optional
 from uuid import UUID
@@ -94,10 +95,11 @@ def send_email(email_to: str, subject: str, body: str):
     EMAIL_HOST = 'smtp.office365.com'
     EMAIL_PORT = 587 
 
-    EMAIL_USER =  os.getenv("EMAIL_RECOVERY")
-    EMAIL_PASSWORD =  os.getenv("PASS_RECOVERY")
+    EMAIL_USER = os.getenv("EMAIL_RECOVERY")
+    EMAIL_PASSWORD = os.getenv("PASS_RECOVERY")
 
-    msg = MIMEText(body)
+    msg = MIMEMultipart()
+    msg.attach(MIMEText(body, 'html'))
     msg['Subject'] = subject
     msg['From'] = EMAIL_USER
     msg['To'] = email_to
@@ -118,7 +120,8 @@ async def recovery_password(data: RecoveryRequest):
         recovery_code = generate_recovery_code()
         update_recovery_code(data.email, recovery_code)
         subject = "Recuperação de senha"
-        body = f"Seu código de recuperação é: {recovery_code}"
+        body = f"Seu código de recuperação é: {recovery_code}. <br><br>" \
+           f"<div style='text-align: center;'><a href='https://www.monitorafeminicidio.com/recoveryPass' style='background-color: purple; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Ir para o site</a></div>"
         send_email(data.email, subject, body)
         return {"message": "Um e-mail foi enviado com o código de recuperação."}
 
