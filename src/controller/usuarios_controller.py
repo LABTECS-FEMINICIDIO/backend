@@ -124,7 +124,7 @@ async def recovery_password(data: RecoveryRequest):
     <div style="display: flex; width: 100%; justify-content: center;">
         <div style='text-align: center; background-color: rgba(161, 8, 161, 0.212); border-radius: 5px; width: 70%;'>
             <br>
-            <strong style='margin: 0;'>Seu código de recuperação é: {recovery_code}</strong>
+            <h3 style='margin: 0;'>Seu código de recuperação é: {recovery_code}</h3>
             <strong>Atenção, este código de recuperação irá expirar em 30 minutos.</strong>
             <br>
             <br>
