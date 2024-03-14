@@ -95,6 +95,25 @@ def export_to_xlsx(data):
 
     return output
 
+headers_iml = ["dataEntrada", "horaEntrada", "sexo", "idade", "bairroDaRemocao", "causaMorte"]
+
+def export_to_xlsx_iml(data):
+    wb = Workbook()
+    ws = wb.active
+
+    ws.append(headers)
+
+    for row in data:
+        row_dict = dict(row)
+        row_data = [row_dict.get(header, "") for header in headers_iml]
+        ws.append(row_data)
+
+    output = BytesIO()
+    wb.save(output)
+    output.seek(0)
+
+    return output
+
 from fastapi.responses import StreamingResponse
 
 
@@ -115,7 +134,7 @@ async def export_iml_xlsx():
     try:
         iml_data = await list_iml_for_export()
 
-        output = export_to_xlsx(iml_data)
+        output = export_to_xlsx_iml(iml_data)
 
         return StreamingResponse(content=output, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-Disposition": "attachment; filename=iml.xlsx"})
 
