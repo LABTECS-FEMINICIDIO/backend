@@ -101,7 +101,7 @@ def export_to_xlsx_iml(data):
     wb = Workbook()
     ws = wb.active
 
-    ws.append(headers)
+    ws.append(headers_iml)
 
     for row in data:
         row_dict = dict(row)
