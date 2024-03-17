@@ -151,7 +151,7 @@ async def find_sites():
     else:
         tempo_agendado = 5
 
-    # await find_sites_with_keywords(tempo_agendado=tempo_agendado)
+    await find_sites_with_keywords(tempo_agendado=tempo_agendado)
     # Inicia ou reinicia o loop de sites
     if not is_loop_running:
         is_loop_running = True
