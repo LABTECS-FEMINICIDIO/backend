@@ -47,7 +47,7 @@ class VitimasModels(Base):
 
     id = Column(UUID(as_uuid=True), default=uuid.uuid4,
                 primary_key=True, index=True)
-    datadofato = Column(String)
+    datadofato = Column(DateTime)
     diah = Column(String)
     horario = Column(String)
     turno = Column(String)
@@ -144,3 +144,4 @@ class FeriadosModels(Base):
     mes = Column(Integer)
     dia = Column(Integer)
     tipo = Column(String)
+    pontoFacultativo = Column(Boolean)

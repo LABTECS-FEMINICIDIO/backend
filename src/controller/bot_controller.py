@@ -1,7 +1,7 @@
 from fastapi import APIRouter, BackgroundTasks, UploadFile, File, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
-from src.views.sites_view import change_site_lido, create_site, iml_screapper, list_iml, list_sites, list_one_site, update_site, delete_site, find_sites_with_keywords, parse_excel
+from src.views.sites_view import change_site_assassinato, change_site_lido, create_site, iml_screapper, list_iml, list_sites, list_one_site, update_site, delete_site, find_sites_with_keywords, parse_excel
 import schedule
 import time
 import threading
@@ -169,6 +169,10 @@ async def find_iml_data():
 @router.patch("/updateLido/{siteId}")
 async def update_lido(siteId: str):
     return await change_site_lido(siteId)
+
+@router.patch("/updateAssasinato/{siteId}")
+async def update_lido(siteId: str):
+    return await change_site_assassinato(siteId)
 
 @router.get("/history/lastSearch")
 async def last_search():

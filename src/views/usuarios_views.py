@@ -20,6 +20,14 @@ class Usuario(BaseModel):
     perfil: Optional[str] = "pesquisador"
 
 
+class Usuario(BaseModel):
+    nome: str
+    email: str
+    telefone: str
+    senha: Optional[str] = None
+    perfil: Optional[str] = "pesquisador"
+
+
 class UsuarioViewr(BaseModel):
     nome: str
     email: str

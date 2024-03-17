@@ -8,10 +8,10 @@ router = APIRouter()
 from openpyxl import Workbook
 from io import BytesIO
 from fastapi.responses import FileResponse
-
+from datetime import datetime
 
 class Vitima(BaseModel):
-    datadofato: str
+    datadofato: datetime
     diah: str
     horario: str
     turno: str

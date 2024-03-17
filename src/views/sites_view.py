@@ -452,6 +452,20 @@ async def change_site_lido(site_id):
 
     return site
 
+async def change_site_assassinato(site_id):
+    db = sessionmaker(bind=engine)
+    db_session = db()
+
+    site = db_session.query(SitesModels).filter(
+        SitesModels.id == site_id).first()
+
+    site.feminicidio = not site.feminicidio
+
+    db_session.commit()
+    db_session.close()
+
+    return site
+
 
 def is_holiday(date):
     year_data = int(str(date).split(" ")[0].split("-")[0])
