@@ -28,6 +28,7 @@ class Site(BaseModel):
     feminicidio: Optional[bool] = None
     lido: Optional[bool] = False
     vitima: Optional[Dict] = None
+    tagsEncontradas: Optional[str] = None
 
 
 class SiteUpdate(BaseModel):
@@ -273,14 +274,14 @@ async def find_sites_with_keywords(tempo_agendado):
             site_blocked = await site_is_blocked(site_name=site_info["name"])
 
             content = await fetch_content(site_info['url'])
-            aa = await find_tags_on_site(content, all_tags)
+            tags_encontradas_no_site = await find_tags_on_site(content, all_tags)
 
-            print("tags encontradas no siteeeeeeee", aa)
             if site_blocked == True:
                 await create_site(Site(
                     nome=site_info['name'],
                     link=site_info['url'],
-                    conteudo=content
+                    conteudo=content,
+                    tagsEncontradas=", ".join(tags_encontradas_no_site)
                 ), site_info['reference_site_link'])
 
                 print('criei o site')
