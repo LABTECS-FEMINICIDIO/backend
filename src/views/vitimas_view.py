@@ -103,3 +103,13 @@ async def delete_vitima(vitima_id: UUID, ):
     db_session.commit()
 
     return jsonable_encoder(db_vitima)
+
+async def list_one_vitima(vitima_id: UUID):
+    db = sessionmaker(bind=engine)
+    db_session = db()
+    db_vitima = db_session.query(VitimasModels).filter(
+        VitimasModels.id == vitima_id).first()
+    if db_vitima is None:
+        raise HTTPException(status_code=404, detail="Vítima not found")
+
+    return jsonable_encoder(db_vitima)

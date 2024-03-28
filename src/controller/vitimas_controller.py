@@ -2,7 +2,7 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
-from src.views.vitimas_view import VitimaEdit, create_vitima, delete_vitima, list_vitimas, update_vitima
+from src.views.vitimas_view import VitimaEdit, create_vitima, delete_vitima, list_vitimas, update_vitima, list_one_vitima
 from src.views.sites_view import list_iml, list_iml_for_export
 router = APIRouter()
 from openpyxl import Workbook
@@ -28,6 +28,9 @@ class Vitima(BaseModel):
     loclesao2: str
     loclesao3: str
     hospitalizacao: str
+    compexcomp: str
+    lat: str
+    lng: str
     violsexual: str
     latrocinio: str
     zona: str
@@ -43,7 +46,7 @@ async def create_vitimas_controller(vitima: Vitima):
     return await create_vitima(vitima)
 
 
-@router.get("/vitimas/")
+@router.get("/vitimas/") 
 async def list_tags_controller():
     return await list_vitimas()
 
@@ -61,6 +64,10 @@ async def update_vitima_controller(vitima_id, item: dict):
 @router.delete("/vitimas/{vitima_id}")
 async def delete_vitimas_controller(vitima_id: str):
     return await delete_vitima(vitima_id)
+
+@router.get("/vitimas/{vitima_id}")
+async def list_one_controller(vitima_id: str):
+    return await list_one_vitima(vitima_id)
 
 headers = ["numero1", "registro_fvs_do", "naocapturado", "homicidio", "numerodo", "datadofato",
            "diah", "diasemh", "mesh", "anoh", "horario", "turno", "nome", "idade", "racacor1", "estciv2",

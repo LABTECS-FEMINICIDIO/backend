@@ -47,7 +47,7 @@ class VitimasModels(Base):
 
     id = Column(UUID(as_uuid=True), default=uuid.uuid4,
                 primary_key=True, index=True)
-    datadofato = Column(DateTime)
+    datadofato = Column(String)
     diah = Column(String)
     horario = Column(String)
     turno = Column(String)
