@@ -12,6 +12,8 @@ class Feriado(BaseModel):
     ano: int
     mes: int
     dia: int
+    tipo: str
+    pontoFacultativo: bool
 
 
 async def create_feriado(feriado: Feriado):
