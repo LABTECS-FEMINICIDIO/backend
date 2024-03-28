@@ -45,6 +45,9 @@ class Vitima(BaseModel):
 async def create_vitimas_controller(vitima: Vitima):
     return await create_vitima(vitima)
 
+@router.get("/vitimas/{vitima_id}")
+async def list_one_controller(vitima_id: str):
+    return await list_one_vitima(vitima_id)
 
 @router.get("/vitimas/") 
 async def list_tags_controller():
@@ -64,10 +67,6 @@ async def update_vitima_controller(vitima_id, item: dict):
 @router.delete("/vitimas/{vitima_id}")
 async def delete_vitimas_controller(vitima_id: str):
     return await delete_vitima(vitima_id)
-
-@router.get("/vitimas/{vitima_id}")
-async def list_one_controller(vitima_id: str):
-    return await list_one_vitima(vitima_id)
 
 headers = ["numero1", "registro_fvs_do", "naocapturado", "homicidio", "numerodo", "datadofato",
            "diah", "diasemh", "mesh", "anoh", "horario", "turno", "nome", "idade", "racacor1", "estciv2",
