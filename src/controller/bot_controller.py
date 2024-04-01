@@ -77,7 +77,7 @@ async def list_sites_controller(
     created_date: str
 ):
     
-    return await list_sites(created_date)
+    return await list_sites()
 
 
 @router.get("/site/{id}", response_model=SiteComplet)
