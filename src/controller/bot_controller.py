@@ -91,14 +91,17 @@ async def list_sites_controller(
         'inHoliday': inHoliday,
         'inWeekend': inWeekend,
         'tagsEncontradas': tagsEncontradas,
+        'created_date': created_date
     }
-    if created_date:
-        # Convertendo a string da data para um objeto datetime
-        date_obj = datetime.strptime(created_date, "%Y-%m-%d")
-        # Criando um intervalo de tempo para o dia especificado
-        start_date = date_obj.replace(hour=0, minute=0, second=0)
-        end_date = start_date + timedelta(days=1) - timedelta(seconds=1)
-        filters['createdAt'] = (start_date, end_date)
+    if any(value is not None for value in filters.values()):
+        if created_date:
+            # Convertendo a string da data para um objeto datetime
+            date_obj = datetime.strptime(created_date, "%Y-%m-%d")
+            # Criando um intervalo de tempo para o dia especificado
+            start_date = date_obj.replace(hour=0, minute=0, second=0)
+            end_date = start_date + timedelta(days=1) - timedelta(seconds=1)
+            filters['createdAt'] = (start_date, end_date)
+        
         
     return await list_sites(filters)
 
