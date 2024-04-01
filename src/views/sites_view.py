@@ -95,12 +95,14 @@ async def list_sites(filters=None):
     )
     
     print(filters)
-    # if filters:
-    #     for key, value in filters.items():
-    #         if key == 'createdAt':
-    #             query = query.filter(SitesModels.createdAt >= value[0], SitesModels.createdAt <= value[1])
-    #         else:
-    #             query = query.filter_by(**{key: value})
+    if filters:
+        for key, value in filters.items():
+            if key == 'createdAt':
+                query = query.filter(SitesModels.createdAt >= value[0], SitesModels.createdAt <= value[1])
+            else:
+                if not key is None:
+                    query = query.filter_by(**{key: value})
+                    
     sites = query.all()
     
     db_session.close()
