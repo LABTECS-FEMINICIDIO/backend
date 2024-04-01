@@ -94,13 +94,13 @@ async def list_sites(filters=None):
         SitesModels.vitima_id
     )
     
-    # if filters:
-    #     for key, value in filters.items():
-    #         if key == 'createdAt':
-    #             query = query.filter(SitesModels.createdAt >= value[0], SitesModels.createdAt <= value[1])
-    #         else:
-    #             query = query.filter_by(**{key: value})
-    
+    if filters:
+        for key, value in filters.items():
+            if key == 'createdAt':
+                query = query.filter(SitesModels.createdAt >= value[0], SitesModels.createdAt <= value[1])
+            else:
+                query = query.filter_by(**{key: value})
+    print(filters)
     sites = query.all()
     
     db_session.close()
