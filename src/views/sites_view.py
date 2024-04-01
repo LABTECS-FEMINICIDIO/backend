@@ -17,6 +17,7 @@ from datetime import datetime
 import random
 import json
 import itertools
+from datetime import datetime, timedelta
 
 from src.views.reference_sites_views import createReferenceSiteForParse
 
@@ -79,7 +80,7 @@ async def create_site(site: Site, reference_site_link: str):
         return site
 
 
-async def list_sites(filters=None):
+async def list_sites(created_date=None):
     db = sessionmaker(bind=engine)
     db_session = db()
 
@@ -93,16 +94,15 @@ async def list_sites(filters=None):
         SitesModels.tagsEncontradas, SitesModels.createdAt,
         SitesModels.vitima_id
     )
+
+    if created_date:
+        date_obj = datetime.strptime(created_date, "%Y-%m-%d")
+        # Criando um intervalo de tempo para o dia especificado
+        start_date = date_obj.replace(hour=0, minute=0, second=0)
+        end_date = start_date + timedelta(days=1) - timedelta(seconds=1)
+        print(start_date, end_date)
     
-    print(filters)
-    if filters:
-        for key, value in filters.items():
-            if key == 'createdAt':
-                query = query.filter(SitesModels.createdAt >= value[0], SitesModels.createdAt <= value[1])
-            else:
-                if not key is None:
-                    query = query.filter_by(**{key: value})
-                    
+
     sites = query.all()
     
     db_session.close()

@@ -74,39 +74,10 @@ async def analyze_excel(file: UploadFile = File(...)):
 
 @router.get("/site/")
 async def list_sites_controller(
-    nome: str,
-    feminicidio: bool,
-    lido: bool,
-    classificacao: int,
-    valido: bool,
-    inHoliday: bool,
-    inWeekend: bool,
-    tagsEncontradas: str,
     created_date: str
 ):
-    filters = {
-        'nome': nome,
-        'feminicidio': feminicidio,
-        'lido': lido,
-        'classificacao': classificacao,
-        'valido': valido,
-        'inHoliday': inHoliday,
-        'inWeekend': inWeekend,
-        'tagsEncontradas': tagsEncontradas,
-        'created_date': created_date
-    }
-
-    if any(value is not None for value in filters.values()):
-        if created_date:
-            # Convertendo a string da data para um objeto datetime
-            date_obj = datetime.strptime(created_date, "%Y-%m-%d")
-            # Criando um intervalo de tempo para o dia especificado
-            start_date = date_obj.replace(hour=0, minute=0, second=0)
-            end_date = start_date + timedelta(days=1) - timedelta(seconds=1)
-            filters['createdAt'] = (start_date, end_date)
-        
-        
-    return await list_sites(filters)
+    
+    return await list_sites(created_date)
 
 
 @router.get("/site/{id}", response_model=SiteComplet)
