@@ -74,6 +74,7 @@ async def analyze_excel(file: UploadFile = File(...)):
 
 @router.get("/site/")
 async def list_sites_controller(
+    nome: str,
     feminicidio: bool,
     lido: bool,
     classificacao: int,
@@ -84,6 +85,7 @@ async def list_sites_controller(
     created_date: str
 ):
     filters = {
+        'nome': nome,
         'feminicidio': feminicidio,
         'lido': lido,
         'classificacao': classificacao,
