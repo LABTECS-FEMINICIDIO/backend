@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from views.feriados_views import Feriado, create_feriado, delete_feriado, list_feriados, update_feriado
+from src.views.feriados_views import Feriado, create_feriado, delete_feriado, list_feriados, update_feriado
 
 router = APIRouter()
 
