@@ -5,7 +5,7 @@ from src.views.sites_view import change_site_assassinato, change_site_lido, crea
 import schedule
 import time
 import threading
-from datetime import datetime
+from datetime import datetime, timedelta
 from src.views.search_schedule_views import list_agendamento_pesquisas
 import asyncio
 import json
@@ -15,6 +15,7 @@ from typing import Dict
 router = APIRouter()
 from openpyxl import load_workbook
 from src.views.historySearch_views import get_latest_history_search, createHistorySearch
+from fastapi import Query
 
 class Vitima(BaseModel):
     id: UUID
@@ -70,9 +71,36 @@ async def analyze_excel(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Erro ao processar o arquivo: {str(e)}")
 
+
 @router.get("/site/")
-async def list_sites_controller():
-    return await list_sites()
+async def list_sites_controller(
+    feminicidio: bool = Query(None),
+    lido: bool = Query(None),
+    classificacao: int = Query(None),
+    valido: bool = Query(None),
+    inHoliday: bool = Query(None),
+    inWeekend: bool = Query(None),
+    tagsEncontradas: str = Query(None),
+    created_date: str = Query(None)
+):
+    filters = {
+        'feminicidio': feminicidio,
+        'lido': lido,
+        'classificacao': classificacao,
+        'valido': valido,
+        'inHoliday': inHoliday,
+        'inWeekend': inWeekend,
+        'tagsEncontradas': tagsEncontradas,
+    }
+    if created_date:
+        # Convertendo a string da data para um objeto datetime
+        date_obj = datetime.strptime(created_date, "%Y-%m-%d")
+        # Criando um intervalo de tempo para o dia especificado
+        start_date = date_obj.replace(hour=0, minute=0, second=0)
+        end_date = start_date + timedelta(days=1) - timedelta(seconds=1)
+        filters['createdAt'] = (start_date, end_date)
+        
+    return await list_sites(filters)
 
 
 @router.get("/site/{id}", response_model=SiteComplet)

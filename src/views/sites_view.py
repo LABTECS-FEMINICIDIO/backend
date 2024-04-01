@@ -79,11 +79,11 @@ async def create_site(site: Site, reference_site_link: str):
         return site
 
 
-async def list_sites():
+async def list_sites(filters=None):
     db = sessionmaker(bind=engine)
     db_session = db()
 
-    sites = db_session.query(SitesModels).options(
+    query = db_session.query(SitesModels).options(
         joinedload(SitesModels.vitima)
     ).order_by(desc(SitesModels.createdAt)).with_entities(
         SitesModels.id, SitesModels.nome, SitesModels.link,
@@ -92,11 +92,19 @@ async def list_sites():
         SitesModels.inHoliday, SitesModels.inWeekend,
         SitesModels.tagsEncontradas, SitesModels.createdAt,
         SitesModels.vitima_id
-    ).all()
+    )
+    
+    if filters:
+        for key, value in filters.items():
+            if key == 'createdAt':
+                query = query.filter(SitesModels.createdAt >= value[0], SitesModels.createdAt <= value[1])
+            else:
+                query = query.filter_by(**{key: value})
+    
+    sites = query.all()
     
     db_session.close()
     return sites
-
 
 async def list_one_site(url_site: str):
     db = sessionmaker(bind=engine)
