@@ -74,7 +74,6 @@ async def analyze_excel(file: UploadFile = File(...)):
 
 @router.get("/site/")
 async def list_sites_controller(
-    created_date: str
 ):
     
     return await list_sites()
