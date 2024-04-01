@@ -6,7 +6,7 @@ import requests
 from fastapi.encoders import jsonable_encoder
 from psycopg2 import IntegrityError
 from pydantic import BaseModel
-from sqlalchemy import desc, and_
+from sqlalchemy import desc
 from sqlalchemy.orm import sessionmaker, joinedload, selectinload
 from typing import List, Optional, Union
 from src.database.database import engine
@@ -95,15 +95,12 @@ async def list_sites(filters=None):
     )
     
     print(filters)
-    if filters:
-        where_clauses = []
-        for key, value in filters.items():
-            if key == 'created_date':
-                where_clauses.append(and_(SitesModels.createdAt >= value[0], SitesModels.createdAt < value[1]))
-            else:
-                where_clauses.append(getattr(SitesModels, key) == value)
-        
-        query = query.filter(*where_clauses)
+    # if filters:
+    #     for key, value in filters.items():
+    #         if key == 'createdAt':
+    #             query = query.filter(SitesModels.createdAt >= value[0], SitesModels.createdAt <= value[1])
+    #         else:
+    #             query = query.filter_by(**{key: value})
     sites = query.all()
     
     db_session.close()
