@@ -101,7 +101,9 @@ async def list_sites(created_date=None):
         start_date = date_obj.replace(hour=0, minute=0, second=0)
         end_date = start_date + timedelta(days=1) - timedelta(seconds=1)
         print(start_date, end_date)
-    
+        query = query.filter(SitesModels.createdAt >= start_date, SitesModels.createdAt <= end_date)
+
+
 
     sites = query.all()
     
