@@ -93,6 +93,7 @@ async def list_sites_controller(
         'tagsEncontradas': tagsEncontradas,
         'created_date': created_date
     }
+    
     if any(value is not None for value in filters.values()):
         if created_date:
             # Convertendo a string da data para um objeto datetime
