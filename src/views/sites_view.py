@@ -361,11 +361,10 @@ async def parse_excel(file: UploadFile = File(...)):
         for row in data:
             if has_value(row):
                 if not check_if_all_array_items_is_blank(row):
-                    print(row[0], row[1])
-                    if not is_duplicate_record(row):
+                    if not is_duplicate_record_for_parse(row):
                         await create_iml(Iml(
-                            dataEntrada= "NA" if row[0].strip() == "" else row[0] ,
-                            horaEntrada="NA" if row[1].strip() == "" else row[1] ,
+                            dataEntrada= "NA" if row[0].strip() == "" else  datetime.strftime(row[0], '%d/%m/%Y') ,
+                            horaEntrada="NA" if row[1].strip() == "" else datetime.strftime(row[1], '%H:%M') ,
                             sexo="NA" if row[2].strip() == "" else row[2] ,
                             idade="NA" if row[3].strip() == "" else row[3] ,
                             bairroDaRemocao="NA" if row[4].strip() == "" else row[4] ,
@@ -442,6 +441,22 @@ def is_duplicate_record(content):
 
     return existing_record is not None
 
+def is_duplicate_record_for_parse(content):
+    db = sessionmaker(bind=engine)
+    db_session = db()
+
+    existing_record = db_session.query(ImlModels).filter_by(
+        dataEntrada=datetime.strftime(content[0], '%d/%m/%Y'),
+        horaEntrada=datetime.strftime(content[1], '%H:%M'),
+        sexo=content[2],
+        idade=content[3],
+        bairroDaRemocao=content[4],
+        causaMorte=content[5]
+    ).first()
+
+    db_session.close()
+
+    return existing_record is not None
 
 async def site_is_blocked(site_name):
     db = sessionmaker(bind=engine)
