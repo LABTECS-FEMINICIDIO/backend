@@ -359,24 +359,25 @@ async def parse_excel(file: UploadFile = File(...)):
         data = parse_xlsx_file("temp.xlsx")
         acc = 0
         for row in data:
-            if has_value(row):
-                if not check_if_all_array_items_is_blank(row):
-                    if not is_duplicate_record_for_parse(row):
-                        
-                        data_obj = datetime.strptime(row[0], '%Y-%m-%d')
-                        hora_obj = datetime.strptime(row[1], '%H:%M:%S')
+            if row[0] != "DATA DE ENTRADA":
+                if has_value(row):
+                    if not check_if_all_array_items_is_blank(row):
+                        if not is_duplicate_record_for_parse(row):
+                            
+                            data_obj = datetime.strptime(row[0], '%Y-%m-%d')
+                            hora_obj = datetime.strptime(row[1], '%H:%M:%S')
 
-                        data_formatada = datetime.strftime(data_obj, '%d/%m/%Y')
-                        hora_formatada = datetime.strftime(hora_obj, '%H:%M')
+                            data_formatada = datetime.strftime(data_obj, '%d/%m/%Y')
+                            hora_formatada = datetime.strftime(hora_obj, '%H:%M')
 
-                        await create_iml(Iml(
-                            dataEntrada= "NA" if row[0].strip() == "" else data_formatada ,
-                            horaEntrada="NA" if row[1].strip() == "" else hora_formatada ,
-                            sexo="NA" if row[2].strip() == "" else row[2] ,
-                            idade="NA" if row[3].strip() == "" else row[3] ,
-                            bairroDaRemocao="NA" if row[4].strip() == "" else row[4] ,
-                            causaMorte="NA" if row[5].strip() == "" else row[5] 
-                        ))
+                            await create_iml(Iml(
+                                dataEntrada= "NA" if row[0].strip() == "" else data_formatada ,
+                                horaEntrada="NA" if row[1].strip() == "" else hora_formatada ,
+                                sexo="NA" if row[2].strip() == "" else row[2] ,
+                                idade="NA" if row[3].strip() == "" else row[3] ,
+                                bairroDaRemocao="NA" if row[4].strip() == "" else row[4] ,
+                                causaMorte="NA" if row[5].strip() == "" else row[5] 
+                            ))
 
         return {
             "message": "Upload concluido com sucesso!"
