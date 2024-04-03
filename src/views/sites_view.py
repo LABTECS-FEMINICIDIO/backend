@@ -361,6 +361,7 @@ async def parse_excel(file: UploadFile = File(...)):
         for row in data:
             if has_value(row):
                 if not check_if_all_array_items_is_blank(row):
+                    
                     if not is_duplicate_record_for_parse(row):
                         
                         data_obj = datetime.strptime(row[0], '%Y-%m-%d')
