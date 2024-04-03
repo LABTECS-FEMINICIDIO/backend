@@ -362,10 +362,16 @@ async def parse_excel(file: UploadFile = File(...)):
             if has_value(row):
                 if not check_if_all_array_items_is_blank(row):
                     if not is_duplicate_record_for_parse(row):
-                        print("a",row[0])
+                        
+                        data_obj = datetime.strptime(row[0], '%Y-%m-%d')
+                        hora_obj = datetime.strptime(row[1], '%H:%M:%S')
+
+                        data_formatada = datetime.strftime(data_obj, '%d/%m/%Y')
+                        hora_formatada = datetime.strftime(hora_obj, '%H:%M')
+
                         await create_iml(Iml(
-                            dataEntrada= "NA" if row[0].strip() == "" else  datetime.strftime(row[0], '%d/%m/%Y') ,
-                            horaEntrada="NA" if row[1].strip() == "" else datetime.strftime(row[1], '%H:%M') ,
+                            dataEntrada= "NA" if row[0].strip() == "" else row[0] ,
+                            horaEntrada="NA" if row[1].strip() == "" else row[1] ,
                             sexo="NA" if row[2].strip() == "" else row[2] ,
                             idade="NA" if row[3].strip() == "" else row[3] ,
                             bairroDaRemocao="NA" if row[4].strip() == "" else row[4] ,
@@ -446,9 +452,15 @@ def is_duplicate_record_for_parse(content):
     db = sessionmaker(bind=engine)
     db_session = db()
 
+    data_obj = datetime.strptime(content[0], '%Y-%m-%d')
+    hora_obj = datetime.strptime(content[1], '%H:%M:%S')
+
+    data_formatada = datetime.strftime(data_obj, '%d/%m/%Y')
+    hora_formatada = datetime.strftime(hora_obj, '%H:%M')
+
     existing_record = db_session.query(ImlModels).filter_by(
-        dataEntrada=datetime.strftime(content[0], '%d/%m/%Y'),
-        horaEntrada=datetime.strftime(content[1], '%H:%M'),
+        dataEntrada=data_formatada,
+        horaEntrada=hora_formatada,
         sexo=content[2],
         idade=content[3],
         bairroDaRemocao=content[4],
@@ -458,6 +470,7 @@ def is_duplicate_record_for_parse(content):
     db_session.close()
 
     return existing_record is not None
+
 
 async def site_is_blocked(site_name):
     db = sessionmaker(bind=engine)
