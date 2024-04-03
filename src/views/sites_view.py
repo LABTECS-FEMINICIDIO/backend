@@ -365,8 +365,8 @@ async def parse_excel(file: UploadFile = File(...)):
                         if not is_duplicate_record_for_parse(row):
 
                             await create_iml(Iml(
-                                dataEntrada= "NA" if row[0].strip() == "" else row[0].text ,
-                                horaEntrada="NA" if row[1].strip() == "" else row[1].text ,
+                                dataEntrada= "NA" if row[0].strip() == "" else datetime.strftime(row[0], '%d/%m/%Y') ,
+                                horaEntrada="NA" if row[1].strip() == "" else row[1] ,
                                 sexo="NA" if row[2].strip() == "" else row[2] ,
                                 idade="NA" if row[3].strip() == "" else row[3] ,
                                 bairroDaRemocao="NA" if row[4].strip() == "" else row[4] ,
@@ -448,7 +448,7 @@ def is_duplicate_record_for_parse(content):
     db_session = db()
 
     existing_record = db_session.query(ImlModels).filter_by(
-        dataEntrada=content[0].text,
+        dataEntrada=datetime.strftime(content[0], '%d/%m/%Y'),
         horaEntrada=content[1].text,
         sexo=content[2],
         idade=content[3],
