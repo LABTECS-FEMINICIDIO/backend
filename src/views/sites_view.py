@@ -370,8 +370,8 @@ async def parse_excel(file: UploadFile = File(...)):
                         hora_formatada = datetime.strftime(hora_obj, '%H:%M')
 
                         await create_iml(Iml(
-                            dataEntrada= "NA" if row[0].strip() == "" else row[0] ,
-                            horaEntrada="NA" if row[1].strip() == "" else row[1] ,
+                            dataEntrada= "NA" if row[0].strip() == "" else data_formatada ,
+                            horaEntrada="NA" if row[1].strip() == "" else hora_formatada ,
                             sexo="NA" if row[2].strip() == "" else row[2] ,
                             idade="NA" if row[3].strip() == "" else row[3] ,
                             bairroDaRemocao="NA" if row[4].strip() == "" else row[4] ,
