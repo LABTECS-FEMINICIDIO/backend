@@ -361,7 +361,6 @@ async def parse_excel(file: UploadFile = File(...)):
         for row in data:
             if has_value(row):
                 if not check_if_all_array_items_is_blank(row):
-                    
                     if not is_duplicate_record_for_parse(row):
                         
                         data_obj = datetime.strptime(row[0], '%Y-%m-%d')
@@ -458,7 +457,7 @@ def is_duplicate_record_for_parse(content):
 
     data_formatada = datetime.strftime(data_obj, '%d/%m/%Y')
     hora_formatada = datetime.strftime(hora_obj, '%H:%M')
-
+    print(data_formatada, hora_formatada)
     existing_record = db_session.query(ImlModels).filter_by(
         dataEntrada=data_formatada,
         horaEntrada=hora_formatada,
