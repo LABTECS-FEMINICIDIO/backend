@@ -375,6 +375,7 @@ async def parse_excel(file: UploadFile = File(...)):
             "message": "Upload concluido com sucesso!"
         }
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=400, detail=f"Erro ao processar o arquivo: {str(e)}")
     
 def has_value(row):

@@ -69,6 +69,7 @@ async def analyze_excel(file: UploadFile = File(...)):
         response_data = await parse_excel(file=file)
         return response_data
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=400, detail=f"Erro ao processar o arquivo: {str(e)}")
 
 
