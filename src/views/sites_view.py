@@ -363,16 +363,10 @@ async def parse_excel(file: UploadFile = File(...)):
                 if has_value(row):
                     if not check_if_all_array_items_is_blank(row):
                         if not is_duplicate_record_for_parse(row):
-                            
-                            data_obj = datetime.strptime(row[0], '%Y-%m-%d')
-                            hora_obj = datetime.strptime(row[1], '%H:%M:%S')
-
-                            data_formatada = datetime.strftime(data_obj, '%d/%m/%Y')
-                            hora_formatada = datetime.strftime(hora_obj, '%H:%M')
 
                             await create_iml(Iml(
-                                dataEntrada= "NA" if row[0].strip() == "" else data_formatada ,
-                                horaEntrada="NA" if row[1].strip() == "" else hora_formatada ,
+                                dataEntrada= "NA" if row[0].strip() == "" else row[0].text ,
+                                horaEntrada="NA" if row[1].strip() == "" else row[1].text ,
                                 sexo="NA" if row[2].strip() == "" else row[2] ,
                                 idade="NA" if row[3].strip() == "" else row[3] ,
                                 bairroDaRemocao="NA" if row[4].strip() == "" else row[4] ,
@@ -453,15 +447,9 @@ def is_duplicate_record_for_parse(content):
     db = sessionmaker(bind=engine)
     db_session = db()
 
-    data_obj = datetime.strptime(content[0], '%Y-%m-%d')
-    hora_obj = datetime.strptime(content[1], '%H:%M:%S')
-
-    data_formatada = datetime.strftime(data_obj, '%d/%m/%Y')
-    hora_formatada = datetime.strftime(hora_obj, '%H:%M')
-    print(data_formatada, hora_formatada)
     existing_record = db_session.query(ImlModels).filter_by(
-        dataEntrada=data_formatada,
-        horaEntrada=hora_formatada,
+        dataEntrada=content[0].text,
+        horaEntrada=content[1].text,
         sexo=content[2],
         idade=content[3],
         bairroDaRemocao=content[4],
