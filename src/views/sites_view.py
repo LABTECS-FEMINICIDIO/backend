@@ -363,14 +363,13 @@ async def parse_excel(file: UploadFile = File(...)):
                 if has_value(row):
                     if not check_if_all_array_items_is_blank(row):
                         if not is_duplicate_record_for_parse(row):
-
                             await create_iml(Iml(
                                 dataEntrada= datetime.strftime(row[0], '%d/%m/%Y'),
                                 horaEntrada= row[1].strftime('%H:%M'),
-                                sexo="NA" if row[2].strip() == "" else row[2] ,
-                                idade="NA" if str(row[3]).strip() == "" else str(row[3]) ,
-                                bairroDaRemocao="NA" if row[4].strip() == "" else row[4] ,
-                                causaMorte="NA" if row[5].strip() == "" else row[5] 
+                                sexo="NA" if row[2] is None or row[2].strip() == "" else row[2],
+                                idade="NA" if row[3] is None or str(row[3]).strip() == "" else str(row[3]),
+                                bairroDaRemocao="NA" if row[4] is None or row[4].strip() == "" else row[4],
+                                causaMorte="NA" if row[5] is None or row[5].strip() == "" else row[5]
                             ))
 
         return {
