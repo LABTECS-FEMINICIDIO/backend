@@ -368,7 +368,7 @@ async def parse_excel(file: UploadFile = File(...)):
                                 dataEntrada="NA" if row[0].strip() == "" else datetime.strftime(row[0], '%d/%m/%Y'),
                                 horaEntrada="NA" if row[1].strip() == "" else row[1].strftime('%H:%M'),
                                 sexo="NA" if row[2].strip() == "" else row[2] ,
-                                idade="NA" if row[3].strip() == "" else row[3] ,
+                                idade="NA" if str(row[3]).strip() == "" else str(row[3]) ,
                                 bairroDaRemocao="NA" if row[4].strip() == "" else row[4] ,
                                 causaMorte="NA" if row[5].strip() == "" else row[5] 
                             ))
@@ -451,7 +451,7 @@ def is_duplicate_record_for_parse(content):
         dataEntrada=datetime.strftime(content[0], '%d/%m/%Y'),
         horaEntrada=content[1].strftime('%H:%M'),
         sexo=content[2],
-        idade=content[3],
+        idade=str(content[3]),
         bairroDaRemocao=content[4],
         causaMorte=content[5]
     ).first()
