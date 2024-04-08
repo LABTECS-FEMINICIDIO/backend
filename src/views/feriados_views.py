@@ -9,10 +9,11 @@ from src.model.models import FeriadosModels, TagsModels
 
 
 class Feriado(BaseModel):
+    name: str
     ano: int
     mes: int
     dia: int
-    tipo: str
+    type: str
     pontoFacultativo: bool
 
 

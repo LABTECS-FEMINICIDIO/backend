@@ -45,7 +45,7 @@ class VitimaEdit(BaseModel):
     lng: Optional[str] = None
 
 
-async def create_vitima(vitima: Vitima):
+async def create_vitima(vitima: dict):
     db = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     db_session = db()
     db_vitima = VitimasModels(**vitima.model_dump())

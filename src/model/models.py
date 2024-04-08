@@ -141,8 +141,9 @@ class FeriadosModels(Base):
     __tablename__ = "feriados"
     id = Column(UUID(as_uuid=True), default=uuid.uuid4,
                 primary_key=True, index=True)
+    name =  Column(String)
     ano = Column(Integer)
     mes = Column(Integer)
     dia = Column(Integer)
-    tipo = Column(String)
+    type = Column(String)
     pontoFacultativo = Column(Boolean)
