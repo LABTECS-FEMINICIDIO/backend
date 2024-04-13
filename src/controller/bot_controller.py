@@ -5,7 +5,7 @@ from src.views.sites_view import change_site_assassinato, change_site_lido, crea
 import schedule
 import time
 import threading
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from src.views.search_schedule_views import list_agendamento_pesquisas
 import asyncio
 import json
@@ -144,10 +144,11 @@ async def find_iml():
 
     return {"message": "Busca de dados no IML agendada com sucesso!"}
 
+last_search_day = None
 
 @router.get("/findSites/")
 async def find_sites():
-    global is_loop_running, loop_task
+    global is_loop_running, loop_task, last_search_day
     tempo = await list_agendamento_pesquisas()
 
     if tempo:
@@ -155,12 +156,17 @@ async def find_sites():
     else:
         tempo_agendado = 5
 
-    await find_sites_with_keywords(tempo_agendado=tempo_agendado)
-    # Inicia ou reinicia o loop de sites
-    if not is_loop_running:
-        is_loop_running = True
-        print("entrei no if")
-        loop_task = asyncio.create_task(background_task())
+    current_day = date.today()
+
+    if last_search_day != current_day:
+        await find_sites_with_keywords(tempo_agendado=tempo_agendado)
+        last_search_day = current_day
+
+        # Inicia ou reinicia o loop de sites
+        if not is_loop_running:
+            is_loop_running = True
+            print("entrei no if")
+            loop_task = asyncio.create_task(background_task())
     # await createHistorySearch()
     return {"message": "Busca de sites agendada com sucesso!"}
 
