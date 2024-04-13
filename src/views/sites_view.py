@@ -220,7 +220,7 @@ async def find_tags_on_site(content: str, tags: List[str]) -> List[str]:
     for tag in tags:
         if content:
             print("procurando por tag dentro do site", tag, content.find(tag))
-            if content.find(tag):
+            if content.find(tag) != -1:
                 found_tags.append(tag)
 
     return found_tags
@@ -291,15 +291,16 @@ async def find_sites_with_keywords(tempo_agendado):
             content = await fetch_content(site_info['url'])
             tags_encontradas_no_site = await find_tags_on_site(content, all_tags)
 
-            if site_blocked == True:
-                await create_site(Site(
-                    nome=site_info['name'],
-                    link=site_info['url'],
-                    conteudo=content,
-                    tagsEncontradas=", ".join(tags_encontradas_no_site)
-                ), site_info['reference_site_link'])
+            if len(tags_encontradas_no_site) >= 1:
+                if site_blocked == True:
+                    await create_site(Site(
+                        nome=site_info['name'],
+                        link=site_info['url'],
+                        conteudo=content,
+                        tagsEncontradas=", ".join(tags_encontradas_no_site)
+                    ), site_info['reference_site_link'])
 
-                print('criei o site')
+                    print('criei o site')
 
     return found_sites
 
