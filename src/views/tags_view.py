@@ -13,6 +13,8 @@ class Tag(BaseModel):
 
 
 async def create_tag(tag: Tag):
+    tag.nome = tag.nome.strip()
+
     if tags_exists(tag.nome):
         raise HTTPException(
             status_code=409, detail=f"A tag {tag.nome} já está cadastrada."
