@@ -80,7 +80,7 @@ async def create_site(site: Site, reference_site_link: str):
         return site
 
 
-async def list_sites(created_date=None):
+async def list_sites(created_date, nome, feminicidio, lido,classificacao):
     db = sessionmaker(bind=engine)
     db_session = db()
 
@@ -100,7 +100,6 @@ async def list_sites(created_date=None):
         # Criando um intervalo de tempo para o dia especificado
         start_date = date_obj.replace(hour=0, minute=0, second=0)
         end_date = start_date + timedelta(days=1) - timedelta(seconds=1)
-        print(start_date, end_date)
 
         # Cast the createdAt column to DateTime
         query = query.filter(cast(SitesModels.createdAt, DateTime) >= start_date,
@@ -210,6 +209,15 @@ async def fetch_content(url):
         print(f"Error fetching content from '{url}': {str(e)}")
         return None
 
+# TODO:
+async def check_words(content: str): 
+    content_ok = True
+
+    if content.find("homem morto") != -1 or content.find("morte de homem") != -1 or content.find("acidente"):
+        content_ok = False
+
+    return content_ok
+
 async def find_tags_on_site(content: str, tags: List[str]) -> List[str]:
     """
     Função para encontrar as tags desejadas em uma página da web.
@@ -291,7 +299,7 @@ async def find_sites_with_keywords(tempo_agendado):
             content = await fetch_content(site_info['url'])
             tags_encontradas_no_site = await find_tags_on_site(content, all_tags)
 
-            if len(tags_encontradas_no_site) >= 1:
+            if len(tags_encontradas_no_site) >= 2:
                 if site_blocked == True:
                     await create_site(Site(
                         nome=site_info['name'],
