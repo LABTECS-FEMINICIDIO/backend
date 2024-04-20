@@ -76,6 +76,7 @@ class VitimasModels(Base):
     lat = Column(String)
     lng = Column(String)
     sites = relationship('SitesModels', back_populates='vitima')
+    sites_in_bulk = Column(String)
     createdAt = Column(String, default=func.now())
 
 

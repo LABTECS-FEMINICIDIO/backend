@@ -43,6 +43,7 @@ class VitimaEdit(BaseModel):
     filhosdescrever: Optional[str] = None
     lat: Optional[str] = None
     lng: Optional[str] = None
+    sites_in_bulk: Optional[str] = None
 
 
 async def create_vitima(vitima: dict):
