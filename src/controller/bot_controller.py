@@ -74,8 +74,20 @@ async def analyze_excel(file: UploadFile = File(...)):
 
 
 @router.get("/site/")
-async def list_sites_controller(created_date: Optional[str] = None, nome: str | None = None, feminicidio: bool | None = None, lido: bool | None = None, classificacao: int | None = None):
-    return await list_sites(created_date=created_date, nome=nome, feminicidio=feminicidio, lido=lido, classificacao=classificacao)
+async def list_sites_controller(
+    created_date: Optional[str] = None,
+    nome: Optional[str] = None,
+    feminicidio: Optional[bool] = None,
+    lido: Optional[bool] = None,
+    classificacao: Optional[int] = None
+):
+    return await list_sites(
+        created_date=created_date, 
+        nome=nome, 
+        feminicidio=feminicidio, 
+        lido=lido, 
+        classificacao=classificacao
+        )
 
 
 @router.get("/site/{id}", response_model=SiteComplet)
