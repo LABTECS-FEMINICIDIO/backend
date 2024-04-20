@@ -80,7 +80,7 @@ async def create_site(site: Site, reference_site_link: str):
         return site
 
 
-async def list_sites(created_date, nome, feminicidio, lido,classificacao):
+async def list_sites(created_date, nome, feminicidio, lido, classificacao):
     db = sessionmaker(bind=engine)
     db_session = db()
 
@@ -104,8 +104,17 @@ async def list_sites(created_date, nome, feminicidio, lido,classificacao):
         # Cast the createdAt column to DateTime
         query = query.filter(cast(SitesModels.createdAt, DateTime) >= start_date,
                             cast(SitesModels.createdAt, DateTime) <= end_date)
-
-
+        
+    if nome:
+        query = query.filter(nome=nome)
+    if classificacao:
+        query = query.filter(classificacao=classificacao)
+    if classificacao:
+        query = query.filter(classificacao=classificacao)
+    if feminicidio:
+        query = query.filter(feminicidio=feminicidio)
+    if lido:
+        query = query.filter(lido=lido)
 
     sites = query.all()
     
