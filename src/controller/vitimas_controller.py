@@ -92,6 +92,16 @@ def export_to_xlsx(data):
 
     for row in data:
         row_dict = dict(row)
+
+        # Renomeando chaves do dicionário, se necessário
+        row_dict['lat'] = row_dict.pop('X_Lati', '')
+        row_dict['lng'] = row_dict.pop('Y_Long', '')
+
+        # Substituindo valores None por "NA"
+        for key, value in row_dict.items():
+            if value is None:
+                row_dict[key] = "NA"
+
         row_data = [row_dict.get(header, "") for header in headers]
         ws.append(row_data)
 
