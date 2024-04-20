@@ -106,15 +106,15 @@ async def list_sites(created_date, nome, feminicidio, lido, classificacao):
                             cast(SitesModels.createdAt, DateTime) <= end_date)
         
     if nome:
-        query = query.filter(nome=nome)
+        query = query.filter(SitesModels.nome == nome)
     if classificacao:
-        query = query.filter(classificacao=classificacao)
+        query = query.filter(SitesModels.classificacao==classificacao)
     if classificacao:
-        query = query.filter(classificacao=classificacao)
+        query = query.filter(SitesModels.classificacao==classificacao)
     if feminicidio:
-        query = query.filter(feminicidio=feminicidio)
+        query = query.filter(SitesModels.feminicidio==feminicidio)
     if lido:
-        query = query.filter(lido=lido)
+        query = query.filter(SitesModels.lido==lido)
 
     sites = query.all()
     
