@@ -222,7 +222,7 @@ async def fetch_content(url):
 async def check_words(content: str): 
     content_ok = True
 
-    if content.find("homem morto") != -1 or content.find("morte de homem") != -1 or content.find("acidente"):
+    if content.find("homem morto") != -1 or content.find("morte de homem") != -1 or content.find("acidente") != -1:
         content_ok = False
 
     return content_ok
@@ -260,9 +260,6 @@ async def find_sites_with_keywords(tempo_agendado):
 
     tags = await list_tags()
 
-    # if len(tags) == 0:
-    # raise HTTPException(status_code=404, detail="Nenhuma tag cadastrada")
-
     all_tags = [tag.nome.lower() for tag in tags]
 
     tag_combinations = itertools.combinations(all_tags, 3)
@@ -270,6 +267,9 @@ async def find_sites_with_keywords(tempo_agendado):
     for combination in tag_combinations:
 
         if all_tags[0] in combination and all_tags[1] in combination:
+            
+            if "manaus" not in combination:
+                combination += tuple(["manaus"])
 
             print("tags mandantes",all_tags[0], all_tags[1])
             keywords = "+".join(combination)
@@ -307,9 +307,10 @@ async def find_sites_with_keywords(tempo_agendado):
 
             content = await fetch_content(site_info['url'])
             tags_encontradas_no_site = await find_tags_on_site(content, all_tags)
-
+            check_men_died = await check_words(content) #Se retornar falso é pq achou morte de homem
+            
             if len(tags_encontradas_no_site) >= 2:
-                if site_blocked == True:
+                if site_blocked == True and not check_men_died:
                     await create_site(Site(
                         nome=site_info['name'],
                         link=site_info['url'],
