@@ -219,11 +219,17 @@ async def fetch_content(url):
         return None
 
 # TODO:
-async def check_words(content: str): 
+async def check_words(content): 
     content_ok = True
-
-    if content.find("homem morto") != -1 or content.find("morte de homem") != -1 or content.find("acidente") != -1:
-        content_ok = False
+    a = "nada"
+    if content:
+        a = "tem coisa"
+        
+    print("entrei no check_words", a)
+    
+    if content:
+        if content.find("homem morto") != -1 or content.find("morte de homem") != -1 or content.find("acidente") != -1:
+            content_ok = False
 
     return content_ok
 

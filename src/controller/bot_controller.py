@@ -73,7 +73,7 @@ async def analyze_excel(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail=f"Erro ao processar o arquivo: {str(e)}")
 
 
-@router.get("/site/")
+@router.get("/site")
 async def list_sites_controller(
     created_date: Optional[str] = None,
     nome: Optional[str] = None,
