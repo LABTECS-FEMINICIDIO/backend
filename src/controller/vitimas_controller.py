@@ -93,17 +93,18 @@ def export_to_xlsx(data):
     for row in data:
         row_dict = dict(row)
 
-        # Renomeando chaves do dicionário, se necessário
-        row_dict['lat'] = row_dict.pop('X_Lati', '')
-        row_dict['lng'] = row_dict.pop('Y_Long', '')
+        row_dict['X_Lati'] = row_dict.pop('lat', 'N/A')
+        row_dict['Y_Long'] = row_dict.pop('lng', 'N/A')
 
         # Substituindo valores None por "NA"
         for key, value in row_dict.items():
-            print(key, value)
+            print("chave:", key, "valor:", value)
+            print("----------------------------------------")
             if value is None:
                 row_dict[key] = "N/A"
 
-        row_data = [row_dict.get(header, "") for header in headers]
+        row_data = [row_dict.get(header, "N/A") for header in headers]
+        
         ws.append(row_data)
 
     output = BytesIO()
