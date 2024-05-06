@@ -99,8 +99,9 @@ def export_to_xlsx(data):
 
         # Substituindo valores None por "NA"
         for key, value in row_dict.items():
+            print(key, value)
             if value is None:
-                row_dict[key] = "NA"
+                row_dict[key] = "N/A"
 
         row_data = [row_dict.get(header, "") for header in headers]
         ws.append(row_data)
