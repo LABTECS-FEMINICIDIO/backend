@@ -230,8 +230,10 @@ async def check_words(content):
     print("entrei no check_words", a)
     
     if content:
-        if content.find("homem morto") != -1 or content.find("morte de homem") != -1 or content.find("acidente") != -1:
+        if content.find("homem morto") != -1 or content.find("morte de homem") != -1 or content.find("acidente") != -1 or content.find("manaus") != -1:
             content_ok = False
+    if not content:
+        return False
 
     return content_ok
 
