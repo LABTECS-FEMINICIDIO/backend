@@ -39,15 +39,17 @@ class ListUsuario(BaseModel):
 
 @router.post("/usuarios/")
 async def create_user_controller(user: Usuario):
-    return await create_user(user)
-
+    try:
+        return await create_user(user)
+    except Exception as e:
+        return e
 
 
 @router.post("/usuarios/visualizador/")
 async def create_user_controller(user: UsuarioViewr):
     try:
         return await create_user_viewr(user)
-    except HTTPException as e:
+    except Exception as e:
         return e
 
 

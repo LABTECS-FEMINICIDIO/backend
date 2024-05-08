@@ -87,8 +87,8 @@ async def create_user_viewr(user: UsuarioViewr):
 
 async def create_user(user: Usuario):
     if user_exists(user.email):
-        raise HTTPException(
-            status_code=409, detail=f"O usuário {user.email} já está cadastrado."
+        return JSONResponse(
+            status_code=409, content={"message": f"O usuário {user.email} já está cadastrado."}
         )
 
     default_password = f"{user.nome[:3]}{user.telefone[:3]}"
