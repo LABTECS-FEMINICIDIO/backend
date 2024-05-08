@@ -48,7 +48,7 @@ class ListUsuario(BaseModel):
 
 async def create_user_viewr(user: UsuarioViewr):
     if user_exists(user.email):
-        raise JSONResponse(
+        return JSONResponse(
             status_code=409, content={"message": f"O usuário {user.email} já está cadastrado."}
         )
 
