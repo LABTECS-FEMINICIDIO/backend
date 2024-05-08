@@ -1,4 +1,4 @@
-from fastapi import HTTPException
+from http.client import HTTPException
 from fastapi.encoders import jsonable_encoder
 from psycopg2 import IntegrityError
 from sqlalchemy.orm import sessionmaker

@@ -50,7 +50,6 @@ async def create_user_controller(user: UsuarioViewr):
     try:
         return await create_user_viewr(user)
     except HTTPException as e:
-        print(e)
         return e
 
 
