@@ -80,7 +80,7 @@ async def create_site(site: Site, reference_site_link: str):
         return site
 
 
-async def list_sites(created_date, nome, feminicidio, lido, classificacao):
+async def list_sites(created_date, nome, feminicidio, lido, classificacao, link):
     db = sessionmaker(bind=engine)
     db_session = db()
 
@@ -115,7 +115,9 @@ async def list_sites(created_date, nome, feminicidio, lido, classificacao):
         query = query.filter(SitesModels.feminicidio==feminicidio)
     if lido:
         query = query.filter(SitesModels.lido==lido)
-
+    if link:
+        query = query.filter(SitesModels.link==link)
+        
     sites = query.all()
     
     db_session.close()

@@ -79,14 +79,16 @@ async def list_sites_controller(
     nome: Optional[str] = None,
     feminicidio: Optional[bool] = None,
     lido: Optional[bool] = None,
-    classificacao: Optional[int] = None
+    classificacao: Optional[int] = None,
+    link:  Optional[str] = None
 ):
     return await list_sites(
         created_date=created_date, 
         nome=nome, 
         feminicidio=feminicidio, 
         lido=lido, 
-        classificacao=classificacao
+        classificacao=classificacao,
+        link=link
         )
 
 
