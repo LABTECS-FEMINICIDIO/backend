@@ -279,7 +279,10 @@ async def find_sites_with_keywords(tempo_agendado):
             if "manaus" not in combination:
                 combination += tuple(["manaus"])
 
+            print("-------------------------------------------")
             print("tags mandantes",all_tags[0], all_tags[1])
+            print("cmbinations", combination)
+            print("-------------------------------------------")
             keywords = "+".join(combination)
 
             search_url = f'https://www.google.com/search?q={keywords}+after%3A{data[0]}%2F{data[1]}%2F{data[2]}'
