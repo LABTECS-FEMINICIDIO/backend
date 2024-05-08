@@ -48,7 +48,6 @@ class ListUsuario(BaseModel):
 
 async def create_user_viewr(user: UsuarioViewr):
     if user_exists(user.email):
-        return HTTPException(status_code=409, detail=f"O usuário {user.email} já está cadastrado.")
         raise HTTPException(
             status_code=409, detail=f"O usuário {user.email} já está cadastrado."
         )
