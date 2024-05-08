@@ -41,7 +41,7 @@ class ListUsuario(BaseModel):
 async def create_user_controller(user: Usuario):
     try:
         return await create_user(user)
-    except HTTPException as e:
+    except Exception as e:
         return e
 
 

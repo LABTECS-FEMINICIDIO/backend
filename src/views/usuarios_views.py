@@ -49,7 +49,7 @@ class ListUsuario(BaseModel):
 async def create_user_viewr(user: UsuarioViewr):
     if user_exists(user.email):
         raise HTTPException(
-            status_code=409, detail=f"O usuário {user.email} já está cadastrado."
+            status_code=500, detail=f"O usuário {user.email} já está cadastrado."
         )
 
     default_password = f"{user.nome[:3]}{user.telefone[:3]}"
