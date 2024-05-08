@@ -322,17 +322,26 @@ async def find_sites_with_keywords(tempo_agendado):
 
             tags_encontradas_no_site = await find_tags_on_site(content, all_tags)
             check_men_died = await check_words(content) #Se retornar falso é pq achou morte de homem
-        
 
-            if site_blocked == True and not check_men_died:
-                if "manaus" in tags_encontradas_no_site:
-                    await create_site(Site(
-                        nome=site_info['name'],
-                        link=site_info['url'],
-                        conteudo=content,
-                        tagsEncontradas=", ".join(tags_encontradas_no_site)
+            if content:
+                if len(tags_encontradas_no_site) >= 1:
+                    if site_blocked == True and not check_men_died:
+                        if "manaus" in tags_encontradas_no_site:
+                            await create_site(Site(
+                                nome=site_info['name'],
+                                link=site_info['url'],
+                                conteudo=content,
+                                tagsEncontradas=", ".join(tags_encontradas_no_site)
+                            ), site_info['reference_site_link'])
+                            print('criei o site', site_info['url'])
+                            print("------------------------------------------------------")
+            else:
+                await create_site(Site(
+                    nome=site_info['name'],
+                    link=site_info['url'],
+                    conteudo=content,
+                    tagsEncontradas=", ".join(tags_encontradas_no_site)
                     ), site_info['reference_site_link'])
-
                 print('criei o site', site_info['url'])
                 print("------------------------------------------------------")
 
