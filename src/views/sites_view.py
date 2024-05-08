@@ -230,7 +230,7 @@ async def check_words(content):
     print("entrei no check_words", a)
     
     if content:
-        if content.find("homem morto") != -1 or content.find("morte de homem") != -1 or content.find("acidente") != -1:
+        if content.find("homem morto") != -1 or content.find("morte de homem") != -1:
             content_ok = False
 
     print("check retornou (deve retornar false para cadastrar)", content_ok)
@@ -324,7 +324,7 @@ async def find_sites_with_keywords(tempo_agendado):
         
             if len(tags_encontradas_no_site) >= 2:
                 if site_blocked == True and not check_men_died:
-                    if "manaus" not in tags_encontradas_no_site:
+                    if "manaus" in tags_encontradas_no_site:
                         await create_site(Site(
                             nome=site_info['name'],
                             link=site_info['url'],
