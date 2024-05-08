@@ -1,4 +1,4 @@
-from http.client import HTTPException
+from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from psycopg2 import IntegrityError
 from sqlalchemy.orm import sessionmaker
@@ -48,8 +48,8 @@ class ListUsuario(BaseModel):
 
 async def create_user_viewr(user: UsuarioViewr):
     if user_exists(user.email):
-        raise HTTPException(
-            status_code=500, detail=f"O usuário {user.email} já está cadastrado."
+        raise JSONResponse(
+            status_code=409, content={"message": f"O usuário {user.email} já está cadastrado."}
         )
 
     default_password = f"{user.nome[:3]}{user.telefone[:3]}"
@@ -87,7 +87,7 @@ async def create_user_viewr(user: UsuarioViewr):
 
 async def create_user(user: Usuario):
     if user_exists(user.email):
-        return HTTPException(
+        raise HTTPException(
             status_code=409, detail=f"O usuário {user.email} já está cadastrado."
         )
 
