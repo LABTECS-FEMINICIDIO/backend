@@ -319,21 +319,22 @@ async def find_sites_with_keywords(tempo_agendado):
             site_blocked = await site_is_blocked(site_name=site_info["name"])
 
             content = await fetch_content(site_info['url'])
+
             tags_encontradas_no_site = await find_tags_on_site(content, all_tags)
             check_men_died = await check_words(content) #Se retornar falso é pq achou morte de homem
         
-            if len(tags_encontradas_no_site) >= 2:
-                if site_blocked == True and not check_men_died:
-                    if "manaus" in tags_encontradas_no_site:
-                        await create_site(Site(
-                            nome=site_info['name'],
-                            link=site_info['url'],
-                            conteudo=content,
-                            tagsEncontradas=", ".join(tags_encontradas_no_site)
-                        ), site_info['reference_site_link'])
 
-                    print('criei o site', site_info['url'])
-                    print("------------------------------------------------------")
+            if site_blocked == True and not check_men_died:
+                if "manaus" in tags_encontradas_no_site:
+                    await create_site(Site(
+                        nome=site_info['name'],
+                        link=site_info['url'],
+                        conteudo=content,
+                        tagsEncontradas=", ".join(tags_encontradas_no_site)
+                    ), site_info['reference_site_link'])
+
+                print('criei o site', site_info['url'])
+                print("------------------------------------------------------")
 
 
     return found_sites
