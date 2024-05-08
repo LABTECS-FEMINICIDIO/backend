@@ -87,7 +87,7 @@ async def create_user_viewr(user: UsuarioViewr):
 
 async def create_user(user: Usuario):
     if user_exists(user.email):
-        raise HTTPException(
+        return HTTPException(
             status_code=409, detail=f"O usuário {user.email} já está cadastrado."
         )
 
