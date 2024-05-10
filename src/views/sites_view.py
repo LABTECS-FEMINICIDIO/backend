@@ -109,11 +109,9 @@ async def list_sites(created_date, nome, feminicidio, lido, classificacao, link)
         query = query.filter(SitesModels.nome == nome)
     if classificacao:
         query = query.filter(SitesModels.classificacao==classificacao)
-    if classificacao:
-        query = query.filter(SitesModels.classificacao==classificacao)
-    if feminicidio:
+    if feminicidio == False or feminicidio == True:
         query = query.filter(SitesModels.feminicidio==feminicidio)
-    if lido:
+    if lido == False or lido == True:
         query = query.filter(SitesModels.lido==lido)
     if link:
         query = query.filter(SitesModels.link==link)
