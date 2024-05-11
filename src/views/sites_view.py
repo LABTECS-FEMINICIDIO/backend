@@ -228,9 +228,10 @@ async def check_words(content):
     print("entrei no check_words", a)
     
     if content:
-        if content.find("homem morto") != -1 or content.find("morte de homem") != -1 or content.find("acidente") != -1:
+        if content.find("homem morto") != -1 or content.find("morte de homem") != -1:
             content_ok = False
 
+    print("check retornou (deve retornar false para cadastrar)", content_ok)
     return content_ok
 
 async def find_tags_on_site(content: str, tags: List[str]) -> List[str]:
@@ -244,7 +245,7 @@ async def find_tags_on_site(content: str, tags: List[str]) -> List[str]:
         if content:
             print("procurando por tag dentro do site", tag, content.find(tag))
             if content.find(tag) != -1:
-                found_tags.append(tag)
+                found_tags.append(tag.lower())
 
     return found_tags
 
@@ -277,7 +278,10 @@ async def find_sites_with_keywords(tempo_agendado):
             if "manaus" not in combination:
                 combination += tuple(["manaus"])
 
+            print("-------------------------------------------")
             print("tags mandantes",all_tags[0], all_tags[1])
+            print("cmbinations", combination)
+            print("-------------------------------------------")
             keywords = "+".join(combination)
 
             search_url = f'https://www.google.com/search?q={keywords}+after%3A{data[0]}%2F{data[1]}%2F{data[2]}'
@@ -308,23 +312,37 @@ async def find_sites_with_keywords(tempo_agendado):
         print("total encontrado", len(found_sites))
 
         for site_info in found_sites:
-
+            print("------------------------------------------------------")
+            print("CHECANDO SITE:",site_info['url'])
             site_blocked = await site_is_blocked(site_name=site_info["name"])
 
             content = await fetch_content(site_info['url'])
+
             tags_encontradas_no_site = await find_tags_on_site(content, all_tags)
             check_men_died = await check_words(content) #Se retornar falso é pq achou morte de homem
-            
-            if len(tags_encontradas_no_site) >= 2:
-                if site_blocked == True and not check_men_died:
-                    await create_site(Site(
-                        nome=site_info['name'],
-                        link=site_info['url'],
-                        conteudo=content,
-                        tagsEncontradas=", ".join(tags_encontradas_no_site)
-                    ), site_info['reference_site_link'])
 
-                    print('criei o site')
+            if content:
+                if len(tags_encontradas_no_site) >= 1:
+                    if site_blocked == True and not check_men_died:
+                        if "manaus" in tags_encontradas_no_site:
+                            await create_site(Site(
+                                nome=site_info['name'],
+                                link=site_info['url'],
+                                conteudo=content,
+                                tagsEncontradas=", ".join(tags_encontradas_no_site)
+                            ), site_info['reference_site_link'])
+                            print('criei o site', site_info['url'])
+                            print("------------------------------------------------------")
+            else:
+                await create_site(Site(
+                    nome=site_info['name'],
+                    link=site_info['url'],
+                    conteudo=content,
+                    tagsEncontradas=", ".join(tags_encontradas_no_site)
+                    ), site_info['reference_site_link'])
+                print('criei o site', site_info['url'])
+                print("------------------------------------------------------")
+
 
     return found_sites
 
