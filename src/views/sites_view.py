@@ -236,18 +236,33 @@ async def check_words(content):
     print("check retornou (deve retornar false para cadastrar)", content_ok)
     return content_ok
 
-async def find_tags_on_site(content: str, tags: List[str]) -> List[str]:
+async def find_tags_on_site(site: str, tags: List[str]) -> List[str]:
     """
     Função para encontrar as tags desejadas em uma página da web.
     Retorna uma lista de tags encontradas.
     """
     found_tags = []
-
     for tag in tags:
-        if content:
-            print("procurando por tag dentro do site", tag, content.find(tag))
-            if content.find(tag) != -1:
-                found_tags.append(tag.lower())
+        search_url = f"https://www.google.com/search?q=%22{tag}%22+site%3A{site}"
+        response = requests.get(search_url)
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, 'html.parser')
+
+            search_results = soup.find_all('a')
+        else:
+            print(response)
+            print(f"Failed to fetch search results for '{tag}'")
+
+        for result in search_results:
+            if result and result.get('data-ved', ''):
+                href = result.get('href')
+                if href and href.startswith('/url?q='):
+                    url = href.split('/url?q=')[1].split('&sa=')[0]
+                    parsed_url = urlparse(url)
+                    site_name = parsed_url.netloc.replace(
+                        "www.", "").split(".")[0]
+                    if url == site:
+                        found_tags.append(tag)
 
     return found_tags
 
@@ -320,7 +335,7 @@ async def find_sites_with_keywords(tempo_agendado):
 
             content = await fetch_content(site_info['url'])
 
-            tags_encontradas_no_site = await find_tags_on_site(content, all_tags)
+            tags_encontradas_no_site = await find_tags_on_site(site_info['url'], all_tags)
             check_men_died = await check_words(content) #Se retornar falso é pq achou morte de homem
 
             if content:
