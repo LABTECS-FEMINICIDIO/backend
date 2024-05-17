@@ -262,7 +262,7 @@ async def find_tags_on_site(site: str, tags: List[str]) -> List[str]:
                     site_name = parsed_url.netloc.replace(
                         "www.", "").split(".")[0]
                     if url == site:
-                        found_tags.append(tag)
+                        found_tags.append(tag.lower())
 
     return found_tags
 
@@ -338,27 +338,35 @@ async def find_sites_with_keywords(tempo_agendado):
             tags_encontradas_no_site = await find_tags_on_site(site_info['url'], all_tags)
             check_men_died = await check_words(content) #Se retornar falso é pq achou morte de homem
 
-            if content:
-                if len(tags_encontradas_no_site) >= 1:
-                    if site_blocked == True and not check_men_died:
-                        if "manaus" in tags_encontradas_no_site:
-                            await create_site(Site(
-                                nome=site_info['name'],
-                                link=site_info['url'],
-                                conteudo=content,
-                                tagsEncontradas=", ".join(tags_encontradas_no_site)
-                            ), site_info['reference_site_link'])
-                            print('criei o site', site_info['url'])
-                            print("------------------------------------------------------")
-            else:
-                await create_site(Site(
-                    nome=site_info['name'],
-                    link=site_info['url'],
-                    conteudo=content,
-                    tagsEncontradas=", ".join(tags_encontradas_no_site)
-                    ), site_info['reference_site_link'])
-                print('criei o site', site_info['url'])
-                print("------------------------------------------------------")
+            if "manaus" in tags_encontradas_no_site:
+                 if len(tags_encontradas_no_site) >= 2:
+                    await create_site(Site(
+                                    nome=site_info['name'],
+                                    link=site_info['url'],
+                                    conteudo=content,
+                                    tagsEncontradas=", ".join(tags_encontradas_no_site)
+                                ), site_info['reference_site_link'])
+            # if content:
+            #     if len(tags_encontradas_no_site) >= 1:
+            #         if site_blocked == True and not check_men_died:
+            #             if "manaus" in tags_encontradas_no_site:
+            #                 await create_site(Site(
+            #                     nome=site_info['name'],
+            #                     link=site_info['url'],
+            #                     conteudo=content,
+            #                     tagsEncontradas=", ".join(tags_encontradas_no_site)
+            #                 ), site_info['reference_site_link'])
+            #                 print('criei o site', site_info['url'])
+            #                 print("------------------------------------------------------")
+            # else:
+            #     await create_site(Site(
+            #         nome=site_info['name'],
+            #         link=site_info['url'],
+            #         conteudo=content,
+            #         tagsEncontradas=", ".join(tags_encontradas_no_site)
+            #         ), site_info['reference_site_link'])
+            #     print('criei o site', site_info['url'])
+            #     print("------------------------------------------------------")
 
 
     return found_sites
