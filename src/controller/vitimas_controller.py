@@ -36,6 +36,7 @@ class Vitima(BaseModel):
     zona: str
     localdeocorrencia: str
     presencafilhofamiliar: str
+    sites_in_bulk: str
     gestacao: str
     filhosdescrever: int
     sites: Optional[List[UUID]] = []
