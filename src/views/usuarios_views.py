@@ -10,6 +10,7 @@ from pydantic import BaseModel
 import bcrypt
 from uuid import UUID
 from datetime import datetime, timedelta
+from fastapi import HTTPException
 
 
 class Usuario(BaseModel):
