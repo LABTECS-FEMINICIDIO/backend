@@ -2,7 +2,7 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
-from src.views.vitimas_view import VitimaEdit, create_vitima, delete_vitima, list_vitimas, update_vitima, list_one_vitima
+from src.views.vitimas_view import VitimaEdit, create_vitima, delete_vitima, list_vitimas, update_vitima, list_one_vitima, list_vitimas_for_export
 from src.views.sites_view import list_iml, list_iml_for_export
 router = APIRouter()
 from openpyxl import Workbook
@@ -139,7 +139,7 @@ from fastapi.responses import StreamingResponse
 @router.get("/export-xlsx")
 async def export_xlsx():
     try:
-        vitimas_data = await list_vitimas()
+        vitimas_data = await list_vitimas_for_export()
 
         output = export_to_xlsx(vitimas_data)
 
