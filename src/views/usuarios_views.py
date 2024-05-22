@@ -202,7 +202,7 @@ async def reset_user_password(user_id: uuid.UUID):
         db_session.commit()
         db_session.refresh(db_user)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
     finally:
         db_session.close()
 
