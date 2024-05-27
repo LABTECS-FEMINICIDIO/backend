@@ -15,6 +15,11 @@ from dotenv import load_dotenv
 import os
 from sqlalchemy.orm import sessionmaker
 import bcrypt
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from src.views.search_schedule_views import list_agendamento_pesquisas
+from src.views.sites_view import find_sites_with_keywords
+from datetime import date, datetime
+from src.views.historySearch_views import get_latest_history_search, createHistorySearch
 
 load_dotenv()
 
@@ -46,9 +51,56 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+scheduler = AsyncIOScheduler()
 
+@scheduler.scheduled_job("cron", day_of_week="*",  hour=23, minute=40)
+async def execute_daily_task():
+    check_search()
+
+
+async def check_search():
+    tempo = await list_agendamento_pesquisas()
+    current_day = date.today()
+    last_search = await get_latest_history_search()
+    print(last_search["dias"])
+    
+    if tempo:
+        tempo_agendado = tempo[0].dias
+    else:
+        tempo_agendado = 5
+
+    await find_sites_with_keywords(tempo_agendado=tempo_agendado)
+
+async def check_search():
+    current_day = date.today()
+    
+    last_search = await get_latest_history_search()
+    last_search_datetime = datetime.fromisoformat(last_search.createdAt)
+    last_search_date = last_search_datetime.date()
+    
+    
+    tempo = await list_agendamento_pesquisas()
+    if tempo:
+        tempo_agendado = tempo[0].dias
+    else:
+        tempo_agendado = 5
+    
+    days_difference = (current_day - last_search_date).days
+    
+    print(days_difference, tempo_agendado)
+
+    if days_difference >= tempo_agendado:
+        await find_sites_with_keywords(tempo_agendado=tempo_agendado)
+        await createHistorySearch()
+        print("--------------Pesquisa realizada-------------------")
+    else:
+        print("--------------Intervalo de tempo não atingido-------------------")
+
+    return 
+    
 @app.on_event("startup")
 async def create_initial_user():
+    scheduler.start()
     db = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     db_session = db()
 
@@ -77,7 +129,9 @@ async def create_initial_user():
 SECRET_KEY = "your-secret-key"
 ALGORITHM = "HS256"
 
-
+@app.on_event("shutdown")
+async def shutdown_event():
+    scheduler.shutdown()
 # @app.middleware("http")
 # async def add_process_time_header(request: Request, call_next):
 #     try:
