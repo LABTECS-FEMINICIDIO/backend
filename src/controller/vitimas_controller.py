@@ -97,11 +97,10 @@ def export_to_xlsx(data):
         row_dict['X_Lati'] = row_dict.pop('lat', 'NA')
         row_dict['Y_Long'] = row_dict.pop('lng', 'NA')
 
-        # Substituindo valores None por "NA"
         for key, value in row_dict.items():
             print("chave:", key, "valor:", value)
             print("----------------------------------------")
-            if value is None:
+            if value is None or value == "":
                 row_dict[key] = "NA"
 
         row_data = [row_dict.get(header, "NA") for header in headers]
