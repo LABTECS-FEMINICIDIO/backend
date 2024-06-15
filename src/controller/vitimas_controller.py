@@ -43,7 +43,7 @@ class Vitima(BaseModel):
 
 
 @router.post("/vitimas/")
-async def create_vitimas_controller(vitima: Vitima):
+async def create_vitimas_controller(vitima: dict):
     return await create_vitima(vitima)
 
 @router.get("/vitimas/{vitima_id}")
