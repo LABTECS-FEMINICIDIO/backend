@@ -12,38 +12,38 @@ from datetime import datetime
 
 class Vitima(BaseModel):
     datadofato: datetime
-    diah: str
-    horario: str
-    turno: str
-    nome: str
-    idade: int
-    racacor1: str
-    estciv2: str
-    bairro: str
-    rua_beco_travessa_estrada_ramal: str
-    endcomplemento: str
-    tipoarma1: str
-    tipoarma2: str
-    loclesao1: str
-    loclesao2: str
-    loclesao3: str
-    hospitalizacao: str
-    compexcomp: str
-    lat: str
-    lng: str
-    violsexual: str
-    latrocinio: str
-    zona: str
-    localdeocorrencia: str
-    presencafilhofamiliar: str
-    sites_in_bulk: Optional[str]
-    gestacao: str
-    filhosdescrever: int
+    diah: Optional[str] = None
+    horario: Optional[str] = None
+    turno: Optional[str] = None
+    nome: Optional[str] = None
+    idade: Optional[int] = None
+    racacor1: Optional[str] = None
+    estciv2: Optional[str] = None
+    bairro: Optional[str] = None
+    rua_beco_travessa_estrada_ramal: Optional[str] = None
+    endcomplemento: Optional[str] = None
+    tipoarma1: Optional[str] = None
+    tipoarma2: Optional[str] = None
+    loclesao1: Optional[str] = None
+    loclesao2: Optional[str] = None
+    loclesao3: Optional[str] = None
+    hospitalizacao: Optional[str] = None
+    compexcomp: Optional[str] = None
+    lat: Optional[str] = None
+    lng: Optional[str] = None
+    violsexual: Optional[str] = None
+    latrocinio: Optional[str] = None
+    zona: Optional[str] = None
+    localdeocorrencia: Optional[str] = None
+    presencafilhofamiliar: Optional[str] = None
+    sites_in_bulk: Optional[str] = None
+    gestacao: Optional[str] = None
+    filhosdescrever: Optional[int] = None
     sites: Optional[List[UUID]] = []
 
 
 @router.post("/vitimas/")
-async def create_vitimas_controller(vitima: dict):
+async def create_vitimas_controller(vitima: Vitima):
     return await create_vitima(vitima)
 
 @router.get("/vitimas/{vitima_id}")
