@@ -36,7 +36,7 @@ class Vitima(BaseModel):
     zona: str
     localdeocorrencia: str
     presencafilhofamiliar: str
-    sites_in_bulk: str
+    sites_in_bulk: Optional[str]
     gestacao: str
     filhosdescrever: int
     sites: Optional[List[UUID]] = []
@@ -94,17 +94,17 @@ def export_to_xlsx(data):
     for row in data:
         row_dict = dict(row)
 
-        row_dict['X_Lati'] = row_dict.pop('lat', 'N/A')
-        row_dict['Y_Long'] = row_dict.pop('lng', 'N/A')
+        row_dict['X_Lati'] = row_dict.pop('lat', 'NA')
+        row_dict['Y_Long'] = row_dict.pop('lng', 'NA')
 
         # Substituindo valores None por "NA"
         for key, value in row_dict.items():
             print("chave:", key, "valor:", value)
             print("----------------------------------------")
             if value is None:
-                row_dict[key] = "N/A"
+                row_dict[key] = "NA"
 
-        row_data = [row_dict.get(header, "N/A") for header in headers]
+        row_data = [row_dict.get(header, "NA") for header in headers]
         
         ws.append(row_data)
 
