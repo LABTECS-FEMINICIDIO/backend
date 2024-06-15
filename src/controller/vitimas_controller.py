@@ -82,7 +82,7 @@ headers = ["numero1", "registro_fvs_do", "naocapturado", "homicidio", "numerodo"
            "maior60anos", "vulnerabil_fisica_mental", "presenca_ascend_descendente",
            "presenca_medida_protet_urgen", "tipo_intimo_naointimo", "inf_bol_ocorrencia_iml_bol",
            "inf_bol_ocorrencia_revisao", "consulta_saj_bol1", "consulta_saj_bol2", "consulta_saj_revisao1",
-           "consulta_saj_revisao2", "observacoes", "SITE1", "SITE2", "SITE3", "SITEGEO1", "SITEGEO2",
+           "consulta_saj_revisao2", "observacoes", "sites_in_bulk","SITE1", "SITE2", "SITE3", "SITEGEO1", "SITEGEO2",
            "SITEGEO3", "check_30dias"]
 
 def export_to_xlsx(data):
@@ -102,6 +102,10 @@ def export_to_xlsx(data):
             print("----------------------------------------")
             if value is None or value == "":
                 row_dict[key] = "NA"
+            if key == "SITE1":
+                print("*************************************************")
+                print(data["sites"])
+                print("*************************************************")
 
         row_data = [row_dict.get(header, "NA") for header in headers]
         
