@@ -1,7 +1,7 @@
 from fastapi import APIRouter, BackgroundTasks, UploadFile, File, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
-from src.views.sites_view import change_site_assassinato, change_site_lido, create_site, iml_screapper, list_iml, list_sites, list_one_site, update_site, delete_site, find_sites_with_keywords, parse_excel
+from src.views.sites_view import change_site_assassinato, change_site_lido, create_site, iml_screapper, list_iml, list_sites, list_one_site, update_site, delete_site, find_sites_with_keywords, parse_excel, list_sites_paginated
 import schedule
 import time
 import threading
@@ -91,6 +91,27 @@ async def list_sites_controller(
         link=link
         )
 
+@router.get("/site/paginated")
+async def list_sites_controller(
+    created_date: Optional[str] = None,
+    nome: Optional[str] = None,
+    feminicidio: Optional[bool] = None,
+    lido: Optional[bool] = None,
+    classificacao: Optional[int] = None,
+    link: Optional[str] = None,
+    page: int = Query(1, description="Page number"),
+    page_size: int = Query(10, description="Number of items per page")
+):
+    return list_sites_paginated(
+        created_date=created_date,
+        nome=nome,
+        feminicidio=feminicidio,
+        lido=lido,
+        classificacao=classificacao,
+        link=link,
+        page=page,
+        page_size=page_size
+    )
 
 @router.get("/site/{id}", response_model=SiteComplet)
 async def list_one_site_controller(id: str):
@@ -187,7 +208,6 @@ async def find_sites():
 @router.get("/imlData/")
 async def find_iml_data():
     return await list_iml()
-
 
 @router.patch("/updateLido/{siteId}")
 async def update_lido(siteId: str):

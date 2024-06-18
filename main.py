@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from src.model.models import UsuariosModels
@@ -20,7 +20,9 @@ from src.views.search_schedule_views import list_agendamento_pesquisas
 from src.views.sites_view import find_sites_with_keywords
 from datetime import date, datetime
 from src.views.historySearch_views import get_latest_history_search, createHistorySearch
-
+from jose import JWTError, jwt
+from fastapi.responses import JSONResponse
+from typing import Callable, List
 load_dotenv()
 
 Base.metadata.create_all(bind=engine)
@@ -53,23 +55,23 @@ app.add_middleware(
 
 scheduler = AsyncIOScheduler()
 
-@scheduler.scheduled_job("cron", day_of_week="*",  hour=23, minute=40)
+@scheduler.scheduled_job("cron", day_of_week="*",  hour=10, minute=1)
 async def execute_daily_task():
-    check_search()
+    await check_search()
 
 
-async def check_search():
-    tempo = await list_agendamento_pesquisas()
-    current_day = date.today()
-    last_search = await get_latest_history_search()
-    print(last_search["dias"])
+# async def check_search():
+#     tempo = await list_agendamento_pesquisas()
+#     current_day = date.today()
+#     last_search = await get_latest_history_search()
+#     print(last_search["dias"])
     
-    if tempo:
-        tempo_agendado = tempo[0].dias
-    else:
-        tempo_agendado = 5
+#     if tempo:
+#         tempo_agendado = tempo[0].dias
+#     else:
+#         tempo_agendado = 5
 
-    await find_sites_with_keywords(tempo_agendado=tempo_agendado)
+#     await find_sites_with_keywords(tempo_agendado=tempo_agendado)
 
 async def check_search():
     current_day = date.today()
@@ -126,59 +128,51 @@ async def create_initial_user():
 
 SECRET_KEY = "your-secret-key"
 ALGORITHM = "HS256"
+EXCLUDE_PATHS = ["/api/login", "/api/recuperarSenha/"]
 
 @app.on_event("shutdown")
 async def shutdown_event():
     scheduler.shutdown()
-# @app.middleware("http")
-# async def add_process_time_header(request: Request, call_next):
-#     try:
-#         start_time = time.time()
-#         response = await call_next(request)
-#         process_time = time.time() - start_time
-#         response.headers["X-Process-Time"] = str(process_time)
 
-#         authorization_header = request.headers.get("authorization", "")
+class JWTMiddleware:
+    def __init__(self, app: FastAPI, secret_key: str, algorithm: str, exclude_paths: List[str] = None):
+        self.app = app
+        self.secret_key = secret_key
+        self.algorithm = algorithm
+        self.exclude_paths = exclude_paths if exclude_paths else []
 
-#         if (request.url.path == "/api/login"):
-#             return response
-#         if (request.url.path == "/api/login/"):
-#             return response
+    async def __call__(self, scope: dict, receive: Callable, send: Callable):
+        if scope["type"] == "http":
+            request = Request(scope, receive)
+            path = request.url.path
 
-#         if authorization_header == "":
-#             raise HTTPException(
-#                 status_code=401,  detail="Credenciais inválidas.")
+            if path in self.exclude_paths:
+                await self.app(scope, receive, send)
+                return
 
-#         if "Bearer" in authorization_header:
-#             token = authorization_header.split("Bearer")[1].strip()
+            token = request.headers.get("Authorization")
+            if token:
+                try:
+                    if token.startswith("Bearer "):
+                        token = token[len("Bearer "):]
+                    else:
+                        raise JWTError("Token inválido")
 
-#             decoded_token = jwt.decode(token, os.getenv(
-#                 "SECRET_KEY"), algorithms=[os.getenv("ALGORITHM")])
-#             print((decoded_token["sub"]))
-#             teste = decoded_token["sub"].replace("'", "\"")
-#             print(json.loads(teste))
+                    payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
+                    request.state.user = payload
+                except JWTError:
+                    response = JSONResponse(status_code=401, content={"detail": "Token inválido"})
+                    await response(scope, receive, send)
+                    return
+            else:
+                response = JSONResponse(status_code=401, content={"detail": "Token não fornecido"})
+                await response(scope, receive, send)
+                return
 
-#             if token == "":
-#                 raise HTTPException(
-#                     status_code=401,  detail="Credenciais inválidas.")
+        await self.app(scope, receive, send)
 
-#         return response
-#     except Exception as e:
-#         print(e)
-#         return JSONResponse(status_code=401, content={'detail': "Token inválido."})
 
-# def decode_token(token: str = Header(..., description="Token")):
-#     credentials_exception = HTTPException(
-#         status_code=401, detail="Token inválido"
-#     )
-#     try:
-#         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-#         email: str = payload.get("sub").get("email")
-#         if email is None:
-#             raise credentials_exception
-#     except JWTError:
-#         raise credentials_exception
-#     return payload
+app.add_middleware(JWTMiddleware, secret_key=SECRET_KEY, algorithm=ALGORITHM, exclude_paths=EXCLUDE_PATHS)
 
 app.include_router(bot_controllers, prefix="/api")
 app.include_router(tags_controller, prefix="/api")

@@ -123,6 +123,55 @@ async def list_sites(created_date, nome, feminicidio, lido, classificacao, link)
     db_session.close()
     return sites
 
+def list_sites_paginated(created_date, nome, feminicidio, lido, classificacao, link, page=1, page_size=10):
+    db = sessionmaker(bind=engine)
+    db_session = db()
+
+    query = db_session.query(SitesModels).options(
+        joinedload(SitesModels.vitima)
+    ).order_by(desc(SitesModels.createdAt)).with_entities(
+        SitesModels.id, SitesModels.nome, SitesModels.link,
+        SitesModels.feminicidio, SitesModels.lido,
+        SitesModels.classificacao, SitesModels.valido,
+        SitesModels.inHoliday, SitesModels.inWeekend,
+        SitesModels.tagsEncontradas, SitesModels.createdAt,
+        SitesModels.vitima_id
+    )
+
+    if created_date:
+        date_obj = datetime.strptime(created_date, "%Y-%m-%d")
+        start_date = date_obj.replace(hour=0, minute=0, second=0)
+        end_date = start_date + timedelta(days=1) - timedelta(seconds=1)
+
+        query = query.filter(cast(SitesModels.createdAt, DateTime) >= start_date,
+                             cast(SitesModels.createdAt, DateTime) <= end_date)
+        
+    if nome:
+        query = query.filter(SitesModels.nome == nome)
+    if classificacao:
+        query = query.filter(SitesModels.classificacao == classificacao)
+    if feminicidio:
+        query = query.filter(SitesModels.feminicidio == feminicidio)
+    if lido:
+        query = query.filter(SitesModels.lido == lido)
+    if link:
+        query = query.filter(SitesModels.link == link)
+        
+    total_records = query.count()
+    
+    query = query.limit(page_size).offset((page - 1) * page_size)
+    sites = query.all()
+    
+    db_session.close()
+    
+    return {
+        'total_records': total_records,
+        'total_pages': (total_records + page_size - 1) // page_size,
+        'current_page': page,
+        'page_size': page_size,
+        'sites': sites
+    }
+
 async def list_one_site(url_site: str):
     db = sessionmaker(bind=engine)
     db_session = db()

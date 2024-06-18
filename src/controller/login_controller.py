@@ -35,8 +35,7 @@ def create_jwt_token(data: dict):
     expire = datetime.utcnow() + timedelta(minutes=30)
     to_encode.update({"exp": expire})
 
-    encoded_jwt = jwt.encode(to_encode, os.getenv(
-        "SECRET_KEY"), algorithm=os.getenv("ALGORITHM"))
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 # Function to get current user based on the token
@@ -50,7 +49,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     )
     try:
         payload = jwt.decode(token, os.getenv("SECRET_KEY"),
-                             algorithm=os.getenv("ALGORITHM"))
+                             algorithm=ALGORITHM)
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception

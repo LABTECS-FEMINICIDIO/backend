@@ -97,17 +97,21 @@ def export_to_xlsx(data):
         row_dict['X_Lati'] = row_dict.pop('lat', 'NA')
         row_dict['Y_Long'] = row_dict.pop('lng', 'NA')
 
+        new_row_dict = {}
         for key, value in row_dict.items():
-            print("chave:", key, "valor:", value)
-            print("----------------------------------------")
             if value is None or value == "":
-                row_dict[key] = "NA"
-            if key == "SITE1":
-                print("*************************************************")
-                print(data["sites"])
-                print("*************************************************")
+                new_row_dict[key] = "NA"
+            else:
+                new_row_dict[key] = value
 
-        row_data = [row_dict.get(header, "NA") for header in headers]
+        if 'sites' in row_dict:
+            for index, site in enumerate(row_dict["sites"]):
+                if index < 3:
+                    new_row_dict[f"SITE{index + 1}"] = site["link"]
+                else:
+                    break
+
+        row_data = [new_row_dict.get(header, "NA") for header in headers]
         
         ws.append(row_data)
 

@@ -32,7 +32,6 @@ class ListUsuario(BaseModel):
     nome: str
     email: str
     telefone: str
-    senha: Optional[str] = None
     acesso: Optional[bool]
     perfil: Optional[str]
 
@@ -54,12 +53,12 @@ async def create_user_controller(user: UsuarioViewr):
 
 
 @router.get("/usuarios/")
-async def list_users_controller():
+async def list_users_controller() -> List[ListUsuario]:
     return await list_users()
 
 
 @router.get("/usuarios/{user_id}")
-async def get_user_controller(user_id: UUID):
+async def get_user_controller(user_id: UUID) -> ListUsuario:
     try:
         return await list_one_user(user_id)
     except HTTPException as e:
