@@ -102,8 +102,13 @@ def export_to_xlsx(data):
             if value is None or value == "":
                 new_row_dict[key] = "NA"
             elif key == "datadofato":
-                print(value)
-                # new_row_dict[key] = value.strftime("%d/%m/%Y")
+                data_string_sem_fuso = value.split('+')[0]
+
+                data_datetime = datetime.strptime(data_string_sem_fuso, "%Y-%m-%d %H:%M:%S")
+
+                data_formatada = data_datetime.strftime("%d/%m/%Y")
+                
+                new_row_dict[key] = data_formatada
             else:
                 new_row_dict[key] = value
 
