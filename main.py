@@ -155,6 +155,7 @@ class JWTMiddleware:
                 try:
                     if token.startswith("Bearer "):
                         token = token[len("Bearer "):]
+                        print("TOKEEEEEEEEEEEEEEEEEEEEN", token)
                     else:
                         raise JWTError("Token inválido")
 
