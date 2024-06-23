@@ -151,6 +151,7 @@ class JWTMiddleware:
                 return
 
             token = request.headers.get("Authorization")
+            print("TOKEEEEEEEEEEEEEEEEEEEEN", token)
             if token:
                 try:
                     if token.startswith("Bearer "):
