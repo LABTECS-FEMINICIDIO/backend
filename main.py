@@ -134,45 +134,45 @@ EXCLUDE_PATHS = ["/api/login", "/api/recuperarSenha/"]
 async def shutdown_event():
     scheduler.shutdown()
 
-# class JWTMiddleware:
-#     def __init__(self, app: FastAPI, secret_key: str, algorithm: str, exclude_paths: List[str] = None):
-#         self.app = app
-#         self.secret_key = secret_key
-#         self.algorithm = algorithm
-#         self.exclude_paths = exclude_paths if exclude_paths else []
+class JWTMiddleware:
+    def __init__(self, app: FastAPI, secret_key: str, algorithm: str, exclude_paths: List[str] = None):
+        self.app = app
+        self.secret_key = secret_key
+        self.algorithm = algorithm
+        self.exclude_paths = exclude_paths if exclude_paths else []
 
-#     async def __call__(self, scope: dict, receive: Callable, send: Callable):
-#         if scope["type"] == "http":
-#             request = Request(scope, receive)
-#             path = request.url.path
+    async def __call__(self, scope: dict, receive: Callable, send: Callable):
+        if scope["type"] == "http":
+            request = Request(scope, receive)
+            path = request.url.path
 
-#             if path in self.exclude_paths:
-#                 await self.app(scope, receive, send)
-#                 return
+            if path in self.exclude_paths:
+                await self.app(scope, receive, send)
+                return
 
-#             token = request.headers.get("Authorization")
-#             if token:
-#                 try:
-#                     if token.startswith("Bearer "):
-#                         token = token[len("Bearer "):]
-#                     else:
-#                         raise JWTError("Token inválido")
+            token = request.headers.get("Authorization")
+            if token:
+                try:
+                    if token.startswith("Bearer "):
+                        token = token[len("Bearer "):]
+                    else:
+                        raise JWTError("Token inválido")
 
-#                     payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
-#                     request.state.user = payload
-#                 except JWTError:
-#                     response = JSONResponse(status_code=401, content={"detail": "Token inválido"})
-#                     await response(scope, receive, send)
-#                     return
-#             else:
-#                 response = JSONResponse(status_code=401, content={"detail": "Token não fornecido"})
-#                 await response(scope, receive, send)
-#                 return
+                    payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
+                    request.state.user = payload
+                except JWTError:
+                    response = JSONResponse(status_code=401, content={"detail": "Token inválido"})
+                    await response(scope, receive, send)
+                    return
+            else:
+                response = JSONResponse(status_code=401, content={"detail": "Token não fornecido"})
+                await response(scope, receive, send)
+                return
 
-#         await self.app(scope, receive, send)
+        await self.app(scope, receive, send)
 
 
-# app.add_middleware(JWTMiddleware, secret_key=SECRET_KEY, algorithm=ALGORITHM, exclude_paths=EXCLUDE_PATHS)
+app.add_middleware(JWTMiddleware, secret_key=SECRET_KEY, algorithm=ALGORITHM, exclude_paths=EXCLUDE_PATHS)
 
 app.include_router(bot_controllers, prefix="/api")
 app.include_router(tags_controller, prefix="/api")
