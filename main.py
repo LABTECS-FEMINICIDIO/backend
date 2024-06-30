@@ -38,16 +38,13 @@ app = FastAPI()
 ] """
 
 origins = [
-    "http://localhost",
-    "http://localhost:3000",
-    "http://192.168.1.109:3000",
-    "http://192.168.1.109",
-    "http://192.168.1.109:3000/",
+    "https://www.monitorafeminicidio.com/"
 ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins="*",
+    origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -142,7 +139,7 @@ class JWTMiddleware:
         self.exclude_paths = exclude_paths if exclude_paths else []
 
     async def __call__(self, scope: dict, receive: Callable, send: Callable):
-        if scope["type"] == "http":
+        if scope["type"] == "http" :
             request = Request(scope, receive)
             path = request.url.path
 
@@ -151,12 +148,10 @@ class JWTMiddleware:
                 return
 
             token = request.headers.get("Authorization")
-            print("TOKEEEEEEEEEEEEEEEEEEEEN", token)
             if token:
                 try:
                     if token.startswith("Bearer "):
                         token = token[len("Bearer "):]
-                        print("TOKEEEEEEEEEEEEEEEEEEEEN", token)
                     else:
                         raise JWTError("Token inválido")
 
