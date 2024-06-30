@@ -186,5 +186,7 @@ if __name__ == "__main__":
         workers=1,
         host="0.0.0.0",
         reload=False,
-        port=PORT
+        port=PORT,
+        proxy_headers=True,  # This enables --proxy-headers
+        forwarded_allow_ips="*",  # This enables --forwarded-allow-ips
     )
