@@ -142,7 +142,7 @@ class JWTMiddleware:
             request = Request(scope, receive)
             path = request.url.path
 
-            if path in self.exclude_paths:
+            if path in self.exclude_paths or request.method == "OPTIONS":
                 await self.app(scope, receive, send)
                 return
 
