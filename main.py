@@ -155,7 +155,7 @@ class JWTMiddleware:
                         raise JWTError("Token inválido")
 
                     payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
-                    request.state.user = payload
+                    # request.state.user = payload
                 except JWTError:
                     response = JSONResponse(status_code=401, content={"detail": "Token inválido"})
                     await response(scope, receive, send)
