@@ -69,21 +69,104 @@ async def update_vitima_controller(vitima_id, item: dict):
 async def delete_vitimas_controller(vitima_id: str):
     return await delete_vitima(vitima_id)
 
-headers = ["numero1", "registro_fvs_do", "naocapturado", "homicidio", "numerodo", "datadofato",
+headers = ["numero1", "registro_oficial_do", "naocapturado", "homicidio", "numerodo", "datadofato",
            "diah", "diasemh", "mesh", "anoh", "horario", "turno", "nome", "idade", "racacor1", "estciv2",
-           "esc2", "bairro", "zona", "rua/beco/travessa/estrada/ramal", "endcomplemento",
+           "esc2", "bairro", "zona", "rua_beco_travessa_estrada_ramal", "endcomplemento",
            "local_desova_corpo", "X_Lati", "Y_Long", "precisao_local_classificacao", "coordenadas_derivam",
            "cid10cod4final", "cid10cod4finaltexto", "tipoarma1", "tipoarma2", "loclesao1", "loclesao2",
-           "loclesao3", "localdaslesoes", "numerodelesoes", "possivelfemin", "hospitalizacao",
-           "vitusudrogilicita", "relacaotraf", "crimepassion", "violsexual", "usodealcool", "latrocinio",
-           "tipoviol", "localdeocorrencia", "presencafilhofamiliar", "situacaorua", "nivsupcomouincomp",
+           "loclesao3", "localdaslesoes", "numerodelesoes", "possivelfemin", "possivelfemin1", "hospitalizacao",
+           "vitusudrogilicita", "relacaotraf", "violsexual", "usodealcool", "latrocinio",
+           "tipoviol", "localdeocorrencia", "presencafilhofamiliar", "situacaorua", "nivsupcom",
            "represalia trafico", "sexoagressor", "compexcomp", "outrofamconhefam", "compexfam", "excompan",
            "conhecido", "circunsmorte", "gestacao", "puerperio", "filhosdescrever", "menor14anos",
            "maior60anos", "vulnerabil_fisica_mental", "presenca_ascend_descendente",
            "presenca_medida_protet_urgen", "tipo_intimo_naointimo", "inf_bol_ocorrencia_iml_bol",
-           "inf_bol_ocorrencia_revisao", "consulta_saj_bol1", "consulta_saj_bol2", "consulta_saj_revisao1",
-           "consulta_saj_revisao2", "observacoes", "sites_in_bulk","SITE1", "SITE2", "SITE3", "SITEGEO1", "SITEGEO2",
+           "inf_bol_ocorrencia_revisao", "consulta_jud_bol1", "consulta_jud_bol2", "consulta_jud_revisao1",
+           "consulta_jud_revisao2", "observacoes", "sites_in_bulk","SITE1", "SITE2", "SITE3", "SITEGEO1", "SITEGEO2",
            "SITEGEO3", "check_30dias"]
+
+dictionary = {
+    "numero1": "numero1",
+    "registro_oficial_do": "registro_fvs_do",
+    "naocapturado": "naocapturado",
+    "homicidio": "homicidio",
+    "numerodo": "numerodo",
+    "datadofato": "datadofato",
+    "diah": "diah",
+    "diasemh": "diasemh",
+    "mesh": "mesh",
+    "anoh": "anoh",
+    "horario": "horario",
+    "turno": "turno",
+    "nome": "nome",
+    "idade": "idade",
+    "racacor1": "racacor1",
+    "estciv2": "estciv2",
+    "esc2": "esc2",
+    "bairro": "bairro",
+    "zona": "zona",
+    "rua_beco_travessa_estrada_ramal": "rua/beco/travessa/estrada/ramal",
+    "endcomplemento": "endcomplemento",
+    "local_desova_corpo": "local_desova_corpo",
+    "X_Lati": "X_Lati",
+    "Y_Long": "Y_Long",
+    "precisao_local_classificacao": "precisao_local_classificacao",
+    "coordenadas_derivam": "coordenadas_derivam",
+    "cid10cod4final": "cid10cod4final",
+    "cid10cod4finaltexto": "cid10cod4finaltexto",
+    "tipoarma1": "tipoarma1",
+    "tipoarma2": "tipoarma2",
+    "loclesao1": "loclesao1",
+    "loclesao2": "loclesao2",
+    "loclesao3": "loclesao3",
+    "localdaslesoes": "localdaslesoes",
+    "numerodelesoes": "numerodelesoes",
+    "possivelfemin": "possivelfemin",
+    "possivelfemin1": "possivelfemin1",
+    "hospitalizacao": "hospitalizacao",
+    "vitusudrogilicita": "vitusudrogilicita",
+    "relacaotraf": "relacaotraf",
+    "violsexual": "violsexual",
+    "usodealcool": "usodealcool",
+    "latrocinio": "latrocinio",
+    "tipoviol": "tipoviol",
+    "localdeocorrencia": "localdeocorrencia",
+    "presencafilhofamiliar": "presencafilhofamiliar",
+    "situacaorua": "situacaorua",
+    "nivsupcom": "nivsupcomouincomp",
+    "represalia trafico": "represalia trafico",
+    "sexoagressor": "sexoagressor",
+    "compexcomp": "compexcomp",
+    "outrofamconhefam": "outrofamconhefam",
+    "compexfam": "compexfam",
+    "excompan": "excompan",
+    "conhecido": "conhecido",
+    "circunsmorte": "circunsmorte",
+    "gestacao": "gestacao",
+    "puerperio": "puerperio",
+    "filhosdescrever": "filhosdescrever",
+    "menor14anos": "menor14anos",
+    "maior60anos": "maior60anos",
+    "vulnerabil_fisica_mental": "vulnerabil_fisica_mental",
+    "presenca_ascend_descendente": "presenca_ascend_descendente",
+    "presenca_medida_protet_urgen": "presenca_medida_protet_urgen",
+    "tipo_intimo_naointimo": "tipo_intimo_naointimo",
+    "inf_bol_ocorrencia_iml_bol": "inf_bol_ocorrencia_iml_bol",
+    "inf_bol_ocorrencia_revisao": "inf_bol_ocorrencia_revisao",
+    "consulta_jud_bol1": "consulta_saj_bol1",
+    "consulta_jud_bol2": "consulta_saj_bol2",
+    "consulta_jud_revisao1": "consulta_saj_revisao1",
+    "consulta_jud_revisao2": "consulta_saj_revisao2",
+    "observacoes": "observacoes",
+    "sites_in_bulk": "sites_in_bulk",
+    "SITE1": "SITE1",
+    "SITE2": "SITE2",
+    "SITE3": "SITE3",
+    "SITEGEO1": "SITEGEO1",
+    "SITEGEO2": "SITEGEO2",
+    "SITEGEO3": "SITEGEO3",
+    "check_30dias": "check_30dias"
+}
 
 def export_to_xlsx(data):
     wb = Workbook()
@@ -109,6 +192,8 @@ def export_to_xlsx(data):
                 data_formatada = data_datetime.strftime("%d/%m/%Y")
                 
                 new_row_dict[key] = data_formatada
+            elif key == "zona":
+                new_row_dict[key] = value.lower().replace(" ", "")
             else:
                 new_row_dict[key] = value
 
@@ -119,7 +204,7 @@ def export_to_xlsx(data):
                 else:
                     break
 
-        row_data = [new_row_dict.get(header, "NA") for header in headers]
+        row_data = [new_row_dict.get(dictionary[header], "NA") for header in headers]
         
         ws.append(row_data)
 
