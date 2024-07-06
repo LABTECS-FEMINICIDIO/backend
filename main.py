@@ -85,7 +85,7 @@ async def check_search():
     
     days_difference = (current_day - last_search_date).days
     
-    if days_difference >= tempo_agendado:
+    if days_difference >= tempo_agendado or tempo_agendado == 1:
         await find_sites_with_keywords(tempo_agendado=tempo_agendado)
         await createHistorySearch()
         print("--------------Pesquisa realizada-------------------")
