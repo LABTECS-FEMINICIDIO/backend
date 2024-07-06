@@ -185,15 +185,27 @@ def export_to_xlsx(data):
             if value is None or value == "":
                 new_row_dict[key] = "NA"
             elif key == "datadofato":
-                data_string_sem_fuso = value.split('+')[0]
-
-                data_datetime = datetime.strptime(data_string_sem_fuso, "%Y-%m-%d %H:%M:%S")
-
+                if value.endswith('+00'):
+                    value = value[:-3] + '+0000'
+                
+                try:
+                    # Try parsing the datetime string with space before the timezone
+                    data_datetime = datetime.strptime(value, "%Y-%m-%d %H:%M:%S%z")
+                except ValueError:
+                    # If it fails, try parsing with 'T' before the time part
+                    data_datetime = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S%z")
+                
+                # Format the datetime to the desired string format without the timezone
                 data_formatada = data_datetime.strftime("%d/%m/%Y")
                 
                 new_row_dict[key] = data_formatada
+                
             elif key == "zona":
                 new_row_dict[key] = value.lower().replace(" ", "")
+            elif key == "sites_in_bulk":
+                new_row_dict["SITE2"] = value
+            elif key == "SITE2":
+                continue
             else:
                 new_row_dict[key] = value
 

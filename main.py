@@ -168,7 +168,7 @@ class JWTMiddleware:
         await self.app(scope, receive, send)
 
 
-app.add_middleware(JWTMiddleware, secret_key=SECRET_KEY, algorithm=ALGORITHM, exclude_paths=EXCLUDE_PATHS)
+# app.add_middleware(JWTMiddleware, secret_key=SECRET_KEY, algorithm=ALGORITHM, exclude_paths=EXCLUDE_PATHS)
 
 app.include_router(bot_controllers, prefix="/api")
 app.include_router(tags_controller, prefix="/api")
