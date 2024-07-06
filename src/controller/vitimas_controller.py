@@ -82,7 +82,7 @@ headers = ["numero1", "registro_oficial_do", "naocapturado", "homicidio", "numer
            "maior60anos", "vulnerabil_fisica_mental", "presenca_ascend_descendente",
            "presenca_medida_protet_urgen", "tipo_intimo_naointimo", "inf_bol_ocorrencia_iml_bol",
            "inf_bol_ocorrencia_revisao", "consulta_jud_bol1", "consulta_jud_bol2", "consulta_jud_revisao1",
-           "consulta_jud_revisao2", "observacoes", "sites_in_bulk","SITE1", "SITE2", "SITE3", "SITEGEO1", "SITEGEO2",
+           "consulta_jud_revisao2", "observacoes","SITE1", "SITE2", "SITE3", "SITEGEO1", "SITEGEO2",
            "SITEGEO3", "check_30dias"]
 
 dictionary = {
