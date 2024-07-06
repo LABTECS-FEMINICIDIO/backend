@@ -82,7 +82,7 @@ headers = ["numero1", "registro_oficial_do", "naocapturado", "homicidio", "numer
            "maior60anos", "vulnerabil_fisica_mental", "presenca_ascend_descendente",
            "presenca_medida_protet_urgen", "tipo_intimo_naointimo", "inf_bol_ocorrencia_iml_bol",
            "inf_bol_ocorrencia_revisao", "consulta_jud_bol1", "consulta_jud_bol2", "consulta_jud_revisao1",
-           "consulta_jud_revisao2", "observacoes", "sites_in_bulk","SITE1", "SITE2", "SITE3", "SITEGEO1", "SITEGEO2",
+           "consulta_jud_revisao2", "observacoes","SITE1", "SITE2", "SITE3", "SITEGEO1", "SITEGEO2",
            "SITEGEO3", "check_30dias"]
 
 dictionary = {
@@ -181,6 +181,7 @@ def export_to_xlsx(data):
         row_dict['Y_Long'] = row_dict.pop('lng', 'NA')
 
         new_row_dict = {}
+        
         for key, value in row_dict.items():
             if value is None or value == "":
                 new_row_dict[key] = "NA"
@@ -194,6 +195,8 @@ def export_to_xlsx(data):
                 new_row_dict[key] = data_formatada
             elif key == "zona":
                 new_row_dict[key] = value.lower().replace(" ", "")
+            elif key == "sites_in_bulk":
+                new_row_dict["SITE2"] = value
             else:
                 new_row_dict[key] = value
 
