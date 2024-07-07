@@ -294,9 +294,9 @@ async def find_tags_on_site(site: str, tags: List[str]) -> List[str]:
     for tag in tags:
         search_url = f"https://www.google.com/search?q=%22{tag}%22+site%3A{site}"
         response = requests.get(search_url)
+        search_results = []
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
-
             search_results = soup.find_all('a')
         else:
             print(response)

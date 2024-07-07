@@ -51,7 +51,7 @@ app.add_middleware(
 
 scheduler = AsyncIOScheduler()
 
-@scheduler.scheduled_job("cron", day_of_week="*",  hour=10, minute=1)
+@scheduler.scheduled_job("cron", day_of_week="*",  hour=8, minute=49)
 async def execute_daily_task():
     await check_search()
 
@@ -78,10 +78,11 @@ async def check_search():
     
     
     tempo = await list_agendamento_pesquisas()
+
     if tempo:
         tempo_agendado = tempo[0].dias
     else:
-        tempo_agendado = 5
+        tempo_agendado = 1
     
     days_difference = (current_day - last_search_date).days
     
