@@ -341,8 +341,8 @@ async def find_sites_with_keywords(tempo_agendado):
 
         if all_tags[0] in combination and all_tags[1] in combination:
             
-            if "manaus" not in combination:
-                combination += tuple(["manaus"])
+            if "porto velho" not in combination:
+                combination += tuple(["porto velho"])
 
             print("-------------------------------------------")
             print("tags mandantes",all_tags[0], all_tags[1])
@@ -387,7 +387,7 @@ async def find_sites_with_keywords(tempo_agendado):
             tags_encontradas_no_site = await find_tags_on_site(site_info['url'], all_tags)
             check_men_died = await check_words(content) #Se retornar falso é pq achou morte de homem
 
-            if "manaus" in tags_encontradas_no_site and str(all_tags[0]).lower() in tags_encontradas_no_site and str(all_tags[1]).lower() in tags_encontradas_no_site:
+            if "porto velho" in tags_encontradas_no_site and str(all_tags[0]).lower() in tags_encontradas_no_site and str(all_tags[1]).lower() in tags_encontradas_no_site:
                     await create_site(Site(
                                     nome=site_info['name'],
                                     link=site_info['url'],
@@ -397,7 +397,7 @@ async def find_sites_with_keywords(tempo_agendado):
             # if content:
             #     if len(tags_encontradas_no_site) >= 1:
             #         if site_blocked == True and not check_men_died:
-            #             if "manaus" in tags_encontradas_no_site:
+            #             if "porto velho" in tags_encontradas_no_site:
             #                 await create_site(Site(
             #                     nome=site_info['name'],
             #                     link=site_info['url'],
