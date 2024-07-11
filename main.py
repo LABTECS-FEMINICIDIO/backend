@@ -71,10 +71,11 @@ async def execute_daily_task():
 
 async def check_search():
     current_day = date.today()
-    
+    last_search_date = ""
     last_search = await get_latest_history_search()
-    last_search_datetime = datetime.fromisoformat(last_search.createdAt)
-    last_search_date = last_search_datetime.date()
+    if last_search:
+        last_search_datetime = datetime.fromisoformat(last_search.createdAt)
+        last_search_date = last_search_datetime.date()
     
     
     tempo = await list_agendamento_pesquisas()
@@ -84,14 +85,20 @@ async def check_search():
     else:
         tempo_agendado = 1
     
-    days_difference = (current_day - last_search_date).days
+    if last_search_date != "":
+        days_difference = (current_day - last_search_date).days
     
-    if days_difference >= tempo_agendado or tempo_agendado == 1:
-        await find_sites_with_keywords(tempo_agendado=tempo_agendado)
-        await createHistorySearch()
-        print("--------------Pesquisa realizada-------------------")
+    if days_difference:
+        if days_difference >= tempo_agendado or tempo_agendado == 1:
+            await createHistorySearch()
+            await find_sites_with_keywords(tempo_agendado=tempo_agendado)
+            print("--------------Pesquisa realizada-------------------")
+        else:
+            print("--------------Intervalo de tempo não atingido-------------------")
     else:
-        print("--------------Intervalo de tempo não atingido-------------------")
+        await createHistorySearch()
+        await find_sites_with_keywords(tempo_agendado=tempo_agendado)
+        print("--------------Pesquisa realizada-------------------")
 
     return 
     

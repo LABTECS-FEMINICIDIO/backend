@@ -7,6 +7,7 @@ from typing import List, Optional
 from src.database.database import engine
 from src.model.models import ReferenceSitesModels
 from typing import Dict
+from sqlalchemy import desc
 
 
 async def createReferenceSite(referenceSite):
@@ -42,7 +43,7 @@ async def listAllREferenceSites():
     db = sessionmaker(bind=engine)
     db_session = db()
 
-    referenceSites = db_session.query(ReferenceSitesModels).all()
+    referenceSites = db_session.query(ReferenceSitesModels).order_by(desc(ReferenceSitesModels.classificacao)).all()
     db_session.close()
     return referenceSites
 

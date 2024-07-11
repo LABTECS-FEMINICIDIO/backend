@@ -83,7 +83,7 @@ headers = ["numero1", "registro_oficial_do", "naocapturado", "homicidio", "numer
            "presenca_medida_protet_urgen", "tipo_intimo_naointimo", "inf_bol_ocorrencia_iml_bol",
            "inf_bol_ocorrencia_revisao", "consulta_jud_bol1", "consulta_jud_bol2", "consulta_jud_revisao1",
            "consulta_jud_revisao2", "observacoes","SITE1", "SITE2", "SITE3", "SITEGEO1", "SITEGEO2",
-           "SITEGEO3", "check_30dias"]
+           "SITEGEO3", "check_30dias", "data_versao_do"]
 
 dictionary = {
     "numero1": "numero1",
@@ -105,7 +105,7 @@ dictionary = {
     "esc2": "esc2",
     "bairro": "bairro",
     "zona": "zona",
-    "rua_beco_travessa_estrada_ramal": "rua/beco/travessa/estrada/ramal",
+    "rua_beco_travessa_estrada_ramal": "rua_beco_travessa_estrada_ramal",
     "endcomplemento": "endcomplemento",
     "local_desova_corpo": "local_desova_corpo",
     "X_Lati": "X_Lati",
@@ -165,7 +165,8 @@ dictionary = {
     "SITEGEO1": "SITEGEO1",
     "SITEGEO2": "SITEGEO2",
     "SITEGEO3": "SITEGEO3",
-    "check_30dias": "check_30dias"
+    "check_30dias": "check_30dias",
+    "data_versao_do": "data_versao_do"
 }
 
 def export_to_xlsx(data):
