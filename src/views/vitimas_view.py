@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import sessionmaker
 from uuid import UUID
 from typing import List, Optional
-from sqlalchemy import asc
+from sqlalchemy import asc, desc
 
 class Vitima(BaseModel):
     nome: str
@@ -66,7 +66,7 @@ async def list_vitimas():
     db = sessionmaker(bind=engine)
     db_session = db()
     vitimas = db_session.query(VitimasModels).options(
-        joinedload(VitimasModels.sites)).order_by(asc(VitimasModels.datadofato)).all()
+        joinedload(VitimasModels.sites)).order_by(desc(VitimasModels.datadofato)).all()
 
     return jsonable_encoder(vitimas)
 
