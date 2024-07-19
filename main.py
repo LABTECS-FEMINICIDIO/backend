@@ -51,7 +51,7 @@ app.add_middleware(
 
 scheduler = AsyncIOScheduler()
 
-@scheduler.scheduled_job("cron", day_of_week="*",  hour=8, minute=49)
+@scheduler.scheduled_job("cron", day_of_week="*",  hour=8, minute=30)
 async def execute_daily_task():
     await check_search()
 
@@ -74,9 +74,11 @@ async def check_search():
     last_search_date = ""
     last_search = await get_latest_history_search()
     if last_search:
-        last_search_datetime = datetime.fromisoformat(last_search.createdAt)
+        created_at_str = last_search.createdAt
+        if created_at_str.endswith('+00'):
+            created_at_str = created_at_str[:-3] + '+0000'
+        last_search_datetime = datetime.strptime(created_at_str, "%Y-%m-%d %H:%M:%S.%f%z")
         last_search_date = last_search_datetime.date()
-    
     
     tempo = await list_agendamento_pesquisas()
 
@@ -87,7 +89,9 @@ async def check_search():
     
     if last_search_date != "":
         days_difference = (current_day - last_search_date).days
-    
+    print("diferenca de dias", days_difference)
+    print("last search", last_search_date)
+    return 
     if days_difference:
         if days_difference >= (tempo_agendado - 1) or tempo_agendado == 1:
             await createHistorySearch()
