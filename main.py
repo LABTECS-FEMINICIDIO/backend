@@ -136,7 +136,7 @@ async def create_initial_user():
         db_session.commit()
         db_session.refresh(db_user)
 
-SECRET_KEY = "80zzm081sr@nd0m"
+SECRET_KEY = "your-secret-key"
 ALGORITHM = "HS256"
 EXCLUDE_PATHS = ["/api/login", "/api/recuperarSenha/"]
 
