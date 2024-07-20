@@ -105,6 +105,7 @@ async def check_search():
         await find_sites_with_keywords(tempo_agendado=tempo_agendado)
         print("--------------Pesquisa realizada-------------------")
 
+
     return 
     
 @app.on_event("startup")
