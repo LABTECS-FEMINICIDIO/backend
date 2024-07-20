@@ -89,9 +89,10 @@ async def check_search():
     
     if last_search_date != "":
         days_difference = (current_day - last_search_date).days
+        
     print("diferenca de dias", days_difference)
     print("last search", last_search_date)
-    return 
+    
     if days_difference:
         if days_difference >= (tempo_agendado - 1) or tempo_agendado == 1:
             await createHistorySearch()
@@ -180,7 +181,7 @@ class JWTMiddleware:
         await self.app(scope, receive, send)
 
 
-# app.add_middleware(JWTMiddleware, secret_key=SECRET_KEY, algorithm=ALGORITHM, exclude_paths=EXCLUDE_PATHS)
+app.add_middleware(JWTMiddleware, secret_key=SECRET_KEY, algorithm=ALGORITHM, exclude_paths=EXCLUDE_PATHS)
 
 app.include_router(bot_controllers, prefix="/api")
 app.include_router(tags_controller, prefix="/api")
