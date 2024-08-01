@@ -73,6 +73,7 @@ async def check_search():
     current_day = date.today()
     last_search_date = ""
     last_search = await get_latest_history_search()
+    
     if last_search:
         created_at_str = last_search.createdAt
         if created_at_str.endswith('+00'):
@@ -87,12 +88,14 @@ async def check_search():
     else:
         tempo_agendado = 1
     
-    if last_search_date != "":
+    days_difference = None
+    if last_search_date:
         days_difference = (current_day - last_search_date).days
+
     print("diferenca de dias", days_difference)
     print("last search", last_search_date)
-    return 
-    if days_difference:
+    
+    if days_difference is not None:
         if days_difference >= (tempo_agendado - 1) or tempo_agendado == 1:
             await createHistorySearch()
             await find_sites_with_keywords(tempo_agendado=tempo_agendado)
@@ -104,7 +107,7 @@ async def check_search():
         await find_sites_with_keywords(tempo_agendado=tempo_agendado)
         print("--------------Pesquisa realizada-------------------")
 
-    return 
+    return
     
 @app.on_event("startup")
 async def create_initial_user():
