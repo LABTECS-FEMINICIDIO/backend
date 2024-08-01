@@ -51,7 +51,7 @@ app.add_middleware(
 
 scheduler = AsyncIOScheduler()
 
-@scheduler.scheduled_job("cron", day_of_week="*",  hour=8, minute=49)
+@scheduler.scheduled_job("cron", day_of_week="*",  hour=8, minute=30)
 async def execute_daily_task():
     await check_search()
 
@@ -71,11 +71,14 @@ async def execute_daily_task():
 
 async def check_search():
     current_day = date.today()
-    
+    last_search_date = ""
     last_search = await get_latest_history_search()
-    last_search_datetime = datetime.fromisoformat(last_search.createdAt)
-    last_search_date = last_search_datetime.date()
-    
+    if last_search:
+        created_at_str = last_search.createdAt
+        if created_at_str.endswith('+00'):
+            created_at_str = created_at_str[:-3] + '+0000'
+        last_search_datetime = datetime.strptime(created_at_str, "%Y-%m-%d %H:%M:%S.%f%z")
+        last_search_date = last_search_datetime.date()
     
     tempo = await list_agendamento_pesquisas()
 
@@ -84,14 +87,24 @@ async def check_search():
     else:
         tempo_agendado = 1
     
-    days_difference = (current_day - last_search_date).days
+    if last_search_date != "":
+        days_difference = (current_day - last_search_date).days
+        
+    print("diferenca de dias", days_difference)
+    print("last search", last_search_date)
     
-    if days_difference >= tempo_agendado or tempo_agendado == 1:
-        await find_sites_with_keywords(tempo_agendado=tempo_agendado)
-        await createHistorySearch()
-        print("--------------Pesquisa realizada-------------------")
+    if days_difference:
+        if days_difference >= (tempo_agendado - 1) or tempo_agendado == 1:
+            await createHistorySearch()
+            await find_sites_with_keywords(tempo_agendado=tempo_agendado)
+            print("--------------Pesquisa realizada-------------------")
+        else:
+            print("--------------Intervalo de tempo não atingido-------------------")
     else:
-        print("--------------Intervalo de tempo não atingido-------------------")
+        await createHistorySearch()
+        await find_sites_with_keywords(tempo_agendado=tempo_agendado)
+        print("--------------Pesquisa realizada-------------------")
+
 
     return 
     
@@ -169,7 +182,7 @@ class JWTMiddleware:
         await self.app(scope, receive, send)
 
 
-# app.add_middleware(JWTMiddleware, secret_key=SECRET_KEY, algorithm=ALGORITHM, exclude_paths=EXCLUDE_PATHS)
+app.add_middleware(JWTMiddleware, secret_key=SECRET_KEY, algorithm=ALGORITHM, exclude_paths=EXCLUDE_PATHS)
 
 app.include_router(bot_controllers, prefix="/api")
 app.include_router(tags_controller, prefix="/api")

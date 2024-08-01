@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import sessionmaker
 from uuid import UUID
 from typing import List, Optional
-from sqlalchemy import asc
+from sqlalchemy import asc, desc
 
 class Vitima(BaseModel):
     nome: str
@@ -49,6 +49,12 @@ class VitimaEdit(BaseModel):
 async def create_vitima(vitima: dict):
     db = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     db_session = db()
+
+    if 'lat' in vitima and vitima['lat'] is not None:
+        vitima['lat'] = f"{float(vitima['lat']):.5f}"
+    if 'lng' in vitima and vitima['lng'] is not None:
+        vitima['lng'] = f"{float(vitima['lng']):.5f}"
+
     db_vitima = VitimasModels(**vitima.model_dump())
     db_session.add(db_vitima)
     db_session.commit()
@@ -60,7 +66,7 @@ async def list_vitimas():
     db = sessionmaker(bind=engine)
     db_session = db()
     vitimas = db_session.query(VitimasModels).options(
-        joinedload(VitimasModels.sites)).all()
+        joinedload(VitimasModels.sites)).order_by(desc(VitimasModels.datadofato)).all()
 
     return jsonable_encoder(vitimas)
 
