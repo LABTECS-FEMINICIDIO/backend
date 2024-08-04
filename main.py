@@ -73,7 +73,7 @@ async def check_search():
     current_day = date.today()
     last_search_date = ""
     last_search = await get_latest_history_search()
-    
+    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", last_search)
     if last_search:
         created_at_str = last_search.createdAt
         if created_at_str.endswith('+00'):
