@@ -336,7 +336,7 @@ async def find_sites_with_keywords(tempo_agendado):
     all_tags = [tag.nome.lower() for tag in tags]
 
     tag_combinations = itertools.combinations(all_tags, 3)
-
+    search_results = []
     for combination in tag_combinations:
 
         if all_tags[0] in combination and all_tags[1] in combination:
