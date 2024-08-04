@@ -51,7 +51,7 @@ app.add_middleware(
 
 scheduler = AsyncIOScheduler()
 
-@scheduler.scheduled_job("cron", day_of_week="*",  hour=10, minute=10)
+@scheduler.scheduled_job("cron", day_of_week="*",  hour=11, minute=5)
 async def execute_daily_task():
     await check_search()
 
@@ -80,7 +80,7 @@ async def check_search():
             created_at_str = created_at_str[:-3] + '+0000'
         last_search_datetime = datetime.strptime(created_at_str, "%Y-%m-%d %H:%M:%S.%f%z")
         last_search_date = last_search_datetime.date()
-    
+        
     tempo = await list_agendamento_pesquisas()
 
     if tempo:
@@ -91,7 +91,11 @@ async def check_search():
     days_difference = None
     if last_search_date:
         days_difference = (current_day - last_search_date).days
-        
+    
+    if not last_search:
+        await createHistorySearch()
+        await find_sites_with_keywords(tempo_agendado=tempo_agendado)
+            
     print("diferenca de dias", days_difference)
     print("last search", last_search_date)
     
@@ -106,7 +110,6 @@ async def check_search():
         await createHistorySearch()
         await find_sites_with_keywords(tempo_agendado=tempo_agendado)
         print("--------------Pesquisa realizada-------------------")
-
 
     return 
     
