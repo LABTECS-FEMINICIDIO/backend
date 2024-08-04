@@ -51,7 +51,7 @@ app.add_middleware(
 
 scheduler = AsyncIOScheduler()
 
-@scheduler.scheduled_job("cron", day_of_week="*",  hour=9, minute=30)
+@scheduler.scheduled_job("cron", day_of_week="*",  hour=9, minute=35)
 async def execute_daily_task():
     await check_search()
 
