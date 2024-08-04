@@ -51,7 +51,7 @@ app.add_middleware(
 
 scheduler = AsyncIOScheduler()
 
-@scheduler.scheduled_job("cron", day_of_week="*",  hour=10, minute=20)
+@scheduler.scheduled_job("cron", day_of_week="*",  hour=23, minute=00)
 async def execute_daily_task():
     await check_search()
 
@@ -138,7 +138,7 @@ async def create_initial_user():
         db_session.commit()
         db_session.refresh(db_user)
 
-SECRET_KEY = "your-secret-key"
+SECRET_KEY = "80zzm081sr@nd0m"
 ALGORITHM = "HS256"
 EXCLUDE_PATHS = ["/api/login", "/api/recuperarSenha/"]
 

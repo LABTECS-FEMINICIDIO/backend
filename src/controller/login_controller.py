@@ -19,7 +19,7 @@ class LoginRequest(BaseModel):
 router = APIRouter()
 
 # Secret key to sign JWT token
-SECRET_KEY = "your-secret-key"
+SECRET_KEY = "80zzm081sr@nd0m"
 ALGORITHM = "HS256"
 
 # OAuth2PasswordBearer is a class to get the token from the request
