@@ -387,7 +387,7 @@ async def find_sites_with_keywords(tempo_agendado):
             tags_encontradas_no_site = await find_tags_on_site(site_info['url'], all_tags)
             check_men_died = await check_words(content) #Se retornar falso é pq achou morte de homem
 
-            if len(tags_encontradas_no_site) >= 1:
+            if len(tags_encontradas_no_site) > 1:
                 await create_site(Site(
                                 nome=site_info['name'],
                                 link=site_info['url'],
