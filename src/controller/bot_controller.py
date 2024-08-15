@@ -134,18 +134,18 @@ is_loop_running = False
 loop_task = None
 
 
-async def background_task_iml():
-    global is_loop_running_iml
-    while is_loop_running_iml:
-        # tempo = await list_agendamento_pesquisas()
+# async def background_task_iml():
+#     global is_loop_running_iml
+#     while is_loop_running_iml:
+#         # tempo = await list_agendamento_pesquisas()
 
-        # if tempo:
-        #     tempo_agendado = tempo[0].dias
-        # else:
-        #     tempo_agendado = 1
+#         # if tempo:
+#         #     tempo_agendado = tempo[0].dias
+#         # else:
+#         #     tempo_agendado = 1
 
-        await iml_screapper()
-        await asyncio.sleep(1 * 86400)
+#         await iml_screapper()
+#         await asyncio.sleep(1 * 86400)
 
 
 async def background_task():
@@ -169,14 +169,14 @@ async def background_task():
 
 @router.get("/iml/")
 async def find_iml():
-    global is_loop_running_iml, loop_task_iml
+    # global is_loop_running_iml, loop_task_iml
 
-    # Inicia ou reinicia o loop de IML
-    if not is_loop_running_iml:
-        is_loop_running_iml = True
-        loop_task_iml = asyncio.create_task(background_task_iml())
+    # # Inicia ou reinicia o loop de IML
+    # if not is_loop_running_iml:
+    #     is_loop_running_iml = True
+    #     loop_task_iml = asyncio.create_task(background_task_iml())
 
-    return {"message": "Busca de dados no IML agendada com sucesso!"}
+    return
 
 last_search_day = None
 
