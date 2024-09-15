@@ -11,6 +11,8 @@ services:
     ports:
       - ${PORT_BACKEND}:${PORT_BACKEND}
     env_file: .env
+    environment:
+      - TZ=America/Manaus
 
   postgres:
     image: postgres
