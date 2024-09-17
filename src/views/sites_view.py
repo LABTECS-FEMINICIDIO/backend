@@ -216,8 +216,7 @@ async def update_site(siteId: str, site_data: Dict):
             ReferenceSitesModels.nome == db_site.nome
         ).first()
 
-        site_referencia.classificacao = int(
-            site_data["classificacao"]) + total_classificacao / (total_sites + 1)
+        site_referencia.classificacao = (int(site_data["classificacao"]) + total_classificacao) / (total_sites + 1)
 
     for key, value in site_data.items():
         if hasattr(db_site, key):
