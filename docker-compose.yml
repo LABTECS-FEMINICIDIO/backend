@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   api_backend_feminicidio:
-    container_name: api_backend_feminicidio
+    container_name: api_backend_feminicidio_porto_velho
     image: api_feminicidio
     build:
       dockerfile: ./Dockerfile
@@ -11,6 +11,8 @@ services:
     ports:
       - ${PORT_BACKEND}:${PORT_BACKEND}
     env_file: .env
+    environment:
+      - TZ=America/Manaus
 
   postgres:
     image: postgres
@@ -26,6 +28,7 @@ services:
     networks:
       - postgres_network
     env_file: .env
+    
 
 volumes:
   postgres_data:
