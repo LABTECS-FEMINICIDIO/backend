@@ -108,7 +108,7 @@ dictionary = {
     "rua_beco_travessa_estrada_ramal": "rua_beco_travessa_estrada_ramal",
     "endcomplemento": "endcomplemento",
     "local_desova_corpo": "local_desova_corpo",
-    "X_Lati": "X_Lati",
+    "X_Lati": "X_Lat",
     "Y_Long": "Y_Long",
     "precisao_local_classificacao": "precisao_local_classificacao",
     "coordenadas_derivam": "coordenadas_derivam",
