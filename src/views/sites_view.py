@@ -197,7 +197,9 @@ async def update_site(siteId: str, site_data: Dict):
         SitesModels.id == siteId).first()
 
     all_same_sites = db_session.query(SitesModels).filter(
-        SitesModels.nome == db_site.nome)
+        SitesModels.nome == db_site.nome,
+        SitesModels.classificacao > 0
+        )
 
     if db_site is None:
         db_session.close()
@@ -208,15 +210,18 @@ async def update_site(siteId: str, site_data: Dict):
         total_sites = 0
 
         for site in all_same_sites:
-            if site.classificacao > 0:
-                total_sites += 1
-                total_classificacao += int(site.classificacao)
+            total_sites += 1
+            total_classificacao += int(site.classificacao)
 
         site_referencia = db_session.query(ReferenceSitesModels).filter(
             ReferenceSitesModels.nome == db_site.nome
         ).first()
 
-        site_referencia.classificacao = (int(site_data["classificacao"]) + total_classificacao) / (total_sites + 1)
+        if int(site_data["classificacao"]) > 0:
+            site_referencia.classificacao =  total_classificacao / total_sites
+        else:    
+            site_referencia.classificacao = (int(site_data["classificacao"]) + total_classificacao) / (total_sites + 1)
+
 
     for key, value in site_data.items():
         if hasattr(db_site, key):
