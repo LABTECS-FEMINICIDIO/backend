@@ -178,7 +178,7 @@ def export_to_xlsx(data):
     for row in data:
         row_dict = dict(row)
 
-        row_dict['X_Lati'] = row_dict.pop('lat', 'NA')
+        row_dict['X_Lat'] = row_dict.pop('lat', 'NA')
         row_dict['Y_Long'] = row_dict.pop('lng', 'NA')
 
         new_row_dict = {}
