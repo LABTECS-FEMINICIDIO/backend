@@ -2,8 +2,8 @@ version: "3.7"
 
 services:
   api_backend_feminicidio:
-    container_name: api_backend_feminicidio_porto_velho
-    image: api_feminicidio
+    container_name: api_backend_feminicidio_rio_branco
+    image: api_feminicidio_rio_branco
     build:
       dockerfile: ./Dockerfile
       context: ./
@@ -13,26 +13,3 @@ services:
     env_file: .env
     environment:
       - TZ=America/Manaus
-
-  postgres:
-    image: postgres
-    restart: always
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: feminicidio
-    ports:
-      - "5445:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - postgres_network
-    env_file: .env
-    
-
-volumes:
-  postgres_data:
-
-networks:
-  postgres_network:
-    driver: bridge

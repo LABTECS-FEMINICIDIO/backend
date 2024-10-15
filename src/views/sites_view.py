@@ -345,8 +345,8 @@ async def find_sites_with_keywords(tempo_agendado):
 
         if all_tags[0] in combination and all_tags[1] in combination:
             
-            if "porto velho" not in combination:
-                combination += tuple(["porto velho"])
+            if "Rio branco" not in combination:
+                combination += tuple(["Rio branco"])
 
             print("-------------------------------------------")
             print("tags mandantes",all_tags[0], all_tags[1])
