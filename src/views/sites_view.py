@@ -216,6 +216,9 @@ async def update_site(siteId: str, site_data: Dict):
         site_referencia = db_session.query(ReferenceSitesModels).filter(
             ReferenceSitesModels.nome == db_site.nome
         ).first()
+        
+        if total_sites == 0:
+            total_sites = 1
 
         if int(site_data["classificacao"]) > 0:
             site_referencia.classificacao =  total_classificacao / total_sites
