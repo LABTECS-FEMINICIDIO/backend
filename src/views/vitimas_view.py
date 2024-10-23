@@ -8,6 +8,7 @@ from sqlalchemy.orm import sessionmaker
 from uuid import UUID
 from typing import List, Optional
 from sqlalchemy import asc, desc
+from datetime import datetime
 
 class Vitima(BaseModel):
     nome: str
@@ -77,7 +78,23 @@ async def list_vitimas_for_export():
         joinedload(VitimasModels.sites)
     ).order_by(asc(VitimasModels.idade)).all()
 
-    return jsonable_encoder(vitimas)
+    # Prepara os dados para exportação
+    vitimas_data = []
+    for vitima in vitimas:
+        vitima_dict = jsonable_encoder(vitima)
+        
+        # Converte o createdAt para datetime
+        if vitima_dict.get("createdAt"):
+            created_at = datetime.strptime(vitima_dict["createdAt"], "%Y-%m-%d %H:%M:%S")  # Ajuste o formato se necessário
+            vitima_dict["DataCaptura"] = created_at.date().strftime("%Y-%m-%d")  # Extrai apenas a data
+            vitima_dict["HoraCaptura"] = created_at.time().strftime("%H:%M:%S")  # Extrai apenas a hora
+        else:
+            vitima_dict["DataCaptura"] = ""
+            vitima_dict["HoraCaptura"] = ""
+
+        vitimas_data.append(vitima_dict)
+
+    return vitimas_data
 
 async def list_one_vitima(vitima_id: UUID):
     db = sessionmaker(bind=engine)

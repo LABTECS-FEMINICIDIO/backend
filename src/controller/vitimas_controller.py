@@ -227,7 +227,7 @@ def export_to_xlsx(data):
 
     return output
 
-headers_iml = ["dataEntrada", "horaEntrada", "sexo", "idade", "bairroDaRemocao", "causaMorte"]
+headers_iml = ["dataEntrada", "horaEntrada", "sexo", "idade", "bairroDaRemocao", "causaMorte", "DataCaptura", "HoraCaptura"]
 
 def export_to_xlsx_iml(data):
     wb = Workbook()
