@@ -229,6 +229,17 @@ def export_to_xlsx(data):
 
 headers_iml = ["dataEntrada", "horaEntrada", "sexo", "idade", "bairroDaRemocao", "causaMorte", "DataCaptura", "HoraCaptura"]
 
+trad_iml = {
+    "dataEntrada": "dataEntrada",
+    "horaEntrada": "horaEntrada",
+    "sexo": "sexo",
+    "idade": "idade",
+    "bairroDaRemocao": "bairroDaRemocao",
+    "causaMorte": "causaMorte",
+    "DataCaptura": "createdAt",
+    "HoraCaptura": "createdAt"
+}
+
 def export_to_xlsx_iml(data):
     wb = Workbook()
     ws = wb.active
@@ -237,7 +248,21 @@ def export_to_xlsx_iml(data):
 
     for row in data:
         row_dict = dict(row)
-        row_data = [row_dict.get(header, "") for header in headers_iml]
+        row_data = []
+
+        for header in headers_iml:
+            if header == "DataCaptura":
+                created_at = datetime.strptime(row_dict["createdAt"], "%Y-%m-%d %H:%M:%S")
+                value =  created_at.date().strftime("%Y-%m-%d")
+            elif header == "DataCaptura":
+                created_at = datetime.strptime(row_dict["createdAt"], "%Y-%m-%d %H:%M:%S")
+                value =  created_at.time().strftime("%H:%M:%S")
+            else:
+                value = row_dict.get(trad_iml[header], "")
+                
+            row_data.append(value)
+            
+        # row_data = [row_dict.get(trad_iml[header], "") for header in headers_iml]
         ws.append(row_data)
 
     output = BytesIO()
