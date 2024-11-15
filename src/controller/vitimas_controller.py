@@ -227,7 +227,18 @@ def export_to_xlsx(data):
 
     return output
 
-headers_iml = ["dataEntrada", "horaEntrada", "sexo", "idade", "bairroDaRemocao", "causaMorte"]
+headers_iml = ["dataEntrada", "horaEntrada", "sexo", "idade", "bairroDaRemocao", "causaMorte", "DataCaptura", "HoraCaptura"]
+
+trad_iml = {
+    "dataEntrada": "dataEntrada",
+    "horaEntrada": "horaEntrada",
+    "sexo": "sexo",
+    "idade": "idade",
+    "bairroDaRemocao": "bairroDaRemocao",
+    "causaMorte": "causaMorte",
+    "DataCaptura": "createdAt",
+    "HoraCaptura": "createdAt"
+}
 
 def export_to_xlsx_iml(data):
     wb = Workbook()
@@ -237,7 +248,21 @@ def export_to_xlsx_iml(data):
 
     for row in data:
         row_dict = dict(row)
-        row_data = [row_dict.get(header, "") for header in headers_iml]
+        row_data = []
+
+        for header in headers_iml:
+            if header == "DataCaptura":
+                created_at = datetime.strptime(row_dict["createdAt"].split("+")[0], "%Y-%m-%d %H:%M:%S.%f")  # Ignore timezone for parsing
+                value = created_at.date()
+                row_data.append(value)
+            elif header == "HoraCaptura":
+                created_at = datetime.strptime(row_dict["createdAt"].split("+")[0], "%Y-%m-%d %H:%M:%S.%f")  # Ignore timezone for parsing
+                value = created_at.time()
+                row_data.append(value)
+            else:
+                value = row_dict.get(trad_iml[header], "")
+                row_data.append(value)
+
         ws.append(row_data)
 
     output = BytesIO()
