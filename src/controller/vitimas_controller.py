@@ -72,7 +72,7 @@ async def delete_vitimas_controller(vitima_id: str):
 headers = ["numero1", "registro_oficial_do", "naocapturado", "homicidio", "numerodo", "datadofato",
            "diah", "diasemh", "mesh", "anoh", "horario", "turno", "nome", "idade", "racacor1", "estciv2",
            "esc2", "bairro", "zona", "rua_beco_travessa_estrada_ramal", "endcomplemento",
-           "local_desova_corpo", "X_Lati", "Y_Long", "precisao_local_classificacao", "coordenadas_derivam",
+           "local_desova_corpo", "X_lat", "Y_long", "precisao_local_classificacao", "coordenadas_derivam",
            "cid10cod4final", "cid10cod4finaltexto", "tipoarma1", "tipoarma2", "loclesao1", "loclesao2",
            "loclesao3", "localdaslesoes", "numerodelesoes", "possivelfemin", "possivelfemin1", "hospitalizacao",
            "vitusudrogilicita", "relacaotraf", "violsexual", "usodealcool", "latrocinio",
@@ -108,8 +108,8 @@ dictionary = {
     "rua_beco_travessa_estrada_ramal": "rua_beco_travessa_estrada_ramal",
     "endcomplemento": "endcomplemento",
     "local_desova_corpo": "local_desova_corpo",
-    "X_Lati": "X_Lati",
-    "Y_Long": "Y_Long",
+    "X_lat": "X_Lat",
+    "Y_long": "Y_Long",
     "precisao_local_classificacao": "precisao_local_classificacao",
     "coordenadas_derivam": "coordenadas_derivam",
     "cid10cod4final": "cid10cod4final",
@@ -178,7 +178,7 @@ def export_to_xlsx(data):
     for row in data:
         row_dict = dict(row)
 
-        row_dict['X_Lati'] = row_dict.pop('lat', 'NA')
+        row_dict['X_Lat'] = row_dict.pop('lat', 'NA')
         row_dict['Y_Long'] = row_dict.pop('lng', 'NA')
 
         new_row_dict = {}
