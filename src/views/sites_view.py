@@ -360,7 +360,7 @@ async def find_sites_with_keywords(tempo_agendado):
             mes = data[1]
             dia = data[2]
 
-            search_url = f'https://www.google.com/search?q={keywords}+&tbs=cdr:1,cd_min:{mes}%2F{dia}%2F{ano},cd_max:11/15/2024'
+            search_url = f'https://www.google.com/search?q={keywords}+&tbs=cdr:1,cd_min:{mes}%2F{dia}%2F{ano}'
             # search_url = f'https://www.google.com/search?q={keywords}+after%3A{data[0]}%2F{data[1]}%2F{data[2]}'
             # https://www.google.com/search?q=mulher+encontrada+porto+&tbs=cdr:1,cd_min:11/01/2024,cd_max:11/15/2024
             print("url", search_url)
