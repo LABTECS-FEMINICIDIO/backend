@@ -147,15 +147,15 @@ def list_sites_paginated(created_date, nome, feminicidio, lido, classificacao, l
                              cast(SitesModels.createdAt, DateTime) <= end_date)
         
     if nome:
-        query = query.filter(SitesModels.nome == nome)
+        query = query.filter(SitesModels.nome.ilike(f"%{nome}%"))
     if classificacao:
-        query = query.filter(SitesModels.classificacao == classificacao)
+        query = query.filter(SitesModels.classificacao.ilike(f"%{classificacao}%"))
     if feminicidio:
         query = query.filter(SitesModels.feminicidio == feminicidio)
     if lido:
         query = query.filter(SitesModels.lido == lido)
     if link:
-        query = query.filter(SitesModels.link == link)
+        query = query.filter(SitesModels.link.ilike(f"%{link}%"))
         
     total_records = query.count()
     
