@@ -403,7 +403,7 @@ async def find_sites_with_keywords(tempo_agendado):
                             nome=site_info['name'],
                             link=site_info['url'],
                             conteudo=content,
-                            tagsEncontradas=", ".join()
+                            tagsEncontradas=""
                         ), site_info['reference_site_link'])
             # if content:
             #     if len(tags_encontradas_no_site) >= 1:
