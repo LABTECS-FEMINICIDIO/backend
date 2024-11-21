@@ -349,8 +349,13 @@ async def find_sites_with_keywords(tempo_agendado):
             print("cmbinations", combination)
             print("-------------------------------------------")
             keywords = "+".join(combination)
+            
+            ano = data[0]
+            mes = data[1]
+            dia = data[2]
 
-            search_url = f'https://www.google.com/search?q={keywords}+after%3A{data[0]}%2F{data[1]}%2F{data[2]}'
+            search_url = f'https://www.google.com/search?q={keywords}+&tbs=cdr:1,cd_min:{mes}%2F{dia}%2F{ano}'
+            # search_url = f'https://www.google.com/search?q={keywords}+after%3A{data[0]}%2F{data[1]}%2F{data[2]}'
             print("url", search_url)
             response = requests.get(search_url)
             print("google respondeu")
@@ -384,16 +389,16 @@ async def find_sites_with_keywords(tempo_agendado):
 
             content = await fetch_content(site_info['url'])
 
-            tags_encontradas_no_site = await find_tags_on_site(site_info['url'], all_tags)
-            check_men_died = await check_words(content) #Se retornar falso é pq achou morte de homem
+            # tags_encontradas_no_site = await find_tags_on_site(site_info['url'], all_tags)
+            # check_men_died = await check_words(content) #Se retornar falso é pq achou morte de homem
 
-            if "porto velho" in tags_encontradas_no_site and str(all_tags[0]).lower() in tags_encontradas_no_site and str(all_tags[1]).lower() in tags_encontradas_no_site:
-                    await create_site(Site(
-                                    nome=site_info['name'],
-                                    link=site_info['url'],
-                                    conteudo=content,
-                                    tagsEncontradas=", ".join(tags_encontradas_no_site)
-                                ), site_info['reference_site_link'])
+            # if "porto velho" in tags_encontradas_no_site and str(all_tags[0]).lower() in tags_encontradas_no_site and str(all_tags[1]).lower() in tags_encontradas_no_site:
+            await create_site(Site(
+                            nome=site_info['name'],
+                            link=site_info['url'],
+                            conteudo=content,
+                            tagsEncontradas=""
+                        ), site_info['reference_site_link'])
             # if content:
             #     if len(tags_encontradas_no_site) >= 1:
             #         if site_blocked == True and not check_men_died:
