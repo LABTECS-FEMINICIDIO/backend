@@ -12,7 +12,7 @@ services:
     env_file: .env
     environment:
       - TZ=America/Manaus
-      - DATABASE_URL=postgresql://postgres:teste-dean@24.199.108.245:5445/feminicidio-teste
+      - DATABASE_URL=${DATABASE_URL_MANAUS}
       - CITY=manaus
       - HOUR_JOB=23
       - MINUTE_JOB=0
@@ -29,8 +29,8 @@ services:
     env_file: .env
     environment:
       - TZ=America/Manaus
-      - DATABASE_URL=postgresql://postgres:teste-dean@24.199.108.245:5445/feminicidio-teste-porto-velho
-      - CITY='porto velho'
+      - DATABASE_URL=${DATABASE_URL_PORTO_VELHO}
+      - CITY=porto velho
       - HOUR_JOB=23
       - MINUTE_JOB=10
       - PORT_BACKEND=8001
@@ -46,8 +46,8 @@ services:
     env_file: .env
     environment:
       - TZ=America/Manaus
-      - DATABASE_URL=postgresql://postgres:teste-dean@24.199.108.245:5445/feminicidio-teste-rio-branco
-      - CITY='porto velho'
+      - DATABASE_URL=${DATABASE_URL_RIO_BRANCO}
+      - CITY=rio branco
       - HOUR_JOB=23
       - MINUTE_JOB=20
       - PORT_BACKEND=8002
@@ -63,8 +63,8 @@ services:
     env_file: .env
     environment:
       - TZ=America/Manaus
-      - DATABASE_URL=postgresql://postgres:teste-dean@24.199.108.245:5445/feminicidio-teste-rio-de-janeiro
-      - CITY='porto velho'
+      - DATABASE_URL=${DATABASE_URL_RIO_DE_JANEIRO}
+      - CITY=rio de janeiro
       - HOUR_JOB=23
       - MINUTE_JOB=30
       - PORT_BACKEND=8003
