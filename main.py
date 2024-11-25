@@ -17,12 +17,13 @@ from sqlalchemy.orm import sessionmaker
 import bcrypt
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from src.views.search_schedule_views import list_agendamento_pesquisas
-from src.views.sites_view import find_sites_with_keywords
+from src.views.sites_view import find_sites_with_keywords, iml_screapper
 from datetime import date, datetime
 from src.views.historySearch_views import get_latest_history_search, createHistorySearch
 from jose import JWTError, jwt
 from fastapi.responses import JSONResponse
 from typing import Callable, List
+
 load_dotenv()
 
 Base.metadata.create_all(bind=engine)
@@ -51,10 +52,22 @@ app.add_middleware(
 
 scheduler = AsyncIOScheduler()
 
-@scheduler.scheduled_job("cron", day_of_week="*",  hour=1, minute=00)
-async def execute_daily_task():
-    await check_search()
+hour_job = os.getenv("HOUR_JOB")
+minute_job = os.getenv("MINUTE_JOB")
+city = os.getenv("CITY")
 
+print(hour_job, minute_job)
+
+
+@scheduler.scheduled_job("cron", day_of_week="*",  hour=int(os.getenv("HOUR_JOB")), minute=int(os.getenv("MINUTE_JOB")))
+async def execute_daily_task():
+    print("-------------------------iniciei o job diário-------------------------", datetime.now())
+    await check_search()
+    print("-------------------------Finalizei a busca por sites e iniciei o scrapper do iml-------------------------", datetime.now())
+    if os.getenv("CITY") == "manaus":
+        print("cidade de manaus")
+        # await iml_screapper()
+    print("-------------------------Finalizei o scrapper do iml-------------------------", datetime.now())
 
 # async def check_search():
 #     tempo = await list_agendamento_pesquisas()
@@ -146,45 +159,45 @@ EXCLUDE_PATHS = ["/api/login", "/api/recuperarSenha/"]
 async def shutdown_event():
     scheduler.shutdown()
 
-class JWTMiddleware:
-    def __init__(self, app: FastAPI, secret_key: str, algorithm: str, exclude_paths: List[str] = None):
-        self.app = app
-        self.secret_key = secret_key
-        self.algorithm = algorithm
-        self.exclude_paths = exclude_paths if exclude_paths else []
+# class JWTMiddleware:
+#     def __init__(self, app: FastAPI, secret_key: str, algorithm: str, exclude_paths: List[str] = None):
+#         self.app = app
+#         self.secret_key = secret_key
+#         self.algorithm = algorithm
+#         self.exclude_paths = exclude_paths if exclude_paths else []
 
-    async def __call__(self, scope: dict, receive: Callable, send: Callable):
-        if scope["type"] == "http" :
-            request = Request(scope, receive)
-            path = request.url.path
+#     async def __call__(self, scope: dict, receive: Callable, send: Callable):
+#         if scope["type"] == "http" :
+#             request = Request(scope, receive)
+#             path = request.url.path
 
-            if path in self.exclude_paths or request.method == "OPTIONS":
-                await self.app(scope, receive, send)
-                return
+#             if path in self.exclude_paths or request.method == "OPTIONS":
+#                 await self.app(scope, receive, send)
+#                 return
 
-            token = request.headers.get("Authorization")
-            if token:
-                try:
-                    if token.startswith("Bearer "):
-                        token = token[len("Bearer "):]
-                    else:
-                        raise JWTError("Token inválido")
+#             token = request.headers.get("Authorization")
+#             if token:
+#                 try:
+#                     if token.startswith("Bearer "):
+#                         token = token[len("Bearer "):]
+#                     else:
+#                         raise JWTError("Token inválido")
 
-                    payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
-                    # request.state.user = payload
-                except JWTError:
-                    response = JSONResponse(status_code=401, content={"detail": "Token inválido"})
-                    await response(scope, receive, send)
-                    return
-            else:
-                response = JSONResponse(status_code=401, content={"detail": "Token não fornecido"})
-                await response(scope, receive, send)
-                return
+#                     payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
+#                     # request.state.user = payload
+#                 except JWTError:
+#                     response = JSONResponse(status_code=401, content={"detail": "Token inválido"})
+#                     await response(scope, receive, send)
+#                     return
+#             else:
+#                 response = JSONResponse(status_code=401, content={"detail": "Token não fornecido"})
+#                 await response(scope, receive, send)
+#                 return
 
-        await self.app(scope, receive, send)
+#         await self.app(scope, receive, send)
 
 
-app.add_middleware(JWTMiddleware, secret_key=SECRET_KEY, algorithm=ALGORITHM, exclude_paths=EXCLUDE_PATHS)
+# app.add_middleware(JWTMiddleware, secret_key=SECRET_KEY, algorithm=ALGORITHM, exclude_paths=EXCLUDE_PATHS)
 
 app.include_router(bot_controllers, prefix="/api")
 app.include_router(tags_controller, prefix="/api")

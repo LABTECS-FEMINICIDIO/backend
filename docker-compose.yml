@@ -3,35 +3,90 @@ version: "3.7"
 services:
   api_backend_feminicidio:
     container_name: api_backend_feminicidio
-    image: api_feminicidio
     build:
       dockerfile: ./Dockerfile
       context: ./
     restart: unless-stopped
     ports:
-      - ${PORT_BACKEND}:${PORT_BACKEND}
+      - "8000:8000"
     env_file: .env
     environment:
       - TZ=America/Manaus
+      - DATABASE_URL=postgresql://postgres:teste-dean@24.199.108.245:5445/feminicidio-teste
+      - CITY=manaus
+      - HOUR_JOB=23
+      - MINUTE_JOB=0
+      - PORT_BACKEND=8000
 
-  postgres:
-    image: postgres
-    restart: always
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: feminicidio
+  api_backend_feminicidio_porto_velho:
+    container_name: api_backend_feminicidio_porto_velho
+    build:
+      dockerfile: ./Dockerfile
+      context: ./
+    restart: unless-stopped
     ports:
-      - "5445:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - postgres_network
+      - "8001:8001"
     env_file: .env
+    environment:
+      - TZ=America/Manaus
+      - DATABASE_URL=postgresql://postgres:teste-dean@24.199.108.245:5445/feminicidio-teste-porto-velho
+      - CITY='porto velho'
+      - HOUR_JOB=23
+      - MINUTE_JOB=10
+      - PORT_BACKEND=8001
 
-volumes:
-  postgres_data:
+  api_backend_feminicidio_rio_branco:
+    container_name: api_backend_feminicidio_rio_branco
+    build:
+      dockerfile: ./Dockerfile
+      context: ./
+    restart: unless-stopped
+    ports:
+      - "8002:8002"
+    env_file: .env
+    environment:
+      - TZ=America/Manaus
+      - DATABASE_URL=postgresql://postgres:teste-dean@24.199.108.245:5445/feminicidio-teste-rio-branco
+      - CITY='porto velho'
+      - HOUR_JOB=23
+      - MINUTE_JOB=20
+      - PORT_BACKEND=8002
 
-networks:
-  postgres_network:
-    driver: bridge
+  api_backend_feminicidio_rio_de_janeiro:
+    container_name: api_backend_feminicidio_rio_de_janeiro
+    build:
+      dockerfile: ./Dockerfile
+      context: ./
+    restart: unless-stopped
+    ports:
+      - "8003:8003"
+    env_file: .env
+    environment:
+      - TZ=America/Manaus
+      - DATABASE_URL=postgresql://postgres:teste-dean@24.199.108.245:5445/feminicidio-teste-rio-de-janeiro
+      - CITY='porto velho'
+      - HOUR_JOB=23
+      - MINUTE_JOB=30
+      - PORT_BACKEND=8003
+
+#   postgres:
+#     image: postgres
+#     restart: always
+#     environment:
+#       POSTGRES_USER: ${POSTGRES_USER}
+#       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+#       POSTGRES_DB: feminicidio
+#     ports:
+#       - "5445:5432"
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+#     networks:
+#       - postgres_network
+#     env_file: .env
+
+# volumes:
+#   postgres_data:
+
+# networks:
+#   postgres_network:
+#     driver: bridge

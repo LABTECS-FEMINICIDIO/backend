@@ -16,7 +16,10 @@ router = APIRouter()
 from openpyxl import load_workbook
 from src.views.historySearch_views import get_latest_history_search, createHistorySearch
 from fastapi import Query
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 class Vitima(BaseModel):
     id: UUID
     nome: str
@@ -171,36 +174,50 @@ async def background_task():
 async def find_iml():
     global is_loop_running_iml, loop_task_iml
 
+    city = os.getenv("CITY")
     # Inicia ou reinicia o loop de IML
-    if not is_loop_running_iml:
-        is_loop_running_iml = True
-        loop_task_iml = asyncio.create_task(background_task_iml())
+    
+    if city == "manaus":
+        if not is_loop_running_iml:
+            is_loop_running_iml = True
+            loop_task_iml = asyncio.create_task(background_task_iml())
 
-    return {"message": "Busca de dados no IML agendada com sucesso!"}
+        return {"message": "Busca de dados no IML agendada com sucesso!"}
+    
+    return {"message": "Esta cidade não tem o scrapper do IML"}
 
 last_search_day = None
 
 @router.get("/findSites/")
 async def find_sites():
-    global is_loop_running, loop_task, last_search_day
+    # global is_loop_running, loop_task, last_search_day
     tempo = await list_agendamento_pesquisas()
-
+    
     if tempo:
         tempo_agendado = tempo[0].dias
     else:
         tempo_agendado = 5
+        
+    print("tempo agendado", tempo_agendado)
 
-    current_day = date.today()
+    await find_sites_with_keywords(tempo_agendado=tempo_agendado)
 
-    if last_search_day != current_day:
-        await find_sites_with_keywords(tempo_agendado=tempo_agendado)
-        last_search_day = current_day
+    # if tempo:
+    #     tempo_agendado = tempo[0].dias
+    # else:
+    #     tempo_agendado = 5
 
-        # Inicia ou reinicia o loop de sites
-        if not is_loop_running:
-            is_loop_running = True
-            print("entrei no if")
-            loop_task = asyncio.create_task(background_task())
+    # current_day = date.today()
+
+    # if last_search_day != current_day:
+    #     await find_sites_with_keywords(tempo_agendado=tempo_agendado)
+    #     last_search_day = current_day
+
+    #     # Inicia ou reinicia o loop de sites
+    #     if not is_loop_running:
+    #         is_loop_running = True
+    #         print("entrei no if")
+    #         loop_task = asyncio.create_task(background_task())
     # await createHistorySearch()
     return {"message": "Busca de sites agendada com sucesso!"}
 

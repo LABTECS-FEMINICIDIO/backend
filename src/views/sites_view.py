@@ -18,9 +18,15 @@ import random
 import json
 import itertools
 from datetime import datetime, timedelta
+import os
+import time
+from dotenv import load_dotenv
+import re
+from datetime import datetime, timedelta, timezone
 
 from src.views.reference_sites_views import createReferenceSiteForParse
 
+load_dotenv()
 
 class Site(BaseModel):
     nome: str
@@ -321,113 +327,139 @@ async def find_tags_on_site(site: str, tags: List[str]) -> List[str]:
 
     return found_tags
 
+def generate_search_string(arrTags: str) -> str:
+    accString = ""
+
+    lenArr = len(arrTags)
+
+    for index, item in enumerate(arrTags):
+        if index == 0 or index == 1:
+            accString += item + "%20"
+        elif index == 2:
+            accString += "(%20" + item + "%20OR%20"
+        elif index == lenArr - 1:
+            accString += item + "%20)"
+        else:
+            accString += item + "%20OR%20"
+            
+    return accString
+
+def check_publish_date(arrMetatags): 
+    for metatag in arrMetatags:
+        published_time = metatag.get('article:published_time')
+        if published_time:
+            published_datetime = datetime.fromisoformat(published_time.replace("Z", "+00:00"))
+            
+            three_days_ago = datetime.now() - timedelta(days=3)
+            if published_datetime >= three_days_ago:
+                return True
+            else:
+                return False
+
+def count_tags(text: str, allTags: list) -> int:
+    tags = re.findall(r'<b>(.*?)</b>', text)
+    
+    tags = [tag.lower() for tag in tags]
+    allTags_lower = [tag.lower() for tag in allTags]
+    
+    accTagsArr = [tag for tag in allTags_lower if tag in tags]
+    
+    return len(accTagsArr), accTagsArr
+
+def fetch_page_content(url):
+    try:
+        response = requests.get(url, timeout=10)  
+        if response.status_code == 200:
+            return response.text  
+        else:
+            print(f"Erro ao acessar {url}: Código {response.status_code}")
+            return None
+    except requests.RequestException as e:
+        print(f"Erro ao acessar {url}: {e}")
+        return None
+
+def is_within_last_days(date_string: str, tempo_agendado: int) -> bool:
+    try:
+        date = datetime.fromisoformat(date_string)
+    except ValueError:
+        print("Formato de data inválido")
+        return False
+
+    now = datetime.now(timezone.utc)
+
+    three_days_ago = now - timedelta(days=tempo_agendado)
+
+    return date >= three_days_ago
 
 async def find_sites_with_keywords(tempo_agendado):
     print("entrei no find sites")
     found_sites = []
 
-    data = (str(datetime.now()).split(" ")[0].split("-"))
-
-    int(data[2]) - 2
-
-    data[2] = int(data[2]) - tempo_agendado
-
-    if data[2] < 10:
-        data[2] = "0"+str(data[2])
-    else:
-        data[2] = str(data[2])
-
     tags = await list_tags()
-
+    
     all_tags = [tag.nome.lower() for tag in tags]
-
-    tag_combinations = itertools.combinations(all_tags, 3)
+    
     search_results = []
-    for combination in tag_combinations:
+    
+    search_string = generate_search_string(all_tags)
+    
+    api_key = os.getenv("API_GOOGLE_SEARCH_KEY")
+    id_searcher = os.getenv("ID_SEARCHER_CX")
+    
+    print(search_string)
+    
+    # search_url = f'https://www.googleapis.com/customsearch/v1?q={search_string}&key={api_key}&cx={id_searcher}&dateRestrict=d{tempo_agendado}&gl=br&cr=countryBR&filter=0&excludeTerms=homem%20morto%20acidente'
+    search_url = f"https://www.googleapis.com/customsearch/v1?q={search_string}&key={api_key}&cx={id_searcher}&dateRestrict=d{tempo_agendado}&gl=br&cr=countryBR&lr=lang_pt&filter=0&excludeTerms=homem%20morto%20acidente"
+        
+    response_api_custom_json = requests.get(search_url)
+    
+    if response_api_custom_json.status_code == 200:
+        data = response_api_custom_json.json()  
+        items = data.get('items', []) 
+        
+        if items:
+            for item in items:
+                try: 
+                    title = item.get('title') 
+                    
+                    link = item.get('link') 
+                    
+                    tags_encontradas = item.get("htmlSnippet")
+                    
+                    pagemap = item.get('pagemap', {})
+                    metatags = pagemap.get("metatags")
+                    
+                    
+                    reference_site_link = item.get("displayLink")
+                    
+                    publish_date = metatags[0]["article:published_time"] 
+                    site_name = metatags[0]["og:site_name"] 
 
-        if all_tags[0] in combination and all_tags[1] in combination:
-            
-            if "manaus" not in combination:
-                combination += tuple(["manaus"])
+                    site_search = await site_is_not_blocked(site_name=site_name)
 
-            print("-------------------------------------------")
-            print("tags mandantes",all_tags[0], all_tags[1])
-            print("cmbinations", combination)
-            print("-------------------------------------------")
-            keywords = "+".join(combination)
-            
-            ano = data[0]
-            mes = data[1]
-            dia = data[2]
+                    print(f"Title: {title}")
+                    print(f"Link: {link}")
+                    
+                    count, tags_found = count_tags(tags_encontradas, all_tags)
 
-            search_url = f'https://www.google.com/search?q={keywords}+&tbs=cdr:1,cd_min:{mes}%2F{dia}%2F{ano}'
-            # search_url = f'https://www.google.com/search?q={keywords}+after%3A{data[0]}%2F{data[1]}%2F{data[2]}'
-            # https://www.google.com/search?q=mulher+encontrada+porto+&tbs=cdr:1,cd_min:11/01/2024,cd_max:11/15/2024
-            print("url", search_url)
-            response = requests.get(search_url)
-            print("google respondeu")
-            if response.status_code == 200:
-                soup = BeautifulSoup(response.text, 'html.parser')
-
-                search_results = soup.find_all('a')
-            else:
-                print(response)
-                print(f"Failed to fetch search results for '{keywords}'")
-
-            for result in search_results:
-                if result and result.get('data-ved', ''):
-                    href = result.get('href')
-                    if href and href.startswith('/url?q='):
-                        url = href.split('/url?q=')[1].split('&sa=')[0]
-                        parsed_url = urlparse(url)
-                        site_name = parsed_url.netloc.replace(
-                            "www.", "").split(".")[0]
-
-                        if "tiktok" not in site_name and "twitter" not in site_name and "youtube" not in site_name and "instagram" not in site_name and "tag" not in url and "facebook" not in url:
-                            if url not in found_sites:
-                                found_sites.append({'url': url, 'name': site_name, "reference_site_link": parsed_url.netloc})
-                            
-        print("total encontrado", len(found_sites))
-
-        for site_info in found_sites:
-            print("------------------------------------------------------")
-            print("CHECANDO SITE:",site_info['url'])
-            site_blocked = await site_is_blocked(site_name=site_info["name"])
-
-            content = await fetch_content(site_info['url'])
-
-            # tags_encontradas_no_site = await find_tags_on_site(site_info['url'], all_tags)
-
-            # if "manaus" in tags_encontradas_no_site and str(all_tags[0]).lower() in tags_encontradas_no_site and str(all_tags[1]).lower() in tags_encontradas_no_site:
-            await create_site(Site(
-                            nome=site_info['name'],
-                            link=site_info['url'],
-                            conteudo=content,
-                            tagsEncontradas=""
-                        ), site_info['reference_site_link'])
-            # if content:
-            #     if len(tags_encontradas_no_site) >= 1:
-            #         if site_blocked == True and not check_men_died:
-            #             if "manaus" in tags_encontradas_no_site:
-            #                 await create_site(Site(
-            #                     nome=site_info['name'],
-            #                     link=site_info['url'],
-            #                     conteudo=content,
-            #                     tagsEncontradas=", ".join(tags_encontradas_no_site)
-            #                 ), site_info['reference_site_link'])
-            #                 print('criei o site', site_info['url'])
-            #                 print("------------------------------------------------------")
-            # else:
-            #     await create_site(Site(
-            #         nome=site_info['name'],
-            #         link=site_info['url'],
-            #         conteudo=content,
-            #         tagsEncontradas=", ".join(tags_encontradas_no_site)
-            #         ), site_info['reference_site_link'])
-            #     print('criei o site', site_info['url'])
-            #     print("------------------------------------------------------")
-
-
+                    # print(f"Tags encontradas: {tags_encontradas} {count} {tags_found}")
+                    
+                    content = fetch_page_content(link)
+                    
+                    if is_within_last_days(publish_date ,tempo_agendado + 1) and count > 1 and site_search:
+                        await create_site(Site(
+                                    nome=site_name,
+                                    link=link,
+                                    conteudo=content,
+                                    tagsEncontradas=tags_encontradas
+                                ), reference_site_link)
+                except Exception:
+                    pass
+        else:
+            print("Nenhum resultado encontrado.")
+    else:
+        print(f"Erro ao acessar a API: {response_api_custom_json.status_code}")
+    
     return found_sites
 
 
@@ -587,7 +619,7 @@ def is_duplicate_record_for_parse(content):
     return existing_record is not None
 
 
-async def site_is_blocked(site_name):
+async def site_is_not_blocked(site_name):
     db = sessionmaker(bind=engine)
     db_session = db()
 
