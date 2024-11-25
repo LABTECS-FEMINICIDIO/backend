@@ -413,6 +413,8 @@ async def find_sites_with_keywords(tempo_agendado):
         
     response_api_custom_json = requests.get(search_url)
     
+    print("API DO GOOGLE RESPONDEU:", response_api_custom_json)
+
     if response_api_custom_json.status_code == 200:
         data = response_api_custom_json.json()  
         items = data.get('items', []) 
