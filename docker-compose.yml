@@ -14,7 +14,7 @@ services:
       - TZ=America/Manaus
       - DATABASE_URL=${DATABASE_URL_MANAUS}
       - CITY=manaus
-      - HOUR_JOB=8
+      - HOUR_JOB=9
       - MINUTE_JOB=20
       - PORT_BACKEND=8000
 
@@ -31,7 +31,7 @@ services:
       - TZ=America/Manaus
       - DATABASE_URL=${DATABASE_URL_PORTO_VELHO}
       - CITY=porto velho
-      - HOUR_JOB=8
+      - HOUR_JOB=9
       - MINUTE_JOB=30
       - PORT_BACKEND=8001
 
@@ -48,7 +48,7 @@ services:
       - TZ=America/Manaus
       - DATABASE_URL=${DATABASE_URL_RIO_BRANCO}
       - CITY=rio branco
-      - HOUR_JOB=8
+      - HOUR_JOB=9
       - MINUTE_JOB=40
       - PORT_BACKEND=8002
 
@@ -65,7 +65,7 @@ services:
       - TZ=America/Manaus
       - DATABASE_URL=${DATABASE_URL_RIO_DE_JANEIRO}
       - CITY=rio de janeiro
-      - HOUR_JOB=8
+      - HOUR_JOB=9
       - MINUTE_JOB=50
       - PORT_BACKEND=8003
 
