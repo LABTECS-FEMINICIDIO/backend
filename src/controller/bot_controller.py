@@ -172,11 +172,11 @@ async def find_iml():
     global is_loop_running_iml, loop_task_iml
 
     # Inicia ou reinicia o loop de IML
-    if not is_loop_running_iml:
-        is_loop_running_iml = True
-        loop_task_iml = asyncio.create_task(background_task_iml())
+    # if not is_loop_running_iml:
+    #     is_loop_running_iml = True
+    #     loop_task_iml = asyncio.create_task(background_task_iml())
 
-    return {"message": "Busca de dados no IML agendada com sucesso!"}
+    return 
 
 last_search_day = None
 
