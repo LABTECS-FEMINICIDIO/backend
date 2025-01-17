@@ -6,5 +6,5 @@ import os
 
 load_dotenv()
 
-engine = create_engine(os.getenv("DATABASE_URL"))
+engine = create_engine("postgresql://postgres:teste-dean@24.199.108.245:5445/newDataTeste")
 Base = declarative_base()

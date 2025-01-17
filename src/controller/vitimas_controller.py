@@ -33,6 +33,12 @@ class Vitima(BaseModel):
     lng: Optional[str] = None
     violsexual: Optional[str] = None
     latrocinio: Optional[str] = None
+    site1: Optional[str] = None
+    site2: Optional[str] = None
+    site3: Optional[str] = None
+    siteGeo1: Optional[str] = None
+    siteGeo2: Optional[str] = None
+    siteGeo3: Optional[str] = None
     zona: Optional[str] = None
     localdeocorrencia: Optional[str] = None
     presencafilhofamiliar: Optional[str] = None

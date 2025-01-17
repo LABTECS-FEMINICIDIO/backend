@@ -1,0 +1,37 @@
+"""Adiciona novas colunas
+
+Revision ID: f2888dc752b0
+Revises: 
+Create Date: 2025-01-16 14:05:16.751041
+
+"""
+from typing import Sequence, Union
+
+from alembic import op
+import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
+
+# revision identifiers, used by Alembic.
+revision: str = 'f2888dc752b0'
+down_revision: Union[str, None] = None
+branch_labels: Union[str, Sequence[str], None] = None
+depends_on: Union[str, Sequence[str], None] = None
+
+
+def upgrade() -> None:
+    # Adicionar novas colunas nas tabelas existentes
+    op.add_column('vitimas', sa.Column('site1', sa.String, nullable=True))
+    op.add_column('vitimas', sa.Column('site2', sa.String, nullable=True))
+    op.add_column('vitimas', sa.Column('site3', sa.String, nullable=True))
+    op.add_column('vitimas', sa.Column('siteGeo1', sa.String, nullable=True))
+    op.add_column('vitimas', sa.Column('siteGeo2', sa.String, nullable=True))
+    op.add_column('vitimas', sa.Column('siteGeo3', sa.String, nullable=True))
+
+def downgrade() -> None:
+    # Remover as colunas adicionadas (caso necessário)
+    op.drop_column('vitimas', sa.Column('site1', sa.String, nullable=True))
+    op.drop_column('vitimas', sa.Column('site2', sa.String, nullable=True))
+    op.drop_column('vitimas', sa.Column('site3', sa.String, nullable=True))
+    op.drop_column('vitimas', sa.Column('siteGeo1', sa.String, nullable=True))
+    op.drop_column('vitimas', sa.Column('siteGeo2', sa.String, nullable=True))
+    op.drop_column('vitimas', sa.Column('siteGeo3', sa.String, nullable=True))
