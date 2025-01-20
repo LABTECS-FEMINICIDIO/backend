@@ -79,6 +79,9 @@ class VitimasModels(Base):
     site1 = Column(String)
     site2 = Column(String)
     site3 = Column(String)
+    siteGeo1 = Column(String)
+    siteGeo2 = Column(String)
+    siteGeo3 = Column(String)
     sites_in_bulk = Column(String)
     createdAt = Column(String, default=func.now())
 

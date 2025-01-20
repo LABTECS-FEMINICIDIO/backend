@@ -165,12 +165,12 @@ dictionary = {
     "consulta_jud_revisao2": "consulta_saj_revisao2",
     "observacoes": "observacoes",
     "sites_in_bulk": "sites_in_bulk",
-    "SITE1": "SITE1",
-    "SITE2": "SITE2",
-    "SITE3": "SITE3",
-    "SITEGEO1": "SITEGEO1",
-    "SITEGEO2": "SITEGEO2",
-    "SITEGEO3": "SITEGEO3",
+    "SITE1": "site1",
+    "SITE2": "site2",
+    "SITE3": "site3",
+    "SITEGEO1": "siteGeo1",
+    "SITEGEO2": "siteGeo2",
+    "SITEGEO3": "siteGeo3",
     "check_30dias": "check_30dias",
     "data_versao_do": "data_versao_do"
 }
@@ -192,21 +192,21 @@ def export_to_xlsx(data):
             if value is None or value == "":
                 new_row_dict[key] = "NA"
             elif key == "datadofato":
-                if value.endswith('+00'):
-                    value = value[:-3] + '+0000'
-                
                 try:
-                    # Try parsing the datetime string with space before the timezone
-                    data_datetime = datetime.strptime(value, "%Y-%m-%d %H:%M:%S%z")
+                    # Ajustar formato do timestamp antes de converter
+                    if '.' in value:
+                        value = value.split('.')[0] + value[-5:]  # Remove milissegundos
+                    
+                    if 'T' in value:
+                        data_datetime = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S%z")
+                    else:
+                        data_datetime = datetime.strptime(value, "%Y-%m-%d %H:%M:%S%z")
+                    
+                    # Formatar a data no formato desejado
+                    data_formatada = data_datetime.strftime("%d/%m/%Y")
+                    new_row_dict[key] = data_formatada
                 except ValueError:
-                    # If it fails, try parsing with 'T' before the time part
-                    data_datetime = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S%z")
-                
-                # Format the datetime to the desired string format without the timezone
-                data_formatada = data_datetime.strftime("%d/%m/%Y")
-                
-                new_row_dict[key] = data_formatada
-                
+                    new_row_dict[key] = "Invalid date"
             elif key == "zona":
                 new_row_dict[key] = value.lower().replace(" ", "")
             elif key == "sites_in_bulk":

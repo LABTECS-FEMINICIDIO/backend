@@ -1,8 +1,8 @@
-"""Adiciona novas colunas
+"""Adicionando novas colunas
 
-Revision ID: f2888dc752b0
-Revises: 
-Create Date: 2025-01-16 14:05:16.751041
+Revision ID: 28cc73b22739
+Revises: f2888dc752b0
+Create Date: 2025-01-20 10:41:22.937647
 
 """
 from typing import Sequence, Union
