@@ -347,8 +347,8 @@ async def find_sites_with_keywords(tempo_agendado):
 
         if all_tags[0] in combination and all_tags[1] in combination:
             
-            if "manaus" not in combination:
-                combination += tuple(["manaus"])
+            # if "manaus" not in combination:
+            #     combination += tuple(["manaus"])
 
             print("-------------------------------------------")
             print("tags mandantes",all_tags[0], all_tags[1])
