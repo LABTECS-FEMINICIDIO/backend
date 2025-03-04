@@ -146,9 +146,12 @@ async def background_task_iml():
         #     tempo_agendado = tempo[0].dias
         # else:
         #     tempo_agendado = 1
-
-        await iml_screapper()
-        await asyncio.sleep(1 * 86400)
+        city = os.getenv("CITY")
+    # Inicia ou reinicia o loop de IML
+    
+        if city == "manaus":
+            await iml_screapper()
+            await asyncio.sleep(1 * 86400)
 
 
 async def background_task():
@@ -224,7 +227,12 @@ async def find_sites():
 
 @router.get("/imlData/")
 async def find_iml_data():
-    return await list_iml()
+    city = os.getenv("CITY")
+    
+    if city == "manaus":
+        return await list_iml()
+
+    return []
 
 @router.patch("/updateLido/{siteId}")
 async def update_lido(siteId: str):
