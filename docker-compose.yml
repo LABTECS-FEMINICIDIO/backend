@@ -42,7 +42,7 @@ services:
       context: ./
     restart: unless-stopped
     ports:
-      - "8002:8002"
+      - "8003:8003"
     env_file: .env
     environment:
       - TZ=America/Manaus
@@ -59,7 +59,7 @@ services:
       context: ./
     restart: unless-stopped
     ports:
-      - "8003:8003"
+      - "8002:8002"
     env_file: .env
     environment:
       - TZ=America/Manaus
