@@ -58,7 +58,7 @@ city = os.getenv("CITY")
 
 print("horários do job --------------->",hour_job, minute_job)
 
-@scheduler.scheduled_job("cron", day_of_week="*",  hour=int(9), minute=int(0))
+@scheduler.scheduled_job("cron", day_of_week="*",  hour=int(os.getenv("HOUR_JOB")), minute=int(os.getenv("MINUTE_JOB")))
 async def execute_daily_task():
     print("-------------------------iniciei o job diário-------------------------", datetime.now())
     await check_search()
