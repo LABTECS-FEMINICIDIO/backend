@@ -6,6 +6,7 @@ import os
 
 load_dotenv()
 
-engine = create_engine(os.getenv("DATABASE_URL"))
+database_url= os.getenv("DATABASE_URL")
+engine = create_engine(database_url)
 
 Base = declarative_base()
