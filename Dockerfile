@@ -17,7 +17,7 @@ COPY . .
 ENV ALEMBIC_CONFIG alembic.ini
 
 # Run Alembic migrations
-RUN alembic upgrade head
+# RUN alembic upgrade head
 
 # Expose the port that FastAPI will run on
 # EXPOSE 8000
