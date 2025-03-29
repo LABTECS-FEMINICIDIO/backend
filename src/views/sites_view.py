@@ -348,6 +348,7 @@ def check_publish_date(arrMetatags):
     for metatag in arrMetatags:
         published_time = metatag.get('article:published_time')
         if published_time:
+            print(published_time.replace("Z", "+00:00"))
             published_datetime = datetime.fromisoformat(published_time.replace("Z", "+00:00"))
             
             three_days_ago = datetime.now() - timedelta(days=3)
@@ -380,6 +381,7 @@ def fetch_page_content(url):
 
 def is_within_last_days(date_string: str, tempo_agendado: int) -> bool:
     try:
+        print("A DATA É UMA STIRNG",date_string)
         date = datetime.fromisoformat(date_string)
     except ValueError:
         print("Formato de data inválido")
@@ -392,76 +394,82 @@ def is_within_last_days(date_string: str, tempo_agendado: int) -> bool:
     return date >= three_days_ago
 
 async def find_sites_with_keywords(tempo_agendado):
-    print("entrei no find sites")
+    print("entrei no find_sites")
     found_sites = []
 
     tags = await list_tags()
-    
     all_tags = [tag.nome.lower() for tag in tags]
-    
-    search_results = []
-    
+
     search_string = generate_search_string(all_tags)
-    
+
     api_key = os.getenv("API_GOOGLE_SEARCH_KEY")
     id_searcher = os.getenv("ID_SEARCHER_CX")
-    
+
     print(search_string)
-    
-    # search_url = f'https://www.googleapis.com/customsearch/v1?q={search_string}&key={api_key}&cx={id_searcher}&dateRestrict=d{tempo_agendado}&gl=br&cr=countryBR&filter=0&excludeTerms=homem%20morto%20acidente'
-    search_url = f"https://www.googleapis.com/customsearch/v1?q={search_string}&key={api_key}&cx={id_searcher}&dateRestrict=d{tempo_agendado}&gl=br&cr=countryBR&lr=lang_pt&filter=0&excludeTerms=homem%20morto%20acidente"
-        
-    response_api_custom_json = requests.get(search_url)
-    
-    print("API DO GOOGLE RESPONDEU:", response_api_custom_json)
 
-    if response_api_custom_json.status_code == 200:
-        data = response_api_custom_json.json()  
-        items = data.get('items', []) 
-        
-        if items:
+    search_url = (
+        f"https://www.googleapis.com/customsearch/v1?"
+        f"q={search_string}&key={api_key}&cx={id_searcher}"
+        f"&dateRestrict=d{tempo_agendado}&gl=br&cr=countryBR&lr=lang_pt"
+        f"&filter=0&excludeTerms=homem%20morto%20acidente"
+    )
+
+    try:
+        response_api_custom_json = requests.get(search_url)
+        print("API DO GOOGLE RESPONDEU:", response_api_custom_json)
+
+        if response_api_custom_json.status_code == 200:
+            data = response_api_custom_json.json()
+            items = data.get("items", [])
+
+            print("TOTAL DE SITES ENCONTRADOS", len(items))
+
             for item in items:
-                try: 
-                    title = item.get('title') 
-                    
-                    link = item.get('link') 
-                    
-                    tags_encontradas = item.get("htmlSnippet")
-                    
-                    pagemap = item.get('pagemap', {})
-                    metatags = pagemap.get("metatags")
-                    
-                    
+                try:
+                    title = item.get("title")
+                    link = item.get("link")
+                    tags_encontradas = item.get("htmlSnippet", "")
+                    pagemap = item.get("pagemap", {})
+                    metatags = pagemap.get("metatags", [{}])
                     reference_site_link = item.get("displayLink")
-                    
-                    publish_date = metatags[0]["article:published_time"] 
-                    site_name = metatags[0]["og:site_name"] 
-
-                    site_search = await site_is_not_blocked(site_name=site_name)
+                    site_name = metatags[0].get("og:site_name") if metatags else None
 
                     print(f"Title: {title}")
                     print(f"Link: {link}")
+
                     
                     count, tags_found = count_tags(tags_encontradas, all_tags)
 
-                    # print(f"Tags encontradas: {tags_encontradas} {count} {tags_found}")
-                    
-                    content = fetch_page_content(link)
-                    
-                    if is_within_last_days(publish_date ,tempo_agendado + 1) and count > 1 and site_search:
-                        await create_site(Site(
-                                    nome=site_name,
+                    site_search = True
+                    if site_name:
+                        site_search = await site_is_not_blocked(site_name=site_name)
+
+                    print("checando se o site está bloqueado", site_search)
+
+                    if count > 1 and site_search:
+                        print("ENTREI NO CADASTRAR SITE")
+                        try:
+                            await create_site(
+                                Site(
+                                    nome=site_name or "Desconhecido",
                                     link=link,
-                                    conteudo=content,
-                                    tagsEncontradas=tags_encontradas
-                                ), reference_site_link)
-                except Exception:
-                    pass
+                                    conteudo="",
+                                    tagsEncontradas=tags_encontradas,
+                                ),
+                                reference_site_link,
+                            )
+                        except Exception as error:
+                            print("ERRO NO CADASTRO DO SITE", error)
+
+                except Exception as e:
+                    print("ERRO NA ITERAÇÃO DE UM ITEM:", e)
+
         else:
-            print("Nenhum resultado encontrado.")
-    else:
-        print(f"Erro ao acessar a API: {response_api_custom_json.status_code}")
-    
+            print(f"Erro ao acessar a API: {response_api_custom_json.status_code}")
+
+    except requests.RequestException as req_error:
+        print(f"Erro ao fazer requisição para a API do Google: {req_error}")
+
     return found_sites
 
 

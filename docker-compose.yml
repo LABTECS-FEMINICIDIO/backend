@@ -14,8 +14,8 @@ services:
       - TZ=America/Manaus
       - DATABASE_URL=${DATABASE_URL_MANAUS}
       - CITY=manaus
-      - HOUR_JOB=9
-      - MINUTE_JOB=20
+      - HOUR_JOB=19
+      - MINUTE_JOB=50
       - PORT_BACKEND=8000
 
   api_backend_feminicidio_porto_velho:
