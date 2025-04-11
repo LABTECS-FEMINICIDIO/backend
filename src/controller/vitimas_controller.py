@@ -209,10 +209,6 @@ def export_to_xlsx(data):
                     new_row_dict[key] = "Invalid date"
             elif key == "zona":
                 new_row_dict[key] = value.lower().replace(" ", "")
-            elif key == "sites_in_bulk":
-                new_row_dict["SITE2"] = value
-            elif key == "SITE2":
-                continue
             else:
                 new_row_dict[key] = value
 
