@@ -2,16 +2,26 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
-from src.views.vitimas_view import VitimaEdit, create_vitima, delete_vitima, list_vitimas, update_vitima, list_one_vitima, list_vitimas_for_export
+from src.views.vitimas_view import (
+    VitimaEdit,
+    create_vitima,
+    delete_vitima,
+    list_vitimas,
+    update_vitima,
+    list_one_vitima,
+    list_vitimas_for_export,
+)
 from src.views.sites_view import list_iml, list_iml_for_export
+
 router = APIRouter()
 from openpyxl import Workbook
 from io import BytesIO
 from fastapi.responses import FileResponse
 from datetime import datetime
 
+
 class Vitima(BaseModel):
-    datadofato: datetime
+    datadofato: str
     diah: Optional[str] = None
     horario: Optional[str] = None
     turno: Optional[str] = None
@@ -52,11 +62,13 @@ class Vitima(BaseModel):
 async def create_vitimas_controller(vitima: Vitima):
     return await create_vitima(vitima)
 
+
 @router.get("/vitimas/{vitima_id}")
 async def list_one_controller(vitima_id: str):
     return await list_one_vitima(vitima_id)
 
-@router.get("/vitimas/") 
+
+@router.get("/vitimas/")
 async def list_tags_controller():
     return await list_vitimas()
 
@@ -75,21 +87,89 @@ async def update_vitima_controller(vitima_id, item: dict):
 async def delete_vitimas_controller(vitima_id: str):
     return await delete_vitima(vitima_id)
 
-headers = ["numero1", "registro_oficial_do", "naocapturado", "homicidio", "numerodo", "datadofato",
-           "diah", "diasemh", "mesh", "anoh", "horario", "turno", "nome", "idade", "racacor1", "estciv2",
-           "esc2", "bairro", "zona", "rua_beco_travessa_estrada_ramal", "endcomplemento",
-           "local_desova_corpo", "X_lat", "Y_long", "precisao_local_classificacao", "coordenadas_derivam",
-           "cid10cod4final", "cid10cod4finaltexto", "tipoarma1", "tipoarma2", "loclesao1", "loclesao2",
-           "loclesao3", "localdaslesoes", "numerodelesoes", "possivelfemin", "possivelfemin1", "hospitalizacao",
-           "vitusudrogilicita", "relacaotraf", "violsexual", "usodealcool", "latrocinio",
-           "tipoviol", "localdeocorrencia", "presencafilhofamiliar", "situacaorua", "nivsupcom",
-           "represalia trafico", "sexoagressor", "compexcomp", "outrofamconhefam", "compexfam", "excompan",
-           "conhecido", "circunsmorte", "gestacao", "puerperio", "filhosdescrever", "menor14anos",
-           "maior60anos", "vulnerabil_fisica_mental", "presenca_ascend_descendente",
-           "presenca_medida_protet_urgen", "tipo_intimo_naointimo", "inf_bol_ocorrencia_iml_bol",
-           "inf_bol_ocorrencia_revisao", "consulta_jud_bol1", "consulta_jud_bol2", "consulta_jud_revisao1",
-           "consulta_jud_revisao2", "observacoes","SITE1", "SITE2", "SITE3", "SITEGEO1", "SITEGEO2",
-           "SITEGEO3", "check_30dias", "data_versao_do"]
+
+headers = [
+    "numero1",
+    "registro_oficial_do",
+    "naocapturado",
+    "homicidio",
+    "numerodo",
+    "datadofato",
+    "diah",
+    "diasemh",
+    "mesh",
+    "anoh",
+    "horario",
+    "turno",
+    "nome",
+    "idade",
+    "racacor1",
+    "estciv2",
+    "esc2",
+    "bairro",
+    "zona",
+    "rua_beco_travessa_estrada_ramal",
+    "endcomplemento",
+    "local_desova_corpo",
+    "X_lat",
+    "Y_long",
+    "precisao_local_classificacao",
+    "coordenadas_derivam",
+    "cid10cod4final",
+    "cid10cod4finaltexto",
+    "tipoarma1",
+    "tipoarma2",
+    "loclesao1",
+    "loclesao2",
+    "loclesao3",
+    "localdaslesoes",
+    "numerodelesoes",
+    "possivelfemin",
+    "possivelfemin1",
+    "hospitalizacao",
+    "vitusudrogilicita",
+    "relacaotraf",
+    "violsexual",
+    "usodealcool",
+    "latrocinio",
+    "tipoviol",
+    "localdeocorrencia",
+    "presencafilhofamiliar",
+    "situacaorua",
+    "nivsupcom",
+    "represalia trafico",
+    "sexoagressor",
+    "compexcomp",
+    "outrofamconhefam",
+    "compexfam",
+    "excompan",
+    "conhecido",
+    "circunsmorte",
+    "gestacao",
+    "puerperio",
+    "filhosdescrever",
+    "menor14anos",
+    "maior60anos",
+    "vulnerabil_fisica_mental",
+    "presenca_ascend_descendente",
+    "presenca_medida_protet_urgen",
+    "tipo_intimo_naointimo",
+    "inf_bol_ocorrencia_iml_bol",
+    "inf_bol_ocorrencia_revisao",
+    "consulta_jud_bol1",
+    "consulta_jud_bol2",
+    "consulta_jud_revisao1",
+    "consulta_jud_revisao2",
+    "observacoes",
+    "SITE1",
+    "SITE2",
+    "SITE3",
+    "SITEGEO1",
+    "SITEGEO2",
+    "SITEGEO3",
+    "check_30dias",
+    "data_versao_do",
+]
 
 dictionary = {
     "numero1": "numero1",
@@ -172,8 +252,9 @@ dictionary = {
     "SITEGEO2": "siteGeo2",
     "SITEGEO3": "siteGeo3",
     "check_30dias": "check_30dias",
-    "data_versao_do": "data_versao_do"
+    "data_versao_do": "data_versao_do",
 }
+
 
 def export_to_xlsx(data):
     wb = Workbook()
@@ -184,8 +265,8 @@ def export_to_xlsx(data):
     for row in data:
         row_dict = dict(row)
 
-        row_dict['X_Lat'] = row_dict.pop('lat', 'NA')
-        row_dict['Y_Long'] = row_dict.pop('lng', 'NA')
+        row_dict["X_Lat"] = row_dict.pop("lat", "NA")
+        row_dict["Y_Long"] = row_dict.pop("lng", "NA")
 
         new_row_dict = {}
         for key, value in row_dict.items():
@@ -193,15 +274,9 @@ def export_to_xlsx(data):
                 new_row_dict[key] = "NA"
             elif key == "datadofato":
                 try:
-                    # Ajustar formato do timestamp antes de converter
-                    if '.' in value:
-                        value = value.split('.')[0] + value[-5:]  # Remove milissegundos
-                    
-                    if 'T' in value:
-                        data_datetime = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S%z")
-                    else:
-                        data_datetime = datetime.strptime(value, "%Y-%m-%d %H:%M:%S%z")
-                    
+                    data_datetime = datetime.fromisoformat(
+                        value.replace("Z", "+00:00")
+                        )
                     # Formatar a data no formato desejado
                     data_formatada = data_datetime.strftime("%d/%m/%Y")
                     new_row_dict[key] = data_formatada
@@ -212,7 +287,7 @@ def export_to_xlsx(data):
             else:
                 new_row_dict[key] = value
 
-        if 'sites' in row_dict:
+        if "sites" in row_dict:
             for index, site in enumerate(row_dict["sites"]):
                 if index < 3:
                     new_row_dict[f"SITE{index + 1}"] = site["link"]
@@ -220,7 +295,7 @@ def export_to_xlsx(data):
                     break
 
         row_data = [new_row_dict.get(dictionary[header], "NA") for header in headers]
-        
+
         ws.append(row_data)
 
     output = BytesIO()
@@ -229,7 +304,17 @@ def export_to_xlsx(data):
 
     return output
 
-headers_iml = ["dataEntrada", "horaEntrada", "sexo", "idade", "bairroDaRemocao", "causaMorte", "DataCaptura", "HoraCaptura"]
+
+headers_iml = [
+    "dataEntrada",
+    "horaEntrada",
+    "sexo",
+    "idade",
+    "bairroDaRemocao",
+    "causaMorte",
+    "DataCaptura",
+    "HoraCaptura",
+]
 
 trad_iml = {
     "dataEntrada": "dataEntrada",
@@ -239,8 +324,9 @@ trad_iml = {
     "bairroDaRemocao": "bairroDaRemocao",
     "causaMorte": "causaMorte",
     "DataCaptura": "createdAt",
-    "HoraCaptura": "createdAt"
+    "HoraCaptura": "createdAt",
 }
+
 
 def export_to_xlsx_iml(data):
     wb = Workbook()
@@ -254,11 +340,15 @@ def export_to_xlsx_iml(data):
 
         for header in headers_iml:
             if header == "DataCaptura":
-                created_at = datetime.strptime(row_dict["createdAt"].split("+")[0], "%Y-%m-%d %H:%M:%S.%f")  # Ignore timezone for parsing
+                created_at = datetime.strptime(
+                    row_dict["createdAt"].split("+")[0], "%Y-%m-%d %H:%M:%S.%f"
+                )  # Ignore timezone for parsing
                 value = created_at.date()
                 row_data.append(value)
             elif header == "HoraCaptura":
-                created_at = datetime.strptime(row_dict["createdAt"].split("+")[0], "%Y-%m-%d %H:%M:%S.%f")  # Ignore timezone for parsing
+                created_at = datetime.strptime(
+                    row_dict["createdAt"].split("+")[0], "%Y-%m-%d %H:%M:%S.%f"
+                )  # Ignore timezone for parsing
                 value = created_at.time()
                 row_data.append(value)
             else:
@@ -273,6 +363,7 @@ def export_to_xlsx_iml(data):
 
     return output
 
+
 from fastapi.responses import StreamingResponse
 
 
@@ -283,10 +374,15 @@ async def export_xlsx():
 
         output = export_to_xlsx(vitimas_data)
 
-        return StreamingResponse(content=output, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-Disposition": "attachment; filename=vitimas.xlsx"})
+        return StreamingResponse(
+            content=output,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={"Content-Disposition": "attachment; filename=vitimas.xlsx"},
+        )
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.get("/iml/export-xlsx")
 async def export_iml_xlsx():
@@ -295,7 +391,11 @@ async def export_iml_xlsx():
 
         output = export_to_xlsx_iml(iml_data)
 
-        return StreamingResponse(content=output, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-Disposition": "attachment; filename=iml.xlsx"})
+        return StreamingResponse(
+            content=output,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={"Content-Disposition": "attachment; filename=iml.xlsx"},
+        )
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

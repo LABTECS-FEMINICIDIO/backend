@@ -9,6 +9,7 @@ from uuid import UUID
 from typing import List, Optional
 from sqlalchemy import asc, desc
 
+
 class Vitima(BaseModel):
     nome: str
     idade: int
@@ -50,10 +51,10 @@ async def create_vitima(vitima: dict):
     db = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     db_session = db()
 
-    if 'lat' in vitima and vitima['lat'] is not None:
-        vitima['lat'] = f"{float(vitima['lat']):.5f}"
-    if 'lng' in vitima and vitima['lng'] is not None:
-        vitima['lng'] = f"{float(vitima['lng']):.5f}"
+    if "lat" in vitima and vitima["lat"] is not None:
+        vitima["lat"] = f"{float(vitima['lat']):.5f}"
+    if "lng" in vitima and vitima["lng"] is not None:
+        vitima["lng"] = f"{float(vitima['lng']):.5f}"
 
     db_vitima = VitimasModels(**vitima.model_dump())
     db_session.add(db_vitima)
@@ -65,24 +66,32 @@ async def create_vitima(vitima: dict):
 async def list_vitimas():
     db = sessionmaker(bind=engine)
     db_session = db()
-    vitimas = db_session.query(VitimasModels).options(
-        joinedload(VitimasModels.sites)).order_by(desc(VitimasModels.datadofato)).all()
+    vitimas = (
+        db_session.query(VitimasModels)
+        .options(joinedload(VitimasModels.sites))
+        .order_by(desc(VitimasModels.datadofato))
+        .all()
+    )
 
     return jsonable_encoder(vitimas)
+
 
 async def list_vitimas_for_export():
     db = sessionmaker(bind=engine)
     db_session = db()
-    vitimas = db_session.query(VitimasModels).options(
-        joinedload(VitimasModels.sites)
-    ).order_by(asc(VitimasModels.idade)).all()
+    vitimas = (
+        db_session.query(VitimasModels)
+        .options(joinedload(VitimasModels.sites))
+        .order_by(asc(VitimasModels.idade))
+        .all()
+    )
 
     return jsonable_encoder(vitimas)
 
+
 async def list_one_vitima(vitima_id: UUID):
     db = sessionmaker(bind=engine)
-    vitima = db.query(VitimasModels).filter(
-        VitimasModels.id == vitima_id).first()
+    vitima = db.query(VitimasModels).filter(VitimasModels.id == vitima_id).first()
     if vitima is None:
         raise HTTPException(status_code=404, detail="Vítima not found")
     return jsonable_encoder(vitima)
@@ -91,8 +100,9 @@ async def list_one_vitima(vitima_id: UUID):
 async def update_vitima(vitima_id: UUID, vitima: dict):
     db = sessionmaker(bind=engine)
     db_session = db()
-    db_vitima = db_session.query(VitimasModels).filter(
-        VitimasModels.id == vitima_id).first()
+    db_vitima = (
+        db_session.query(VitimasModels).filter(VitimasModels.id == vitima_id).first()
+    )
 
     if db_vitima is None:
         raise HTTPException(status_code=404, detail="Vítima not found")
@@ -106,11 +116,14 @@ async def update_vitima(vitima_id: UUID, vitima: dict):
     return jsonable_encoder(db_vitima)
 
 
-async def delete_vitima(vitima_id: UUID, ):
+async def delete_vitima(
+    vitima_id: UUID,
+):
     db = sessionmaker(bind=engine)
     db_session = db()
-    db_vitima = db_session.query(VitimasModels).filter(
-        VitimasModels.id == vitima_id).first()
+    db_vitima = (
+        db_session.query(VitimasModels).filter(VitimasModels.id == vitima_id).first()
+    )
     if db_vitima is None:
         raise HTTPException(status_code=404, detail="Vítima not found")
 
@@ -119,11 +132,13 @@ async def delete_vitima(vitima_id: UUID, ):
 
     return jsonable_encoder(db_vitima)
 
+
 async def list_one_vitima(vitima_id: UUID):
     db = sessionmaker(bind=engine)
     db_session = db()
-    db_vitima = db_session.query(VitimasModels).filter(
-        VitimasModels.id == vitima_id).first()
+    db_vitima = (
+        db_session.query(VitimasModels).filter(VitimasModels.id == vitima_id).first()
+    )
     if db_vitima is None:
         raise HTTPException(status_code=404, detail="Vítima not found")
 

@@ -16,8 +16,11 @@ async def createReferenceSite(referenceSite):
     db = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     db_session = db()
 
-    reference_site_already_exists = db_session.query(
-        ReferenceSitesModels).filter_by(nome=referenceSite.nome).first()
+    reference_site_already_exists = (
+        db_session.query(ReferenceSitesModels)
+        .filter_by(nome=referenceSite.nome)
+        .first()
+    )
 
     if reference_site_already_exists:
         raise HTTPException(
@@ -43,7 +46,11 @@ async def listAllREferenceSites():
     db = sessionmaker(bind=engine)
     db_session = db()
 
-    referenceSites = db_session.query(ReferenceSitesModels).order_by(desc(ReferenceSitesModels.classificacao)).all()
+    referenceSites = (
+        db_session.query(ReferenceSitesModels)
+        .order_by(desc(ReferenceSitesModels.classificacao))
+        .all()
+    )
     db_session.close()
     return referenceSites
 
@@ -61,16 +68,16 @@ async def updatePesquisarField(site_id):
     print(site.pesquisar)
 
     db_session.close()
-    return {
-        "message": "Site atualizado com sucesso."
-    }
+    return {"message": "Site atualizado com sucesso."}
 
 
-async def updateReferenceSite(site_id,  site_data: Dict):
+async def updateReferenceSite(site_id, site_data: Dict):
     db = sessionmaker(bind=engine)
     db_session = db()
 
-    site = db_session.query(ReferenceSitesModels).filter_by(id=site_id).first()
+    site = db_session.get(ReferenceSitesModels, site_id)
+
+    print ('TESTE LUCAS', site_data.items())
 
     for key, value in site_data.items():
         if hasattr(site, key):
@@ -78,9 +85,7 @@ async def updateReferenceSite(site_id,  site_data: Dict):
 
     db_session.commit()
     db_session.close()
-    return {
-        "message": "Site atualizado com sucesso."
-    }
+    return {"message": "Site atualizado com sucesso."}
 
 
 async def site_reference_already_exists(nome):
@@ -100,11 +105,16 @@ async def createReferenceSiteForParse(referenceSite):
     db = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     db_session = db()
 
-    reference_site_already_exists = db_session.query(
-        ReferenceSitesModels).filter_by(nome=referenceSite.get("nome")).first()
+    reference_site_already_exists = (
+        db_session.query(ReferenceSitesModels)
+        .filter_by(nome=referenceSite.get("nome"))
+        .first()
+    )
 
     if reference_site_already_exists:
-        reference_site_already_exists.linksEncontrados = reference_site_already_exists.linksEncontrados + 1
+        reference_site_already_exists.linksEncontrados = (
+            reference_site_already_exists.linksEncontrados + 1
+        )
         db_session.commit()
         db_session.close()
         return
@@ -116,12 +126,14 @@ async def createReferenceSiteForParse(referenceSite):
     except IntegrityError:
         db_session.rollback()
         raise HTTPException(
-            status_code=409, detail=f"A tag {referenceSite.get('nome')} já está cadastrada."
+            status_code=409,
+            detail=f"A tag {referenceSite.get('nome')} já está cadastrada.",
         )
     finally:
         db_session.close()
 
     return referenceSite
+
 
 async def deleteReferenceSites(site_id):
     db = sessionmaker(bind=engine)
@@ -130,9 +142,7 @@ async def deleteReferenceSites(site_id):
     site = db_session.get(ReferenceSitesModels, site_id)
     if site is None:
         raise HTTPException(status_code=404, detail="Site não encontrado!")
-    
+
     db_session.delete(site)
     db_session.commit()
     db_session.close()
-
-    
