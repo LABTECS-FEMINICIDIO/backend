@@ -5,13 +5,13 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from fastapi import Query
+import os
 
 
 class SitesModels(Base):
     __tablename__ = "sites"
 
-    id = Column(UUID(as_uuid=True), default=uuid.uuid4,
-                primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True, index=True)
     nome = Column(String)
     link = Column(String, unique=True)
     conteudo = Column(String, nullable=True)
@@ -23,18 +23,15 @@ class SitesModels(Base):
     inWeekend = Column(Boolean, default=False)
     tagsEncontradas = Column(String, nullable=True)
 
-
-    vitima_id = Column(UUID(as_uuid=True), ForeignKey(
-        'vitimas.id'), nullable=True)
-    vitima = relationship('VitimasModels', back_populates='sites')
+    vitima_id = Column(UUID(as_uuid=True), ForeignKey("vitimas.id"), nullable=True)
+    vitima = relationship("VitimasModels", back_populates="sites")
     createdAt = Column(String, default=func.now())
 
 
 class ReferenceSitesModels(Base):
     __tablename__ = "referenceSites"
 
-    id = Column(UUID(as_uuid=True), default=uuid.uuid4,
-                primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True, index=True)
     nome = Column(String)
     link = Column(String)
     pesquisar = Column(Boolean, default=True)
@@ -46,8 +43,7 @@ class ReferenceSitesModels(Base):
 class VitimasModels(Base):
     __tablename__ = "vitimas"
 
-    id = Column(UUID(as_uuid=True), default=uuid.uuid4,
-                primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True, index=True)
     datadofato = Column(String)
     diah = Column(String)
     horario = Column(String)
@@ -75,7 +71,7 @@ class VitimasModels(Base):
     filhosdescrever = Column(String)
     lat = Column(String)
     lng = Column(String)
-    sites = relationship('SitesModels', back_populates='vitima')
+    sites = relationship("SitesModels", back_populates="vitima")
     site1 = Column(String)
     site2 = Column(String)
     site3 = Column(String)
@@ -84,30 +80,28 @@ class VitimasModels(Base):
     siteGeo3 = Column(String)
     sites_in_bulk = Column(String)
     createdAt = Column(String, default=func.now())
-
-
+    cidade = Column(String, default=os.getenv("CITY"))
+    
 class TagsModels(Base):
     __tablename__ = "tags"
 
-    id = Column(UUID(as_uuid=True), default=uuid.uuid4,
-                primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True, index=True)
     nome = Column(String, unique=True)
 
 
 class AgendamentoPesquisaModels(Base):
     __tablename__ = "agendamentoPesquisa"
 
-    id = Column(UUID(as_uuid=True), default=uuid.uuid4,
-                primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True, index=True)
     dias = Column(Integer, unique=True)
 
 
 class PeriodoPesquisaModels(Base):
     __tablename__ = "periodoPesquisa"
 
-    id = Column(UUID(as_uuid=True), default=uuid.uuid4,
-                primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True, index=True)
     dias = Column(Integer, unique=True)
+
 
 class HistorySearchModels(Base):
     __tablename__ = "historicoPesquisa"
@@ -115,11 +109,11 @@ class HistorySearchModels(Base):
     id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True, index=True)
     createdAt = Column(String, default=func.now())
 
+
 class UsuariosModels(Base):
     __tablename__ = "usuarios"
 
-    id = Column(UUID(as_uuid=True), default=uuid.uuid4,
-                primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True, index=True)
     nome = Column(String)
     email = Column(String, unique=True)
     telefone = Column(String)
@@ -133,8 +127,7 @@ class UsuariosModels(Base):
 
 class ImlModels(Base):
     __tablename__ = "iml"
-    id = Column(UUID(as_uuid=True), default=uuid.uuid4,
-                primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True, index=True)
     dataEntrada = Column(String, nullable=True)
     horaEntrada = Column(String, nullable=True)
     sexo = Column(String, nullable=True)
@@ -146,9 +139,8 @@ class ImlModels(Base):
 
 class FeriadosModels(Base):
     __tablename__ = "feriados"
-    id = Column(UUID(as_uuid=True), default=uuid.uuid4,
-                primary_key=True, index=True)
-    name =  Column(String)
+    id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True, index=True)
+    name = Column(String)
     ano = Column(Integer)
     mes = Column(Integer)
     dia = Column(Integer)

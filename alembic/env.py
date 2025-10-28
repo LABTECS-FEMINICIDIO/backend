@@ -16,6 +16,11 @@ sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 # Importa o `Base` do seu módulo principal de modelos
 from src.database.database import Base  # Substitua "your_project_name" pelo nome real do seu módulo
+from src.model.models import VitimasModels
+from src.model.models import SitesModels
+from src.model.models import FeriadosModels
+from src.model.models import HistorySearchModels
+from src.model.models import ReferenceSitesModels
 
 # Define o metadata para o Alembic
 target_metadata = Base.metadata

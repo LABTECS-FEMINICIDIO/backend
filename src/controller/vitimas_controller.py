@@ -1,4 +1,5 @@
 from uuid import UUID
+from zoneinfo import ZoneInfo
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
@@ -12,12 +13,14 @@ from src.views.vitimas_view import (
     list_vitimas_for_export,
 )
 from src.views.sites_view import list_iml, list_iml_for_export
+from fastapi.responses import StreamingResponse
 
 router = APIRouter()
 from openpyxl import Workbook
 from io import BytesIO
 from fastapi.responses import FileResponse
 from datetime import datetime
+import os
 
 
 class Vitima(BaseModel):
@@ -169,6 +172,7 @@ headers = [
     "SITEGEO3",
     "check_30dias",
     "data_versao_do",
+    "cidade",
 ]
 
 dictionary = {
@@ -253,6 +257,7 @@ dictionary = {
     "SITEGEO3": "siteGeo3",
     "check_30dias": "check_30dias",
     "data_versao_do": "data_versao_do",
+    "cidade": "cidade",
 }
 
 
@@ -263,6 +268,7 @@ def export_to_xlsx(data):
     ws.append(headers)
 
     for row in data:
+
         row_dict = dict(row)
 
         row_dict["X_Lat"] = row_dict.pop("lat", "NA")
@@ -270,13 +276,12 @@ def export_to_xlsx(data):
 
         new_row_dict = {}
         for key, value in row_dict.items():
+
             if value is None or value == "":
                 new_row_dict[key] = "NA"
             elif key == "datadofato":
                 try:
-                    data_datetime = datetime.fromisoformat(
-                        value.replace("Z", "+00:00")
-                        )
+                    data_datetime = datetime.fromisoformat(value.replace("Z", "+00:00"))
                     # Formatar a data no formato desejado
                     data_formatada = data_datetime.strftime("%d/%m/%Y")
                     new_row_dict[key] = data_formatada
@@ -284,6 +289,7 @@ def export_to_xlsx(data):
                     new_row_dict[key] = "Invalid date"
             elif key == "zona":
                 new_row_dict[key] = value.lower().replace(" ", "")
+
             else:
                 new_row_dict[key] = value
 
@@ -314,6 +320,7 @@ headers_iml = [
     "causaMorte",
     "DataCaptura",
     "HoraCaptura",
+    "cidade",
 ]
 
 trad_iml = {
@@ -325,6 +332,7 @@ trad_iml = {
     "causaMorte": "causaMorte",
     "DataCaptura": "createdAt",
     "HoraCaptura": "createdAt",
+    "cidade": "cidade",
 }
 
 
@@ -346,11 +354,25 @@ def export_to_xlsx_iml(data):
                 value = created_at.date()
                 row_data.append(value)
             elif header == "HoraCaptura":
+                # Parse da data original (sem timezone)
                 created_at = datetime.strptime(
                     row_dict["createdAt"].split("+")[0], "%Y-%m-%d %H:%M:%S.%f"
-                )  # Ignore timezone for parsing
-                value = created_at.time()
+                )
+
+                # Definir timezone original da captura (ex: UTC)
+                created_at = created_at.replace(tzinfo=ZoneInfo("UTC"))
+
+                # Converter para o timezone do cliente
+                cliente_tz = ZoneInfo(os.getenv("TZ"))  # Ajuste conforme o cliente
+                created_at_local = created_at.astimezone(cliente_tz)
+
+                # Agora formata a hora que vai para o Excel
+                value = created_at_local.strftime("%H:%M:%S")  # ou "%H:%M"
                 row_data.append(value)
+
+            elif header == "cidade":
+                city = os.getenv("CITY")
+                row_data.append(city)
             else:
                 value = row_dict.get(trad_iml[header], "")
                 row_data.append(value)
@@ -362,10 +384,6 @@ def export_to_xlsx_iml(data):
     output.seek(0)
 
     return output
-
-
-from fastapi.responses import StreamingResponse
-
 
 @router.get("/export-xlsx")
 async def export_xlsx():
@@ -398,4 +416,5 @@ async def export_iml_xlsx():
         )
 
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
