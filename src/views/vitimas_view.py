@@ -1,4 +1,5 @@
-from fastapi import HTTPException, Depends
+from src.utils.parse_date import parse_to_date
+from fastapi import HTTPException, UploadFile
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session, joinedload
 from src.database.database import engine
@@ -8,6 +9,7 @@ from sqlalchemy.orm import sessionmaker
 from uuid import UUID
 from typing import List, Optional
 from sqlalchemy import asc, desc
+from openpyxl import load_workbook
 
 
 class Vitima(BaseModel):
@@ -45,6 +47,54 @@ class VitimaEdit(BaseModel):
     lat: Optional[str] = None
     lng: Optional[str] = None
     sites_in_bulk: Optional[str] = None
+
+
+async def import_xlsx_file(file: UploadFile):
+    db = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    db_session = db()
+
+    if not file.filename.endswith(".xlsx"):
+        raise HTTPException(status_code=400, detail="Arquivo inválido")
+
+    wb = load_workbook(file.file)
+    ws = wb.active
+
+    rows = list(ws.rows)
+    if not rows:
+        raise HTTPException(status_code=400, detail="Planilha vazia")
+
+    headers = [cell.value for cell in rows[0]]
+
+    # colunas válidas do model
+    valid_columns = {col.name for col in VitimasModels.__table__.columns}
+
+    registros_criados = 0
+
+    for row in rows[1:]:
+        row_data = {}
+
+        for header, cell in zip(headers, row):
+            if header in valid_columns and header != "id":
+                value = cell.value
+                row_data[header] = value if value not in ("", None) else None
+
+            if header == "datadofato":
+                row_data[header] = parse_to_date(value)
+            else:
+                row_data[header] = value if value not in ("", None) else None
+
+        # força NULL para colunas do model que não vieram na planilha
+        for col in valid_columns:
+            if col != "id" and col not in row_data:
+                row_data[col] = None
+
+        novo = VitimasModels(**row_data)
+        db_session.add(novo)
+        registros_criados += 1
+
+    db_session.commit()
+
+    return {"message": "Importação concluída", "registros_inseridos": registros_criados}
 
 
 async def create_vitima(vitima: dict):
