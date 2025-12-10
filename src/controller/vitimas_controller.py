@@ -14,6 +14,7 @@ from src.views.vitimas_view import (
 )
 from src.views.sites_view import list_iml, list_iml_for_export
 from fastapi.responses import StreamingResponse
+from openpyxl.styles import Font, PatternFill, Alignment
 
 router = APIRouter()
 from openpyxl import Workbook
@@ -342,48 +343,78 @@ def export_to_xlsx_iml(data):
 
     ws.append(headers_iml)
 
+    for col_index, header_name in enumerate(headers_iml, start=1):
+        cell = ws.cell(row=1, column=col_index)
+
+        novo_texto = {
+            "dataEntrada": "Data da Entrada",
+            "horaEntrada": "Hora da Entrada",
+            "sexo": "Sexo",
+            "idade": "Idade",
+            "bairroDaRemocao": "Bairro da Remoção",
+            "causaMorte": "Causa da Morte",
+            "DataCaptura": "Data da Captura",
+            "HoraCaptura": "Hora da Captura",
+            "cidade": "Cidade",
+        }.get(header_name, header_name)
+
+        cell.value = novo_texto
+
+        cell.fill = PatternFill(
+            start_color="EDE1FE", end_color="EDE1FE", fill_type="solid"
+        )
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+        cell.font = Font(bold=True, color="000000")
+
     for row in data:
         row_dict = dict(row)
         row_data = []
 
         for header in headers_iml:
-            if header == "DataCaptura":
-                created_at = datetime.strptime(
-                    row_dict["createdAt"].split("+")[0], "%Y-%m-%d %H:%M:%S.%f"
-                )  # Ignore timezone for parsing
-                value = created_at.date()
-                row_data.append(value)
-            elif header == "HoraCaptura":
-                # Parse da data original (sem timezone)
+
+            if header == "dataEntrada":
                 created_at = datetime.strptime(
                     row_dict["createdAt"].split("+")[0], "%Y-%m-%d %H:%M:%S.%f"
                 )
+                row_data.append(created_at.date())
 
-                # Definir timezone original da captura (ex: UTC)
+            elif header == "horaEntrada":
+                created_at = datetime.strptime(
+                    row_dict["createdAt"].split("+")[0], "%Y-%m-%d %H:%M:%S.%f"
+                )
                 created_at = created_at.replace(tzinfo=ZoneInfo("UTC"))
-
-                # Converter para o timezone do cliente
-                cliente_tz = ZoneInfo(os.getenv("TZ"))  # Ajuste conforme o cliente
+                cliente_tz = ZoneInfo(os.getenv("TZ"))
                 created_at_local = created_at.astimezone(cliente_tz)
+                row_data.append(created_at_local.strftime("%H:%M:%S"))
 
-                # Agora formata a hora que vai para o Excel
-                value = created_at_local.strftime("%H:%M:%S")  # ou "%H:%M"
-                row_data.append(value)
+            elif header == "DataCaptura":
+                created_at = datetime.strptime(
+                    row_dict["createdAt"].split("+")[0], "%Y-%m-%d %H:%M:%S.%f"
+                )
+                row_data.append(created_at.date())
+
+            elif header == "HoraCaptura":
+                created_at = datetime.strptime(
+                    row_dict["createdAt"].split("+")[0], "%Y-%m-%d %H:%M:%S.%f"
+                )
+                created_at = created_at.replace(tzinfo=ZoneInfo("UTC"))
+                cliente_tz = ZoneInfo(os.getenv("TZ"))
+                created_at_local = created_at.astimezone(cliente_tz)
+                row_data.append(created_at_local.strftime("%H:%M:%S"))
 
             elif header == "cidade":
-                city = os.getenv("CITY")
-                row_data.append(city)
+                row_data.append(os.getenv("CITY"))
+
             else:
-                value = row_dict.get(trad_iml[header], "")
-                row_data.append(value)
+                row_data.append(row_dict.get(trad_iml[header], ""))
 
         ws.append(row_data)
 
     output = BytesIO()
     wb.save(output)
     output.seek(0)
-
     return output
+
 
 @router.get("/export-xlsx")
 async def export_xlsx():

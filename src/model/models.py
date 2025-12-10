@@ -80,7 +80,7 @@ class VitimasModels(Base):
     siteGeo3 = Column(String)
     sites_in_bulk = Column(String)
     createdAt = Column(String, default=func.now())
-    cidade = Column(String, default=os.getenv("CITY"))
+    cidade = Column(String, default=os.getenv("CITY").capitalize())
     
 class TagsModels(Base):
     __tablename__ = "tags"
