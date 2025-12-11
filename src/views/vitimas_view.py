@@ -1,13 +1,14 @@
 from src.utils.parse_date import parse_to_date
 from fastapi import HTTPException, UploadFile
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import joinedload
+from io import BytesIO
 from src.database.database import engine
 from src.model.models import VitimasModels
 from pydantic import BaseModel
 from sqlalchemy.orm import sessionmaker
 from uuid import UUID
-from typing import List, Optional
+from typing import Optional
 from sqlalchemy import asc, desc
 from openpyxl import load_workbook
 
