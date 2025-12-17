@@ -51,51 +51,83 @@ class VitimaEdit(BaseModel):
 
 
 async def import_xlsx_file(file: UploadFile):
+    if not file.filename.lower().endswith(".xlsx"):
+        raise HTTPException(status_code=400, detail="Arquivo inválido. Envie um .xlsx")
+
     db = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     db_session = db()
 
-    if not file.filename.endswith(".xlsx"):
-        raise HTTPException(status_code=400, detail="Arquivo inválido")
+    try:
+        wb = load_workbook(file.file, data_only=True)
+        ws = wb.active
 
-    wb = load_workbook(file.file)
-    ws = wb.active
+        rows = list(ws.iter_rows(values_only=True))
+        if not rows or len(rows) < 2:
+            raise HTTPException(status_code=400, detail="Planilha vazia ou sem dados")
 
-    rows = list(ws.rows)
-    if not rows:
-        raise HTTPException(status_code=400, detail="Planilha vazia")
+        headers = [str(h).strip().lower() if h else None for h in rows[0]]
 
-    headers = [cell.value for cell in rows[0]]
+        valid_columns = {
+            col.name.strip().lower()
+            for col in VitimasModels.__table__.columns
+            if col.name != "id"
+        }
 
-    # colunas válidas do model
-    valid_columns = {col.name for col in VitimasModels.__table__.columns}
+        print("VALID COLUMNS", valid_columns)
 
-    registros_criados = 0
+        header_mapping = {
+            "x_lat": "lat",
+            "y_long": "lng",
+        }
 
-    for row in rows[1:]:
-        row_data = {}
+        registros = []
 
-        for header, cell in zip(headers, row):
-            if header in valid_columns and header != "id":
-                value = cell.value
-                row_data[header] = value if value not in ("", None) else None
+        for row in rows[1:]:
+            row_data = {}
 
-            if header == "datadofato":
-                row_data[header] = parse_to_date(value)
-            else:
-                row_data[header] = value if value not in ("", None) else None
+            for header, value in zip(headers, row):
+                print("header -->", header)
+                column_name = header_mapping.get(header, header)
+                print("column_name", column_name)
+                if not header or column_name not in valid_columns:
+                    continue
 
-        # força NULL para colunas do model que não vieram na planilha
-        for col in valid_columns:
-            if col != "id" and col not in row_data:
-                row_data[col] = None
+                if value in ("", None):
+                    row_data[column_name] = None
+                elif header == "datadofato":
+                    row_data[column_name] = parse_to_date(value)
+                elif header == "sitegeo1":
+                    row_data["siteGeo1"] = value
+                elif header == "sitegeo2":
+                    row_data["siteGeo2"] = value
+                elif header == "sitegeo3":
+                    row_data["siteGeo3"] = value
+                else:
+                    row_data[column_name] = value
 
-        novo = VitimasModels(**row_data)
-        db_session.add(novo)
-        registros_criados += 1
+            if row_data:
+                registros.append(VitimasModels(**row_data))
 
-    db_session.commit()
+        if not registros:
+            raise HTTPException(
+                status_code=400, detail="Nenhum registro válido encontrado"
+            )
 
-    return {"message": "Importação concluída", "registros_inseridos": registros_criados}
+        db_session.bulk_save_objects(registros)
+        db_session.commit()
+
+        return {
+            "message": "Importação concluída com sucesso",
+            "registros_inseridos": len(registros),
+        }
+
+    except Exception as e:
+        print(e)
+        db_session.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+
+    finally:
+        db_session.close()
 
 
 async def create_vitima(vitima: dict):
@@ -194,3 +226,14 @@ async def list_one_vitima(vitima_id: UUID):
         raise HTTPException(status_code=404, detail="Vítima not found")
 
     return jsonable_encoder(db_vitima)
+
+
+async def delete_all_vitimas():
+    db = sessionmaker(bind=engine)()
+    try:
+        db.query(VitimasModels).delete()
+        db.commit()
+        return {"mensagem": "Todos os registros foram apagados com sucesso!"}
+    except Exception as e:
+        db.rollback()
+        raise e

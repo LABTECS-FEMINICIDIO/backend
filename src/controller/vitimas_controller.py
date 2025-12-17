@@ -4,8 +4,8 @@ from fastapi import APIRouter, HTTPException, UploadFile, File
 from pydantic import BaseModel
 from typing import List, Optional
 from src.views.vitimas_view import (
-    VitimaEdit,
     create_vitima,
+    delete_all_vitimas,
     delete_vitima,
     import_xlsx_file,
     list_vitimas,
@@ -81,6 +81,11 @@ async def list_one_controller(vitima_id: str):
 @router.get("/vitimas/")
 async def list_tags_controller():
     return await list_vitimas()
+
+
+@router.get("/delete/vitimas")
+async def delete_vitimas():
+    return await delete_all_vitimas()
 
 
 # @router.get("/tag/{tag_name}", response_model=Tag)
