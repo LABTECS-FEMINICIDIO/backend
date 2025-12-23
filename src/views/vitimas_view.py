@@ -1,3 +1,4 @@
+from src.views.sites_view import unbindAllVictims
 from src.utils.parse_date import parse_to_date
 from fastapi import HTTPException, UploadFile
 from fastapi.encoders import jsonable_encoder
@@ -86,9 +87,7 @@ async def import_xlsx_file(file: UploadFile):
             row_data = {}
 
             for header, value in zip(headers, row):
-                print("header -->", header)
                 column_name = header_mapping.get(header, header)
-                print("column_name", column_name)
                 if not header or column_name not in valid_columns:
                     continue
 
@@ -229,11 +228,14 @@ async def list_one_vitima(vitima_id: UUID):
 
 
 async def delete_all_vitimas():
-    db = sessionmaker(bind=engine)()
+    db = sessionmaker(bind=engine)
+    db_session = db()
     try:
-        db.query(VitimasModels).delete()
-        db.commit()
+        await unbindAllVictims()
+        db_session.query(VitimasModels).delete()
+        db_session.commit()
         return {"mensagem": "Todos os registros foram apagados com sucesso!"}
     except Exception as e:
-        db.rollback()
+        print("ERRRRRRRRRRRRRRRRR", e)
+        db_session.rollback()
         raise e
