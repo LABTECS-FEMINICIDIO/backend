@@ -5,7 +5,9 @@ from src.model.models import UsuariosModels
 from src.database.database import Base, engine
 from src.controller.bot_controller import router as bot_controllers
 from src.controller.tags_controller import router as tags_controller
-from src.controller.search_schedule_controller import router as search_schedule_controller
+from src.controller.search_schedule_controller import (
+    router as search_schedule_controller,
+)
 from src.controller.usuarios_controller import router as usuarios_controller
 from src.controller.login_controller import router as login_router
 from src.controller.vitimas_controller import router as vitimas_router
@@ -38,9 +40,7 @@ app = FastAPI()
     "http://172.16.17.254:3000/",
 ] """
 
-origins = [
-    "https://www.monitorafeminicidio.com/"
-]
+origins = ["https://www.monitorafeminicidio.com/"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -56,24 +56,40 @@ hour_job = os.getenv("HOUR_JOB")
 minute_job = os.getenv("MINUTE_JOB")
 city = os.getenv("CITY")
 
-print("horários do job --------------->",hour_job, minute_job)
+print("horários do job --------------->", hour_job, minute_job)
 
-@scheduler.scheduled_job("cron", day_of_week="*",  hour=int(os.getenv("HOUR_JOB")), minute=int(os.getenv("MINUTE_JOB")))
+
+@scheduler.scheduled_job(
+    "cron",
+    day_of_week="*",
+    hour=int(os.getenv("HOUR_JOB")),
+    minute=int(os.getenv("MINUTE_JOB")),
+)
 async def execute_daily_task():
-    print("-------------------------iniciei o job diário-------------------------", datetime.now())
+    print(
+        "-------------------------iniciei o job diário-------------------------",
+        datetime.now(),
+    )
     await check_search()
-    print("-------------------------Finalizei a busca por sites e iniciei o scrapper do iml-------------------------", datetime.now())
+    print(
+        "-------------------------Finalizei a busca por sites e iniciei o scrapper do iml-------------------------",
+        datetime.now(),
+    )
     if os.getenv("CITY") == "manaus":
         print("cidade de manaus")
         # await iml_screapper()
-    print("-------------------------Finalizei o scrapper do iml-------------------------", datetime.now())
+    print(
+        "-------------------------Finalizei o scrapper do iml-------------------------",
+        datetime.now(),
+    )
+
 
 # async def check_search():
 #     tempo = await list_agendamento_pesquisas()
 #     current_day = date.today()
 #     last_search = await get_latest_history_search()
 #     print(last_search["dias"])
-    
+
 #     if tempo:
 #         tempo_agendado = tempo[0].dias
 #     else:
@@ -81,32 +97,35 @@ async def execute_daily_task():
 
 #     await find_sites_with_keywords(tempo_agendado=tempo_agendado)
 
+
 async def check_search():
     current_day = date.today()
     last_search_date = ""
     last_search = await get_latest_history_search()
-    
+
     if last_search:
         created_at_str = last_search.createdAt
-        if created_at_str.endswith('+00'):
-            created_at_str = created_at_str[:-3] + '+0000'
-        last_search_datetime = datetime.strptime(created_at_str, "%Y-%m-%d %H:%M:%S.%f%z")
+        if created_at_str.endswith("+00"):
+            created_at_str = created_at_str[:-3] + "+0000"
+        last_search_datetime = datetime.strptime(
+            created_at_str, "%Y-%m-%d %H:%M:%S.%f%z"
+        )
         last_search_date = last_search_datetime.date()
-    
+
     tempo = await list_agendamento_pesquisas()
 
     if tempo:
         tempo_agendado = tempo[0].dias
     else:
         tempo_agendado = 1
-    
+
     days_difference = None
     if last_search_date:
         days_difference = (current_day - last_search_date).days
-        
+
     print("diferenca de dias", days_difference)
     print("last search", last_search_date)
-    
+
     if days_difference:
         if days_difference >= (tempo_agendado - 1) or tempo_agendado == 1:
             await createHistorySearch()
@@ -119,9 +138,9 @@ async def check_search():
         await find_sites_with_keywords(tempo_agendado=tempo_agendado)
         print("--------------Pesquisa realizada-------------------")
 
+    return
 
-    return 
-    
+
 @app.on_event("startup")
 async def create_initial_user():
     scheduler.start()
@@ -131,11 +150,12 @@ async def create_initial_user():
     default_password = "monitorafeminicidio092"
 
     salt = bcrypt.gensalt()
-    hashed_password = bcrypt.hashpw(default_password.encode('utf-8'), salt)
-    decoded_password = hashed_password.decode('utf-8')
+    hashed_password = bcrypt.hashpw(default_password.encode("utf-8"), salt)
+    decoded_password = hashed_password.decode("utf-8")
 
-    existing_user = db_session.query(
-        UsuariosModels).filter_by(email="admin@mail.com").first()
+    existing_user = (
+        db_session.query(UsuariosModels).filter_by(email="admin@mail.com").first()
+    )
 
     if existing_user is None:
         db_user = UsuariosModels(
@@ -144,19 +164,22 @@ async def create_initial_user():
             telefone="99999999",
             senha=decoded_password,
             acesso=True,
-            perfil="administrativo"
+            perfil="administrativo",
         )
         db_session.add(db_user)
         db_session.commit()
         db_session.refresh(db_user)
 
+
 SECRET_KEY = "80zzm081sr@nd0m"
 ALGORITHM = "HS256"
 EXCLUDE_PATHS = ["/api/login", "/api/recuperarSenha/"]
 
+
 @app.on_event("shutdown")
 async def shutdown_event():
     scheduler.shutdown()
+
 
 # class JWTMiddleware:
 #     def __init__(self, app: FastAPI, secret_key: str, algorithm: str, exclude_paths: List[str] = None):
