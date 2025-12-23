@@ -77,7 +77,7 @@ async def updateReferenceSite(site_id, site_data: Dict):
 
     site = db_session.get(ReferenceSitesModels, site_id)
 
-    print ('TESTE LUCAS', site_data.items())
+    print("TESTE LUCAS", site_data.items())
 
     for key, value in site_data.items():
         if hasattr(site, key):

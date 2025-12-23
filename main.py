@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from src.model.models import UsuariosModels
@@ -19,12 +19,9 @@ from sqlalchemy.orm import sessionmaker
 import bcrypt
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from src.views.search_schedule_views import list_agendamento_pesquisas
-from src.views.sites_view import find_sites_with_keywords, iml_screapper
+from src.views.sites_view import find_sites_with_keywords
 from datetime import date, datetime
 from src.views.historySearch_views import get_latest_history_search, createHistorySearch
-from jose import JWTError, jwt
-from fastapi.responses import JSONResponse
-from typing import Callable, List
 
 load_dotenv()
 
@@ -221,14 +218,14 @@ async def shutdown_event():
 
 # app.add_middleware(JWTMiddleware, secret_key=SECRET_KEY, algorithm=ALGORITHM, exclude_paths=EXCLUDE_PATHS)
 
-app.include_router(bot_controllers, prefix="/api")
-app.include_router(tags_controller, prefix="/api")
-app.include_router(search_schedule_controller, prefix="/api")
-app.include_router(usuarios_controller, prefix="/api")
-app.include_router(vitimas_router, prefix="/api")
-app.include_router(reference_site_router, prefix="/api")
-app.include_router(login_router, prefix="/api")
-app.include_router(feriados_router, prefix="/api")
+app.include_router(bot_controllers, prefix="/Manaus/api")
+app.include_router(tags_controller, prefix="/Manaus/api")
+app.include_router(search_schedule_controller, prefix="/Manaus/api")
+app.include_router(usuarios_controller, prefix="/Manaus/api")
+app.include_router(vitimas_router, prefix="/Manaus/api")
+app.include_router(reference_site_router, prefix="/Manaus/api")
+app.include_router(login_router, prefix="/Manaus/api")
+app.include_router(feriados_router, prefix="/Manaus/api")
 
 PORT = int(os.getenv("PORT_BACKEND", 8001))
 if __name__ == "__main__":
