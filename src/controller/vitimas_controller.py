@@ -1,12 +1,13 @@
 from uuid import UUID
 from zoneinfo import ZoneInfo
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, UploadFile, File
 from pydantic import BaseModel
 from typing import List, Optional
 from src.views.vitimas_view import (
-    VitimaEdit,
     create_vitima,
+    delete_all_vitimas,
     delete_vitima,
+    import_xlsx_file,
     list_vitimas,
     update_vitima,
     list_one_vitima,
@@ -15,13 +16,13 @@ from src.views.vitimas_view import (
 from src.views.sites_view import list_iml, list_iml_for_export
 from fastapi.responses import StreamingResponse
 from openpyxl.styles import Font, PatternFill, Alignment
-
-router = APIRouter()
 from openpyxl import Workbook
 from io import BytesIO
 from fastapi.responses import FileResponse
 from datetime import datetime
 import os
+
+router = APIRouter()
 
 
 class Vitima(BaseModel):
@@ -67,6 +68,11 @@ async def create_vitimas_controller(vitima: Vitima):
     return await create_vitima(vitima)
 
 
+@router.post("/import-xlsx")
+async def import_xlsx(file: UploadFile = File(...)):
+    return await import_xlsx_file(file)
+
+
 @router.get("/vitimas/{vitima_id}")
 async def list_one_controller(vitima_id: str):
     return await list_one_vitima(vitima_id)
@@ -75,6 +81,11 @@ async def list_one_controller(vitima_id: str):
 @router.get("/vitimas/")
 async def list_tags_controller():
     return await list_vitimas()
+
+
+@router.get("/delete/vitimas")
+async def delete_vitimas():
+    return await delete_all_vitimas()
 
 
 # @router.get("/tag/{tag_name}", response_model=Tag)
@@ -129,6 +140,7 @@ headers = [
     "localdaslesoes",
     "numerodelesoes",
     "possivelfemin",
+    "discord_classificacoes",
     "possivelfemin1",
     "hospitalizacao",
     "vitusudrogilicita",
@@ -213,6 +225,7 @@ dictionary = {
     "localdaslesoes": "localdaslesoes",
     "numerodelesoes": "numerodelesoes",
     "possivelfemin": "possivelfemin",
+    "discord_classificacoes": "discord_classificacoes",
     "possivelfemin1": "possivelfemin1",
     "hospitalizacao": "hospitalizacao",
     "vitusudrogilicita": "vitusudrogilicita",
@@ -271,7 +284,6 @@ def export_to_xlsx(data):
     for row in data:
 
         row_dict = dict(row)
-
         row_dict["X_Lat"] = row_dict.pop("lat", "NA")
         row_dict["Y_Long"] = row_dict.pop("lng", "NA")
 

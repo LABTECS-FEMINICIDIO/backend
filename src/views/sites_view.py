@@ -6,11 +6,16 @@ import requests
 from fastapi.encoders import jsonable_encoder
 from psycopg2 import IntegrityError
 from pydantic import BaseModel
-from sqlalchemy import desc , cast, DateTime
+from sqlalchemy import desc, cast, DateTime
 from sqlalchemy.orm import sessionmaker, joinedload, selectinload
 from typing import List, Optional, Union
 from src.database.database import engine
-from src.model.models import FeriadosModels, ReferenceSitesModels, SitesModels, ImlModels
+from src.model.models import (
+    FeriadosModels,
+    ReferenceSitesModels,
+    SitesModels,
+    ImlModels,
+)
 from bs4 import BeautifulSoup
 from src.views.tags_view import list_tags
 from datetime import datetime
@@ -28,6 +33,7 @@ from src.views.reference_sites_views import createReferenceSiteForParse
 
 load_dotenv()
 
+
 class Site(BaseModel):
     nome: str
     link: str
@@ -42,7 +48,7 @@ class SiteUpdate(BaseModel):
     nome: Optional[str] = None
     link: Optional[str] = None
     conteudo: Optional[str] = None
-    classificacao: Optional[int] = None,
+    classificacao: Optional[int] = (None,)
     feminicidio: Optional[bool] = None
     lido: Optional[bool] = None
 
@@ -62,11 +68,9 @@ async def create_site(site: Site, reference_site_link: str):
         #     status_code=409, detail="O link do site já está cadastrado."
         # )
 
-        await createReferenceSiteForParse({
-            "nome": site.nome,
-            "link": reference_site_link,
-            "linksEncontrados": 1
-        })
+        await createReferenceSiteForParse(
+            {"nome": site.nome, "link": reference_site_link, "linksEncontrados": 1}
+        )
 
         db_site = SitesModels(**site.model_dump())
         db = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -90,15 +94,24 @@ async def list_sites(created_date, nome, feminicidio, lido, classificacao, link)
     db = sessionmaker(bind=engine)
     db_session = db()
 
-    query = db_session.query(SitesModels).options(
-        joinedload(SitesModels.vitima)
-    ).order_by(desc(SitesModels.createdAt)).with_entities(
-        SitesModels.id, SitesModels.nome, SitesModels.link,
-        SitesModels.feminicidio, SitesModels.lido,
-        SitesModels.classificacao, SitesModels.valido,
-        SitesModels.inHoliday, SitesModels.inWeekend,
-        SitesModels.tagsEncontradas, SitesModels.createdAt,
-        SitesModels.vitima_id
+    query = (
+        db_session.query(SitesModels)
+        .options(joinedload(SitesModels.vitima))
+        .order_by(desc(SitesModels.createdAt))
+        .with_entities(
+            SitesModels.id,
+            SitesModels.nome,
+            SitesModels.link,
+            SitesModels.feminicidio,
+            SitesModels.lido,
+            SitesModels.classificacao,
+            SitesModels.valido,
+            SitesModels.inHoliday,
+            SitesModels.inWeekend,
+            SitesModels.tagsEncontradas,
+            SitesModels.createdAt,
+            SitesModels.vitima_id,
+        )
     )
 
     if created_date:
@@ -108,40 +121,54 @@ async def list_sites(created_date, nome, feminicidio, lido, classificacao, link)
         end_date = start_date + timedelta(days=1) - timedelta(seconds=1)
 
         # Cast the createdAt column to DateTime
-        query = query.filter(cast(SitesModels.createdAt, DateTime) >= start_date,
-                            cast(SitesModels.createdAt, DateTime) <= end_date)
-        
+        query = query.filter(
+            cast(SitesModels.createdAt, DateTime) >= start_date,
+            cast(SitesModels.createdAt, DateTime) <= end_date,
+        )
+
     if nome:
         query = query.filter(SitesModels.nome == nome)
     if classificacao:
-        query = query.filter(SitesModels.classificacao==classificacao)
+        query = query.filter(SitesModels.classificacao == classificacao)
     if classificacao:
-        query = query.filter(SitesModels.classificacao==classificacao)
+        query = query.filter(SitesModels.classificacao == classificacao)
     if feminicidio:
-        query = query.filter(SitesModels.feminicidio==feminicidio)
+        query = query.filter(SitesModels.feminicidio == feminicidio)
     if lido:
-        query = query.filter(SitesModels.lido==lido)
+        query = query.filter(SitesModels.lido == lido)
     if link:
-        query = query.filter(SitesModels.link==link)
-        
+        query = query.filter(SitesModels.link == link)
+
     sites = query.all()
-    
+
     db_session.close()
     return sites
 
-def list_sites_paginated(created_date, nome, feminicidio, lido, classificacao, link, page=1, page_size=10):
+
+def list_sites_paginated(
+    created_date, nome, feminicidio, lido, classificacao, link, page=1, page_size=10
+):
     db = sessionmaker(bind=engine)
     db_session = db()
 
-    query = db_session.query(SitesModels).options(
-        joinedload(SitesModels.vitima)
-    ).order_by(desc(SitesModels.createdAt)).with_entities(
-        SitesModels.id, SitesModels.nome, SitesModels.link,
-        SitesModels.feminicidio, SitesModels.lido,
-        SitesModels.classificacao, SitesModels.valido,
-        SitesModels.inHoliday, SitesModels.inWeekend,
-        SitesModels.tagsEncontradas, SitesModels.createdAt,
-        SitesModels.vitima_id
+    query = (
+        db_session.query(SitesModels)
+        .options(joinedload(SitesModels.vitima))
+        .order_by(desc(SitesModels.createdAt))
+        .with_entities(
+            SitesModels.id,
+            SitesModels.nome,
+            SitesModels.link,
+            SitesModels.feminicidio,
+            SitesModels.lido,
+            SitesModels.classificacao,
+            SitesModels.valido,
+            SitesModels.inHoliday,
+            SitesModels.inWeekend,
+            SitesModels.tagsEncontradas,
+            SitesModels.createdAt,
+            SitesModels.vitima_id,
+        )
     )
 
     if created_date:
@@ -149,9 +176,11 @@ def list_sites_paginated(created_date, nome, feminicidio, lido, classificacao, l
         start_date = date_obj.replace(hour=0, minute=0, second=0)
         end_date = start_date + timedelta(days=1) - timedelta(seconds=1)
 
-        query = query.filter(cast(SitesModels.createdAt, DateTime) >= start_date,
-                             cast(SitesModels.createdAt, DateTime) <= end_date)
-        
+        query = query.filter(
+            cast(SitesModels.createdAt, DateTime) >= start_date,
+            cast(SitesModels.createdAt, DateTime) <= end_date,
+        )
+
     if nome:
         query = query.filter(SitesModels.nome.ilike(f"%{nome}%"))
     if classificacao:
@@ -162,30 +191,30 @@ def list_sites_paginated(created_date, nome, feminicidio, lido, classificacao, l
         query = query.filter(SitesModels.lido == lido)
     if link:
         query = query.filter(SitesModels.link.ilike(f"%{link}%"))
-        
+
     total_records = query.count()
-    
+
     query = query.limit(page_size).offset((page - 1) * page_size)
     sites = query.all()
 
     print(sites)
-    
+
     db_session.close()
-    
+
     return {
-        'total_records': total_records,
-        'total_pages': (total_records + page_size - 1) // page_size,
-        'current_page': page,
-        'page_size': page_size,
-        'sites': sites
+        "total_records": total_records,
+        "total_pages": (total_records + page_size - 1) // page_size,
+        "current_page": page,
+        "page_size": page_size,
+        "sites": sites,
     }
+
 
 async def list_one_site(url_site: str):
     db = sessionmaker(bind=engine)
     db_session = db()
 
-    site_db = db_session.query(SitesModels).filter(
-        SitesModels.id == url_site).first()
+    site_db = db_session.query(SitesModels).filter(SitesModels.id == url_site).first()
 
     db_session.close()
 
@@ -204,9 +233,8 @@ async def update_site(siteId: str, site_data: Dict):
     db_site = db_session.get(SitesModels, siteId)
 
     all_same_sites = db_session.query(SitesModels).filter(
-        SitesModels.nome == db_site.nome,
-        SitesModels.classificacao > 0
-        )
+        SitesModels.nome == db_site.nome, SitesModels.classificacao > 0
+    )
 
     if db_site is None:
         db_session.close()
@@ -226,9 +254,11 @@ async def update_site(siteId: str, site_data: Dict):
             total_sites = 1
 
         if int(site_data["classificacao"]) > 0:
-            site.classificacao =  total_classificacao / total_sites
-        else:    
-            site.classificacao = (int(site_data["classificacao"]) + total_classificacao) / (total_sites + 1)
+            site.classificacao = total_classificacao / total_sites
+        else:
+            site.classificacao = (
+                int(site_data["classificacao"]) + total_classificacao
+            ) / (total_sites + 1)
 
     for key, value in site_data.items():
         if hasattr(db_site, key):
@@ -246,8 +276,7 @@ async def update_site(siteId: str, site_data: Dict):
 async def delete_site(siteId: str):
     db = sessionmaker(bind=engine)
     db_session = db()
-    db_site = db_session.query(SitesModels).filter(
-        SitesModels.id == siteId).first()
+    db_site = db_session.query(SitesModels).filter(SitesModels.id == siteId).first()
     if db_site is None:
         db_session.close()
         raise HTTPException(status_code=404, detail="Site not found")
@@ -272,7 +301,7 @@ async def fetch_content(url):
     try:
         response = requests.get(url)
         if response.status_code == 200:
-            return BeautifulSoup(response.text, 'html.parser').prettify()
+            return BeautifulSoup(response.text, "html.parser").prettify()
         else:
             print(f"Failed to fetch content from '{url}'")
             return None
@@ -280,21 +309,23 @@ async def fetch_content(url):
         print(f"Error fetching content from '{url}': {str(e)}")
         return None
 
+
 # TODO:
-async def check_words(content): 
+async def check_words(content):
     content_ok = True
     a = "nada"
     if content:
         a = "tem coisa"
-        
+
     print("entrei no check_words", a)
-    
+
     if content:
         if content.find("homem morto") != -1 or content.find("morte de homem") != -1:
             content_ok = False
 
     print("check retornou (deve retornar false para cadastrar)", content_ok)
     return content_ok
+
 
 async def find_tags_on_site(site: str, tags: List[str]) -> List[str]:
     """
@@ -307,24 +338,24 @@ async def find_tags_on_site(site: str, tags: List[str]) -> List[str]:
         response = requests.get(search_url)
         search_results = []
         if response.status_code == 200:
-            soup = BeautifulSoup(response.text, 'html.parser')
-            search_results = soup.find_all('a')
+            soup = BeautifulSoup(response.text, "html.parser")
+            search_results = soup.find_all("a")
         else:
             print(response)
             print(f"Failed to fetch search results for '{tag}'")
 
         for result in search_results:
-            if result and result.get('data-ved', ''):
-                href = result.get('href')
-                if href and href.startswith('/url?q='):
-                    url = href.split('/url?q=')[1].split('&sa=')[0]
+            if result and result.get("data-ved", ""):
+                href = result.get("href")
+                if href and href.startswith("/url?q="):
+                    url = href.split("/url?q=")[1].split("&sa=")[0]
                     parsed_url = urlparse(url)
-                    site_name = parsed_url.netloc.replace(
-                        "www.", "").split(".")[0]
+                    site_name = parsed_url.netloc.replace("www.", "").split(".")[0]
                     if url == site:
                         found_tags.append(tag.lower())
 
     return found_tags
+
 
 def generate_search_string(arrTags: str) -> str:
     accString = ""
@@ -340,37 +371,42 @@ def generate_search_string(arrTags: str) -> str:
             accString += item + "%20)"
         else:
             accString += item + "%20OR%20"
-            
+
     return accString
 
-def check_publish_date(arrMetatags): 
+
+def check_publish_date(arrMetatags):
     for metatag in arrMetatags:
-        published_time = metatag.get('article:published_time')
+        published_time = metatag.get("article:published_time")
         if published_time:
             print(published_time.replace("Z", "+00:00"))
-            published_datetime = datetime.fromisoformat(published_time.replace("Z", "+00:00"))
-            
+            published_datetime = datetime.fromisoformat(
+                published_time.replace("Z", "+00:00")
+            )
+
             three_days_ago = datetime.now() - timedelta(days=3)
             if published_datetime >= three_days_ago:
                 return True
             else:
                 return False
 
+
 def count_tags(text: str, allTags: list) -> int:
-    tags = re.findall(r'<b>(.*?)</b>', text)
-    
+    tags = re.findall(r"<b>(.*?)</b>", text)
+
     tags = [tag.lower() for tag in tags]
     allTags_lower = [tag.lower() for tag in allTags]
-    
+
     accTagsArr = [tag for tag in allTags_lower if tag in tags]
-    
+
     return len(accTagsArr), accTagsArr
+
 
 def fetch_page_content(url):
     try:
-        response = requests.get(url, timeout=10)  
+        response = requests.get(url, timeout=10)
         if response.status_code == 200:
-            return response.text  
+            return response.text
         else:
             print(f"Erro ao acessar {url}: Código {response.status_code}")
             return None
@@ -378,9 +414,10 @@ def fetch_page_content(url):
         print(f"Erro ao acessar {url}: {e}")
         return None
 
+
 def is_within_last_days(date_string: str, tempo_agendado: int) -> bool:
     try:
-        print("A DATA É UMA STIRNG",date_string)
+        print("A DATA É UMA STIRNG", date_string)
         date = datetime.fromisoformat(date_string)
     except ValueError:
         print("Formato de data inválido")
@@ -391,6 +428,7 @@ def is_within_last_days(date_string: str, tempo_agendado: int) -> bool:
     three_days_ago = now - timedelta(days=tempo_agendado)
 
     return date >= three_days_ago
+
 
 async def find_sites_with_keywords(tempo_agendado):
     print("entrei no find_sites")
@@ -436,7 +474,6 @@ async def find_sites_with_keywords(tempo_agendado):
                     print(f"Title: {title}")
                     print(f"Link: {link}")
 
-                    
                     count, tags_found = count_tags(tags_encontradas, all_tags)
 
                     site_search = True
@@ -474,22 +511,22 @@ async def find_sites_with_keywords(tempo_agendado):
 
 async def iml_screapper():
 
-    search_url = f'https://docs.google.com/spreadsheets/d/1y_KpXEZSOsIu8LHfie5-Uon3VkG_PBew5hm_C63EDUQ/edit#gid=0'
+    search_url = f"https://docs.google.com/spreadsheets/d/1y_KpXEZSOsIu8LHfie5-Uon3VkG_PBew5hm_C63EDUQ/edit#gid=0"
 
     response = requests.get(search_url)
-    print('iml respondeu', response.status_code)
+    print("iml respondeu", response.status_code)
     if response.status_code == 200:
-        soup = BeautifulSoup(response.text, 'html.parser')
+        soup = BeautifulSoup(response.text, "html.parser")
 
         # for script in soup(['script']):
         #    script.extract()
 
-        table = soup.find('table')
+        table = soup.find("table")
 
         if table:
-            for row in table.find_all('tr'):
+            for row in table.find_all("tr"):
 
-                cells = row.find_all('td')
+                cells = row.find_all("td")
                 content = []
                 if cells:
                     for cell in cells:
@@ -499,17 +536,44 @@ async def iml_screapper():
 
                         if not check_if_all_array_items_is_blank(content):
                             if not is_duplicate_record(content):
-                                await create_iml(Iml(
-                                    dataEntrada= "NA" if content[0].strip() == "" else content[0] ,
-                                    horaEntrada="NA" if content[1].strip() == "" else content[1] ,
-                                    sexo="NA" if content[2].strip() == "" else content[2] ,
-                                    idade="NA" if content[3].strip() == "" else content[3] ,
-                                    bairroDaRemocao="NA" if content[4].strip() == "" else content[4] ,
-                                    causaMorte="NA" if content[5].strip() == "" else content[5] 
-                                ))
+                                await create_iml(
+                                    Iml(
+                                        dataEntrada=(
+                                            "NA"
+                                            if content[0].strip() == ""
+                                            else content[0]
+                                        ),
+                                        horaEntrada=(
+                                            "NA"
+                                            if content[1].strip() == ""
+                                            else content[1]
+                                        ),
+                                        sexo=(
+                                            "NA"
+                                            if content[2].strip() == ""
+                                            else content[2]
+                                        ),
+                                        idade=(
+                                            "NA"
+                                            if content[3].strip() == ""
+                                            else content[3]
+                                        ),
+                                        bairroDaRemocao=(
+                                            "NA"
+                                            if content[4].strip() == ""
+                                            else content[4]
+                                        ),
+                                        causaMorte=(
+                                            "NA"
+                                            if content[5].strip() == ""
+                                            else content[5]
+                                        ),
+                                    )
+                                )
 
     else:
         print(response)
+
 
 def parse_xlsx_file(file_path):
     wb = load_workbook(filename=file_path, data_only=True)
@@ -518,6 +582,7 @@ def parse_xlsx_file(file_path):
     for row in sheet.iter_rows(values_only=True):
         data.append(row)
     return data
+
 
 async def parse_excel(file: UploadFile = File(...)):
     try:
@@ -531,24 +596,44 @@ async def parse_excel(file: UploadFile = File(...)):
                 if has_value(row):
                     if not check_if_all_array_items_is_blank(row):
                         if not is_duplicate_record_for_parse(row):
-                            await create_iml(Iml(
-                                dataEntrada= datetime.strftime(row[0], '%d/%m/%Y'),
-                                horaEntrada= row[1].strftime('%H:%M'),
-                                sexo="NA" if row[2] is None or row[2].strip() == "" else row[2],
-                                idade="NA" if row[3] is None or str(row[3]).strip() == "" else str(row[3]),
-                                bairroDaRemocao="NA" if row[4] is None or row[4].strip() == "" else row[4],
-                                causaMorte="NA" if row[5] is None or row[5].strip() == "" else row[5]
-                            ))
+                            await create_iml(
+                                Iml(
+                                    dataEntrada=datetime.strftime(row[0], "%d/%m/%Y"),
+                                    horaEntrada=row[1].strftime("%H:%M"),
+                                    sexo=(
+                                        "NA"
+                                        if row[2] is None or row[2].strip() == ""
+                                        else row[2]
+                                    ),
+                                    idade=(
+                                        "NA"
+                                        if row[3] is None or str(row[3]).strip() == ""
+                                        else str(row[3])
+                                    ),
+                                    bairroDaRemocao=(
+                                        "NA"
+                                        if row[4] is None or row[4].strip() == ""
+                                        else row[4]
+                                    ),
+                                    causaMorte=(
+                                        "NA"
+                                        if row[5] is None or row[5].strip() == ""
+                                        else row[5]
+                                    ),
+                                )
+                            )
 
-        return {
-            "message": "Upload concluido com sucesso!"
-        }
+        return {"message": "Upload concluido com sucesso!"}
     except Exception as e:
         print(e)
-        raise HTTPException(status_code=400, detail=f"Erro ao processar o arquivo: {str(e)}")
-    
+        raise HTTPException(
+            status_code=400, detail=f"Erro ao processar o arquivo: {str(e)}"
+        )
+
+
 def has_value(row):
     return any(cell is not None for cell in row[:6])
+
 
 async def create_iml(iml: Iml):
     db_iml = ImlModels(**iml.model_dump())
@@ -585,6 +670,7 @@ async def list_iml():
     db_session.close()
     return iml_data
 
+
 async def list_iml_for_export():
     db = sessionmaker(bind=engine)
     db_session = db()
@@ -593,35 +679,45 @@ async def list_iml_for_export():
     db_session.close()
     return jsonable_encoder(iml_data)
 
+
 def is_duplicate_record(content):
     db = sessionmaker(bind=engine)
     db_session = db()
 
-    existing_record = db_session.query(ImlModels).filter_by(
-        dataEntrada=content[0],
-        horaEntrada=content[1],
-        sexo=content[2],
-        idade=content[3],
-        bairroDaRemocao=content[4],
-        causaMorte=content[5]
-    ).first()
+    existing_record = (
+        db_session.query(ImlModels)
+        .filter_by(
+            dataEntrada=content[0],
+            horaEntrada=content[1],
+            sexo=content[2],
+            idade=content[3],
+            bairroDaRemocao=content[4],
+            causaMorte=content[5],
+        )
+        .first()
+    )
 
     db_session.close()
 
     return existing_record is not None
 
+
 def is_duplicate_record_for_parse(content):
     db = sessionmaker(bind=engine)
     db_session = db()
 
-    existing_record = db_session.query(ImlModels).filter_by(
-        dataEntrada=datetime.strftime(content[0], '%d/%m/%Y'),
-        horaEntrada=content[1].strftime('%H:%M'),
-        sexo=content[2],
-        idade=str(content[3]),
-        bairroDaRemocao=content[4],
-        causaMorte=content[5]
-    ).first()
+    existing_record = (
+        db_session.query(ImlModels)
+        .filter_by(
+            dataEntrada=datetime.strftime(content[0], "%d/%m/%Y"),
+            horaEntrada=content[1].strftime("%H:%M"),
+            sexo=content[2],
+            idade=str(content[3]),
+            bairroDaRemocao=content[4],
+            causaMorte=content[5],
+        )
+        .first()
+    )
 
     db_session.close()
 
@@ -632,8 +728,11 @@ async def site_is_not_blocked(site_name):
     db = sessionmaker(bind=engine)
     db_session = db()
 
-    site = db_session.query(ReferenceSitesModels).filter(
-        ReferenceSitesModels.nome == site_name).first()
+    site = (
+        db_session.query(ReferenceSitesModels)
+        .filter(ReferenceSitesModels.nome == site_name)
+        .first()
+    )
 
     if site:
         return site.pesquisar
@@ -645,8 +744,7 @@ async def change_site_lido(site_id):
     db = sessionmaker(bind=engine)
     db_session = db()
 
-    site = db_session.query(SitesModels).filter(
-        SitesModels.id == site_id).first()
+    site = db_session.query(SitesModels).filter(SitesModels.id == site_id).first()
 
     site.lido = not site.lido
 
@@ -655,12 +753,12 @@ async def change_site_lido(site_id):
 
     return site
 
+
 async def change_site_assassinato(site_id):
     db = sessionmaker(bind=engine)
     db_session = db()
 
-    site = db_session.query(SitesModels).filter(
-        SitesModels.id == site_id).first()
+    site = db_session.query(SitesModels).filter(SitesModels.id == site_id).first()
 
     site.feminicidio = not site.feminicidio
 
@@ -681,7 +779,23 @@ def is_holiday(date):
     holiday = db_session.query(FeriadosModels).filter_by(
         FeriadosModels.year == year_data,
         FeriadosModels.month == month_data,
-        FeriadosModels.day == day_data
+        FeriadosModels.day == day_data,
     )
 
     return holiday is not None
+
+
+async def unbindAllVictims():
+    try:
+        db = sessionmaker(bind=engine)
+        db_session = db()
+        db_session.query(SitesModels).update(
+            {SitesModels.vitima_id: None}, synchronize_session=False
+        )
+        db_session.commit()
+        return {"mensagem": "Vitimas desvinculadas com sucesso"}
+
+    except Exception as e:
+        print(e)
+        db_session.rollback()
+        raise e
