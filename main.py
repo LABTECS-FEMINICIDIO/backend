@@ -22,6 +22,7 @@ from src.views.search_schedule_views import list_agendamento_pesquisas
 from src.views.sites_view import find_sites_with_keywords
 from datetime import date, datetime
 from src.views.historySearch_views import get_latest_history_search, createHistorySearch
+from datetime import date, datetime
 
 load_dotenv()
 
@@ -68,74 +69,45 @@ async def execute_daily_task():
         datetime.now(),
     )
     await check_search()
-    print(
-        "-------------------------Finalizei a busca por sites e iniciei o scrapper do iml-------------------------",
-        datetime.now(),
-    )
-    if os.getenv("CITY") == "manaus":
-        print("cidade de manaus")
-        # await iml_screapper()
-    print(
-        "-------------------------Finalizei o scrapper do iml-------------------------",
-        datetime.now(),
-    )
-
-
-# async def check_search():
-#     tempo = await list_agendamento_pesquisas()
-#     current_day = date.today()
-#     last_search = await get_latest_history_search()
-#     print(last_search["dias"])
-
-#     if tempo:
-#         tempo_agendado = tempo[0].dias
-#     else:
-#         tempo_agendado = 5
-
-#     await find_sites_with_keywords(tempo_agendado=tempo_agendado)
 
 
 async def check_search():
     current_day = date.today()
-    last_search_date = ""
+    last_search_date = None
+
     last_search = await get_latest_history_search()
 
     if last_search:
         created_at_str = last_search.createdAt
         if created_at_str.endswith("+00"):
             created_at_str = created_at_str[:-3] + "+0000"
+
         last_search_datetime = datetime.strptime(
             created_at_str, "%Y-%m-%d %H:%M:%S.%f%z"
         )
         last_search_date = last_search_datetime.date()
 
     tempo = await list_agendamento_pesquisas()
+    tempo_agendado = tempo[0].dias if tempo else 1
 
-    if tempo:
-        tempo_agendado = tempo[0].dias
-    else:
-        tempo_agendado = 1
+    print("Intervalo configurado (dias):", tempo_agendado)
+    print("Última pesquisa:", last_search_date)
 
-    days_difference = None
-    if last_search_date:
-        days_difference = (current_day - last_search_date).days
+    if not last_search_date:
+        await createHistorySearch()
+        await find_sites_with_keywords(tempo_agendado=tempo_agendado)
+        print("--------------Pesquisa realizada (primeira execução)-------------------")
+        return
 
-    print("diferenca de dias", days_difference)
-    print("last search", last_search_date)
+    days_difference = (current_day - last_search_date).days
+    print("Diferença de dias:", days_difference)
 
-    if days_difference:
-        if days_difference >= (tempo_agendado - 1) or tempo_agendado == 1:
-            await createHistorySearch()
-            await find_sites_with_keywords(tempo_agendado=tempo_agendado)
-            print("--------------Pesquisa realizada-------------------")
-        else:
-            print("--------------Intervalo de tempo não atingido-------------------")
-    else:
+    if days_difference >= tempo_agendado:
         await createHistorySearch()
         await find_sites_with_keywords(tempo_agendado=tempo_agendado)
         print("--------------Pesquisa realizada-------------------")
-
-    return
+    else:
+        print("--------------Intervalo de tempo não atingido-------------------")
 
 
 @app.on_event("startup")
@@ -233,7 +205,7 @@ if __name__ == "__main__":
         "main:app",
         workers=1,
         host="0.0.0.0",
-        reload=False,
+        reload=True,
         port=PORT,
         proxy_headers=True,  # This enables --proxy-headers
         forwarded_allow_ips="*",  # This enables --forwarded-allow-ips
