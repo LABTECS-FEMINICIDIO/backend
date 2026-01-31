@@ -1,5 +1,9 @@
 from typing import Dict
 from urllib.parse import urlparse
+from src.utils.parse_date import (
+    parse_time_str,
+    parse_to_date_str,
+)
 from fastapi import UploadFile, File, HTTPException
 from openpyxl import load_workbook
 import requests
@@ -7,8 +11,8 @@ from fastapi.encoders import jsonable_encoder
 from psycopg2 import IntegrityError
 from pydantic import BaseModel
 from sqlalchemy import desc, cast, DateTime
-from sqlalchemy.orm import sessionmaker, joinedload, selectinload
-from typing import List, Optional, Union
+from sqlalchemy.orm import sessionmaker, joinedload
+from typing import List, Optional
 from src.database.database import engine
 from src.model.models import (
     FeriadosModels,
@@ -19,12 +23,8 @@ from src.model.models import (
 from bs4 import BeautifulSoup
 from src.views.tags_view import list_tags
 from datetime import datetime
-import random
-import json
-import itertools
 from datetime import datetime, timedelta
 import os
-import time
 from dotenv import load_dotenv
 import re
 from datetime import datetime, timedelta, timezone
@@ -590,40 +590,41 @@ async def parse_excel(file: UploadFile = File(...)):
         with open("temp.xlsx", "wb") as temp_file:
             temp_file.write(contents)
         data = parse_xlsx_file("temp.xlsx")
-        acc = 0
-        for row in data:
-            if row[0] != "DATA DE ENTRADA":
-                if has_value(row):
-                    if not check_if_all_array_items_is_blank(row):
-                        if not is_duplicate_record_for_parse(row):
-                            await create_iml(
-                                Iml(
-                                    dataEntrada=datetime.strftime(row[0], "%d/%m/%Y"),
-                                    horaEntrada=row[1].strftime("%H:%M"),
-                                    sexo=(
-                                        "NA"
-                                        if row[2] is None or row[2].strip() == ""
-                                        else row[2]
-                                    ),
-                                    idade=(
-                                        "NA"
-                                        if row[3] is None or str(row[3]).strip() == ""
-                                        else str(row[3])
-                                    ),
-                                    bairroDaRemocao=(
-                                        "NA"
-                                        if row[4] is None or row[4].strip() == ""
-                                        else row[4]
-                                    ),
-                                    causaMorte=(
-                                        "NA"
-                                        if row[5] is None or row[5].strip() == ""
-                                        else row[5]
-                                    ),
-                                )
-                            )
 
-        return {"message": "Upload concluido com sucesso!"}
+        for row in data:
+            if not has_value(row):
+                continue
+
+            if check_if_all_array_items_is_blank(row):
+                continue
+
+            data_entrada = parse_to_date_str(row[0])
+            hora_entrada = parse_time_str(row[1])
+
+            if not data_entrada or not hora_entrada:
+                continue
+
+            if is_duplicate_record_for_parse(row):
+                continue
+
+            def normalize(value):
+                if value is None:
+                    return "NA"
+                value = str(value).strip()
+                return value if value else "NA"
+
+            await create_iml(
+                Iml(
+                    dataEntrada=data_entrada,
+                    horaEntrada=hora_entrada,
+                    sexo=normalize(row[2]),
+                    idade=normalize(row[3]),
+                    bairroDaRemocao=normalize(row[4]),
+                    causaMorte=normalize(row[5]),
+                )
+            )
+
+        return {"message": "Upload concluído com sucesso!"}
     except Exception as e:
         print(e)
         raise HTTPException(
@@ -709,8 +710,8 @@ def is_duplicate_record_for_parse(content):
     existing_record = (
         db_session.query(ImlModels)
         .filter_by(
-            dataEntrada=datetime.strftime(content[0], "%d/%m/%Y"),
-            horaEntrada=content[1].strftime("%H:%M"),
+            dataEntrada=parse_to_date_str(content[0]),
+            horaEntrada=parse_time_str(content[1]),
             sexo=content[2],
             idade=str(content[3]),
             bairroDaRemocao=content[4],

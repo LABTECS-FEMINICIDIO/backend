@@ -1,6 +1,6 @@
-from fastapi import APIRouter, BackgroundTasks, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import Optional
 from src.views.sites_view import (
     change_site_assassinato,
     change_site_lido,
@@ -15,19 +15,12 @@ from src.views.sites_view import (
     parse_excel,
     list_sites_paginated,
 )
-import schedule
-import time
-import threading
-from datetime import datetime, timedelta, date
 from src.views.search_schedule_views import list_agendamento_pesquisas
 import asyncio
-import json
 from uuid import UUID
-from src.model.models import VitimasModels
 from typing import Dict
 
 router = APIRouter()
-from openpyxl import load_workbook
 from src.views.historySearch_views import get_latest_history_search, createHistorySearch
 from fastapi import Query
 import os
@@ -170,7 +163,7 @@ async def background_task_iml():
         #     tempo_agendado = tempo[0].dias
         # else:
         #     tempo_agendado = 1
-        city = os.getenv("CITY")
+        city = os.getenv("CITY").lower()
         # Inicia ou reinicia o loop de IML
 
         if city == "manaus":
@@ -201,7 +194,7 @@ async def background_task():
 async def find_iml():
     global is_loop_running_iml, loop_task_iml
 
-    city = os.getenv("CITY")
+    city = os.getenv("CITY").lower()
     # Inicia ou reinicia o loop de IML
 
     if city == "manaus":
@@ -210,8 +203,9 @@ async def find_iml():
             loop_task_iml = asyncio.create_task(background_task_iml())
 
         return {"message": "Busca de dados no IML agendada com sucesso!"}
-    
+
     return {"message": "Esta cidade não tem o scrapper do IML"}
+
 
 last_search_day = None
 
